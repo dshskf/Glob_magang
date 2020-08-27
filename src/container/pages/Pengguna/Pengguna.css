@@ -1,0 +1,6 @@
+tbody + thead{
+  display: none;
+}
+.label {
+  display: none;
+}

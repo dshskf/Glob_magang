@@ -1,0 +1,47 @@
+.message-list {
+  position: relative;
+  height: 100%;
+  overflow-x: hidden;
+}
+
+.message-list-container {
+  padding: 10px;
+  padding-bottom: 70px;
+}
+
+.message-input {
+  width: 100%;
+  height: 3rem;
+  background: white;
+  position: sticky;    
+  bottom: 0;
+  border-top: 1px solid rgb(224, 224, 224);
+  display: flex;
+  justify-content: space-around;
+  text-align: center;  
+}
+
+.message-input input {
+  height: 100%;
+  width: 92%;
+  border: none;
+  padding-left: 1rem;
+  outline:none;
+}
+
+.message-input i {
+  width: 8%;
+  height: 100%;
+  background: #007aff;
+  font-size: 2rem;
+  font-weight: bold;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+}
+
+.message-input i:hover {
+  background: #006eff;
+}
