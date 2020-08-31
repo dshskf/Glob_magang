@@ -4,7 +4,6 @@ import { logoutUserAPI, navigationHandler, postQuery } from '../../../config/red
 import { encrypt, decrypt } from '../../../config/lib';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
-import { firebaseApp } from '../../../config/firebase/index'
 import '@firebase/messaging';
 
 
@@ -18,29 +17,6 @@ class Header extends Component {
 
     async componentDidMount() {
         const userData = JSON.parse(localStorage.getItem('userData'));
-
-        const messaging = firebaseApp.messaging()
-        messaging.requestPermission()
-            .then(() => {
-                console.log('Approved')
-                return messaging.getToken()
-            })
-            .then(async token => {
-                console.log(token)
-                const passquery = encrypt(`
-                    INSERT INTO gcm_notification_token
-                        (user_id, company_id,token)
-                    SELECT ${decrypt(userData.id)}, ${decrypt(userData.company_id)},'${token}'
-                    WHERE
-                        NOT EXISTS (
-                            SELECT id FROM gcm_notification_token WHERE user_id = ${decrypt(userData.id)}
-                        );
-                `)
-                const post = await this.props.postData({ query: passquery }).catch(err => err)
-            })
-            .catch(err => {
-                console.log(err)
-            })
         navigator.serviceWorker.addEventListener("message", (message) => console.log(message));
 
         this.setState({
@@ -52,10 +28,11 @@ class Header extends Component {
     }
 
     handleLogout = async () => {
+        const userToken = JSON.parse(localStorage.getItem('user_token'))
         const res = await this.props.logoutAPI();
         const passquery = encrypt(`
                     delete from gcm_notification_token
-                    where user_id=${this.state.user_id} and company_id=${this.state.company_id}
+                    where user_id=${this.state.user_id} and company_id=${this.state.company_id} and token='${userToken}'
                     returning *;
                 `)
         const post = await this.props.postData({ query: passquery }).catch(err => err)
@@ -81,7 +58,7 @@ class Header extends Component {
                 <div className="app-header header-shadow">
                     <div className="app-header__logo">
                         {/* <div className="logo-src"></div> */}
-                        <img src="../admin/assets/images/inverse.png" style={{width: '97px', height: '25px', marginRight: '1rem'}} alt="" />
+                        <img src="../admin/assets/images/inverse.png" style={{ width: '97px', height: '25px', marginRight: '1rem' }} alt="" />
                         {/* <img className="logo-src" src={require('../../../component/assets/img/inverse.png')} style={{ width: '97px', height: '25px', marginRight: '1rem' }} /> */}
                         <div className="header__pane ml-auto">
                             <div>
