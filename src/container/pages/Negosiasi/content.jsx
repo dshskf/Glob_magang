@@ -17,6 +17,7 @@ import moment from 'moment';
 import 'moment/locale/id'
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Badge, Input, Label, FormFeedback } from 'reactstrap'
 import axios from 'axios'
+import Toast from 'light-toast';
 
 class ContentNegosiasi extends Component {
     state = {
@@ -34,6 +35,7 @@ class ContentNegosiasi extends Component {
         tmpfilteredDataNegotiationInActive: [],
         cart_id: '',
         history_nego_id: '',
+        cart_id_list_barang: '',
         cart_status: '',
         cart_nama_barang: '',
         cart_berat: '',
@@ -75,7 +77,7 @@ class ContentNegosiasi extends Component {
         cart_nama_updated_nego_3: '',
         cart_id_nama_perusahaan: '',
         cart_satuan: '',
-        cart_user_token: '',
+        cart_user_token: [],
         cart_buyer_number_mapping: '',
         cart_kode_sales: '',
         cart_nama_sales: '',
@@ -465,7 +467,7 @@ class ContentNegosiasi extends Component {
         }
     }
 
-    handleDetailNegotiation = async (e, id_history_nego, id_master_cart) => {
+    handleDetailNegotiation = async (e, id_history_nego, id_master_cart) => {        
         this.handleModalDetail()
         this.loadDataSalesTerkait(id_history_nego)
         e.stopPropagation();
@@ -473,8 +475,8 @@ class ContentNegosiasi extends Component {
             history_nego_id: id_history_nego,
             cart_id: id_master_cart
         })
-
-        let passquerydetailnegotiation = encrypt("select gcm_master_barang.nama as nama_barang, gcm_master_cart.qty, gcm_list_barang.price, gcm_master_satuan.alias, " +
+        
+        let passquerydetailnegotiation = encrypt("select gcm_list_barang.id as id_listing_barang, gcm_master_barang.nama as nama_barang, gcm_master_cart.qty, gcm_list_barang.price, gcm_master_satuan.alias, " +
             "gcm_list_barang.price_terendah, gcm_list_barang.foto, gcm_master_company.nama_perusahaan, gcm_master_cart.nego_count, to_char(gcm_master_cart.create_date, 'DD/MM/YYYY HH24:MI:SS') create_date, gcm_master_user.nama, " +
             "gcm_history_nego.harga_nego, gcm_history_nego.harga_sales, gcm_history_nego.notes, gcm_master_barang.berat, " +
             "gcm_history_nego.created_by, gcm_history_nego.updated_by, to_char(gcm_history_nego.updated_date, 'DD/MM/YYYY HH24:MI:SS') updated_date, " +
@@ -496,6 +498,7 @@ class ContentNegosiasi extends Component {
 
         if (resdetail) {
             this.setState({
+                cart_id_list_barang: resdetail.id_listing_barang,
                 cart_status: resdetail.status,
                 cart_user_token: resdetail.token,
                 cart_id_nama_perusahaan: resdetail.company_id,
@@ -598,11 +601,11 @@ class ContentNegosiasi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                // this.props.history.push('/admin')
-                // window.location.reload()
-                // }
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
             });
         }
     }
@@ -772,21 +775,23 @@ class ContentNegosiasi extends Component {
     }
 
     sendNotificationFCM = async (token) => {
-        const fetchOptions = {
-            "to": token,
-            "collapse_key": "type_a",
-            "notification": {
-                "body": "Testing",
-                "title": "Just Cause"
-            },
-            "data": {
-                "body": "test",
-                "title": "yow",
-                "key_1": "Value for key_1",
-                "key_2": "Value for key_2"
-            }
+      
+        const array_token = []
+        for (var i = 0; i < token.length; i++){
+            array_token.push(token[i])
         }
 
+        const fetchOptions = {
+            "registration_ids": array_token,
+            "notification": {
+                "title": "GLOB",
+                "body": "Balasan negosisasi dari penjual"
+            },
+            "data": {
+                "key1": "value1",
+                "key2": "value2"
+            }
+        }
 
         const post = await axios.post("https://fcm.googleapis.com/fcm/send", fetchOptions, {
             headers: {
@@ -795,15 +800,18 @@ class ContentNegosiasi extends Component {
             }
         })
         return post
+
     }
 
     confirmAction = async (stat) => {
-        if (this.state.cart_user_token != null) {
+        Toast.loading('Loading...');
+        if(this.state.cart_user_token != null){
             const postNotification = await this.sendNotificationFCM(this.state.cart_user_token)
-        }        
+        }
+
         if (stat === 'Nego') {
             let passqueryupdatehistorynego = `with insertion as(insert into gcm_notification_nego (barang_id,barang_nama,buyer_id,buyer_nama,seller_id,seller_nama,date,source)
-            values (${this.state.cart_id_sales},'${this.state.cart_nama_barang}',${this.state.cart_id_nama_perusahaan},'${this.state.cart_nama_perusahaan}',${this.state.company_id},'${this.state.company_name}',now(),'seller'))`
+            values (${this.state.cart_id_list_barang},'${this.state.cart_nama_barang}',${this.state.cart_id_nama_perusahaan},'${this.state.cart_nama_perusahaan}',${this.state.company_id},'${this.state.company_name}',now(),'seller'))`
 
             if (this.state.cart_nego_count === '1') {
                 passqueryupdatehistorynego += "update gcm_history_nego set harga_sales='" + this.state.harga_tawar_terbaru.split('.').join('') + "', " +
@@ -817,7 +825,7 @@ class ContentNegosiasi extends Component {
             }
 
             const resupdatehistorynego = await this.props.updateNegoStatus({ query: encrypt(passqueryupdatehistorynego) }).catch(err => err)
-
+            Toast.hide()
             if (resupdatehistorynego) {
                 let passqueryupdatemastercart = encrypt("update gcm_master_cart set harga_sales='" + (this.state.harga_tawar_terbaru.split('.').join('')) * this.state.cart_qty_total + "', " +
                     "update_by=" + this.state.id_pengguna_login + ", update_date=now() where id=" + this.state.cart_id + " returning update_date")
@@ -856,7 +864,7 @@ class ContentNegosiasi extends Component {
             }
         } else if (stat === 'Approve') {
             let passqueryupdatehistorynego = `with insertion as(insert into gcm_notification_nego (barang_id,barang_nama,buyer_id,buyer_nama,seller_id,seller_nama,date,source)
-            values (${this.state.cart_id_sales},'${this.state.cart_nama_barang}',${this.state.cart_id_nama_perusahaan},'${this.state.cart_nama_perusahaan}',${this.state.company_id},'${this.state.company_name}',now(),'seller'))`
+            values (${this.state.cart_id_list_barang},'${this.state.cart_nama_barang}',${this.state.cart_id_nama_perusahaan},'${this.state.cart_nama_perusahaan}',${this.state.company_id},'${this.state.company_name}',now(),'seller'))`
 
             if (this.state.cart_nego_count === '1') {
                 passqueryupdatehistorynego += "update gcm_history_nego set harga_sales='" + this.state.cart_price_current_buyer + "', " +
@@ -869,9 +877,11 @@ class ContentNegosiasi extends Component {
                     "harga_final='" + this.state.cart_price_current_buyer + "', updated_by_3=" + this.state.id_pengguna_login + ", updated_date_3=now() where id=" + this.state.history_nego_id + " returning updated_date_3"
             }
             const resupdatehistorynego = await this.props.updateNegoStatus({ query: encrypt(passqueryupdatehistorynego) }).catch(err => err)
+            Toast.hide()
+
             if (resupdatehistorynego) {
                 let passqueryupdatemastercart = encrypt("update gcm_master_cart set harga_sales='" + this.state.cart_price_current_buyer * this.state.cart_qty_total + "', " +
-                    "harga_konsumen='" + this.state.cart_price_current_buyer * this.state.cart_qty + "', update_by=" + this.state.id_pengguna_login + ", update_date=now() where id=" + this.state.cart_id + " returning update_date")
+                    "harga_konsumen='" + this.state.cart_price_current_buyer * this.state.cart_qty * this.state.cart_berat + "', update_by=" + this.state.id_pengguna_login + ", update_date=now() where id=" + this.state.cart_id + " returning update_date")
                 const resupdatemastercart = await this.props.updateNegoStatus({ query: passqueryupdatemastercart }).catch(err => err)
                 if (resupdatemastercart) {
                     swal({
@@ -907,7 +917,7 @@ class ContentNegosiasi extends Component {
             }
         } else if (stat === 'ApproveHargaFinal') {
             let passqueryupdatehistorynego = encrypt(`with insertion as(insert into gcm_notification_nego (barang_id,barang_nama,buyer_id,buyer_nama,seller_id,seller_nama,date,source)
-                values (${this.state.cart_id_sales},'${this.state.cart_nama_barang}',${this.state.cart_id_nama_perusahaan},'${this.state.cart_nama_perusahaan}',${this.state.company_id},'${this.state.company_name}',now(),'seller'))` +
+                values (${this.state.cart_id_list_barang},'${this.state.cart_nama_barang}',${this.state.cart_id_nama_perusahaan},'${this.state.cart_nama_perusahaan}',${this.state.company_id},'${this.state.company_name}',now(),'seller'))` +
                 "update gcm_history_nego set harga_final='" + (this.state.harga_final.split('.').join('')) + "', " +
                 "updated_by=" + this.state.id_pengguna_login + ", updated_date=now() where id=" + this.state.history_nego_id + " returning updated_date")
 
@@ -916,6 +926,8 @@ class ContentNegosiasi extends Component {
                 let passqueryupdatemastercart = encrypt("update gcm_master_cart set harga_sales='" + (this.state.harga_final.split('.').join('')) * this.state.cart_qty_total + "', " +
                     "harga_konsumen='" + (this.state.harga_final.split('.').join('') * this.state.cart_qty_total) + "', update_by=" + this.state.id_pengguna_login + ", update_date=now() where id=" + this.state.cart_id + " returning update_date")
                 const resupdatemastercart = await this.props.updateNegoStatus({ query: passqueryupdatemastercart }).catch(err => err)
+                Toast.hide()
+
                 if (resupdatemastercart) {
                     swal({
                         title: "Sukses!",

@@ -19,6 +19,7 @@ import {
 import { MDBDataTable } from 'mdbreact'
 import ButtonCustom from '../../../component/atom/Button';
 import Resizer from './react-file-image-resizer';
+import Toast from 'light-toast';
 
 class ContentBarang extends Component {
     state = {
@@ -349,9 +350,11 @@ class ContentBarang extends Component {
     }
 
     confirmActionUpdatePPN = async () => {
+        Toast.loading('Loading...');
         let passqueryupdateppn = encrypt("update gcm_master_company set ppn_seller='" + this.state.updated_ppn + "' " +
-            " where id=" + this.state.company_id + " returning ppn_seller;")
+            " where id=" + this.state.company_id + " returning ppn_seller;")        
         const resupdateppn = await this.props.updateBarangStatus({ query: passqueryupdateppn }).catch(err => err)
+        Toast.hide();
         if (resupdateppn) {
             swal({
                 title: "Sukses!",
@@ -496,7 +499,10 @@ class ContentBarang extends Component {
                 "where gcm_master_barang.id = gcm_list_barang.barang_id and gcm_list_barang.company_id="
                 + this.state.company_id + ") and gcm_master_barang.status='A'")
         }
+        Toast.loading('Loading...');
         const resregisteredbarang = await this.props.getDataBarangCanInsert({ query: passqueryregisteredbarang }).catch(err => err)
+        Toast.hide();
+
         if (resregisteredbarang) {
             // this.setState({
             //     allRegisteredBarang:resregisteredbarang
@@ -790,11 +796,13 @@ class ContentBarang extends Component {
             "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
             "inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
             "where gcm_list_barang.company_id =" + this.state.company_id + " and gcm_list_barang.id=" + id)
+
+        Toast.loading('Loading...');
         const resdetail = await this.props.getDataDetailedBarangAPI({ query: passquerydetail }).catch(err => err)
-      
+
         let riwayatHargaQuery = encrypt(`select * from gcm_listing_harga_barang where barang_id='${decrypt(resdetail.id)}'`)
         const reqRiwayatHarga = await this.props.getDataBarangAPI({ query: riwayatHargaQuery }).catch(err => err)
-
+        Toast.hide();
         const riwayatHargaRow = reqRiwayatHarga.map((data, index) => {
             return {
                 id: data.id,
@@ -3713,8 +3721,9 @@ class ContentBarang extends Component {
                 tmp: temp,
                 tmpPict: tempPict
             }
-
+            Toast.loading('Loading...');
             const resupload = await this.props.uploadGambarBarang(data).catch(err => err)
+            Toast.hide();
             if (resupload) {
                 await this.setState({
                     detailed_foto_baru_url: resupload
@@ -3737,8 +3746,7 @@ class ContentBarang extends Component {
             const data = {
                 tmp: temp,
                 tmpPict: tempPict
-            }
-            console.log(data)
+            }            
             // komentar
             const resupload = await this.props.uploadGambarBarang(data).catch(err => err)
             if (resupload) {
@@ -3846,7 +3854,7 @@ class ContentBarang extends Component {
                     ${(this.state.insert_price_terendah.split(',').join(''))},${this.state.id_pengguna_login},
                     ${this.state.id_pengguna_login},to_timestamp(${Date.now()} / 1000.0),${null}) RETURNING *
                     `
-                    
+
             } else { // default_currency_terendah = IDR
                 passqueryinsertlistbarang =
                     "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
@@ -3864,7 +3872,9 @@ class ContentBarang extends Component {
         }
 
         //komentar
+        Toast.loading('Loading...');
         const resinsertlistbarang = await this.props.insertListBarang({ query: encrypt(passqueryinsertlistbarang) }).catch(err => err)
+        Toast.hide();
         if (resinsertlistbarang) {
             swal({
                 title: "Sukses!",
@@ -3980,7 +3990,10 @@ class ContentBarang extends Component {
                 }
             }
 
+            Toast.loading('Loading...');
             const resinsertlistbarang = await this.props.insertListBarang({ query: encrypt(passqueryinsertlistbarang) }).catch(err => err)
+            Toast.hide();
+
             if (resinsertlistbarang) {
                 swal({
                     title: "Sukses!",
@@ -4236,8 +4249,9 @@ class ContentBarang extends Component {
                     }
                 }
             }
-
+            Toast.loading('Loading...');
             const resupdateBarang = await this.props.updateBarangStatus({ query: encrypt(passqueryupdatebarang) }).catch(err => err)
+            Toast.hide();
             if (resupdateBarang) {
                 swal({
                     title: "Sukses!",
@@ -4459,8 +4473,9 @@ class ContentBarang extends Component {
                     }
                 }
             }
-            console.log("2")
+            Toast.loading('Loading...');
             const resupdateBarang = await this.props.updateBarangStatus({ query: encrypt(passqueryupdatebarang) }).catch(err => err)
+            Toast.hide();
 
             if (resupdateBarang) {
                 swal({

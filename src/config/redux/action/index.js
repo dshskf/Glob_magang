@@ -2668,12 +2668,16 @@ export const getDataDetailedNegotiationAPI = (data) => (dispatch) => {
                 let dataDetailed = Object.create(null);
                 if (status === "success") {
                     dt = res.data.data;
+                    var token = []
+
                     dt.map((user, index) => {
+                        token.push(dt[index].token)
                         return (
                             dataDetailed = {
+                                id_listing_barang: dt[index].id_listing_barang,
                                 status: dt[index].status,
                                 company_id:dt[index].company_id,
-                                token:dt[index].token,
+                                token:token,
                                 nama_barang: dt[index].nama_barang,
                                 berat: dt[index].berat,
                                 qty: dt[index].qty,
@@ -2712,6 +2716,7 @@ export const getDataDetailedNegotiationAPI = (data) => (dispatch) => {
                 } else {
                     console.log("error query")
                 }
+
                 dispatch({ type: "CHANGE_LOADING", value: false })
                 dispatch({ type: "CHANGE_IS_LOGIN", value: true })
                 resolve(dataDetailed)

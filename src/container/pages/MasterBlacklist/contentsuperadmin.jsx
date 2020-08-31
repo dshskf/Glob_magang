@@ -7,20 +7,21 @@ import { getDataBlacklistAPI, insertMasterBlacklist, getDataDetailedMasterBlackl
 import swal from 'sweetalert';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, FormFeedback } from 'reactstrap'
 import { withRouter } from 'react-router-dom';
+import Toast from 'light-toast';
 
 class ContentMasterBlacklistSuperAdmin extends Component {
     state = {
-        id_pengguna_login:'',
-        company_id:'',
-        company_name:'',
-        tipe_bisnis:'',
+        id_pengguna_login: '',
+        company_id: '',
+        company_name: '',
+        tipe_bisnis: '',
         isOpen: false,
         isOpenInsert: false,
         isOpenConfirmInsert: false,
         isOpenConfirmUpdate: false,
         empty_nama_blacklist_inserted: false,
         empty_nama_blacklist_selected: false,
-        allDataBlacklist:[],
+        allDataBlacklist: [],
         pembanding_nama_blacklist_selected: '',
         isBtnUpdate: true
     }
@@ -36,13 +37,13 @@ class ContentMasterBlacklistSuperAdmin extends Component {
         this.loadBlacklist()
     }
 
-    loadBlacklist = async() => {
+    loadBlacklist = async () => {
         let passqueryblacklist = encrypt("select * from gcm_master_type_blacklist order by gcm_master_type_blacklist.id;")
-        const resblacklist = await this.props.getDataBlacklistAPI({query:passqueryblacklist}).catch(err => err)
+        const resblacklist = await this.props.getDataBlacklistAPI({ query: passqueryblacklist }).catch(err => err)
         if (resblacklist) {
             resblacklist.map((user, index) => {
                 return (
-                    resblacklist[index].keterangan = 
+                    resblacklist[index].keterangan =
                     <center>
                         <button className="mb-2 mr-2 btn-transition btn btn-outline-primary"
                             onClick={(e) => this.handleDetailBlacklist(e, resblacklist[index].id)}> Detail</button>
@@ -50,7 +51,7 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 )
             })
             this.setState({
-                allDataBlacklist:resblacklist
+                allDataBlacklist: resblacklist
             })
         } else {
             swal({
@@ -59,28 +60,28 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
-                    }
-                }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
-                });
+                }
+            }).then(() => {
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
+            });
         }
     }
 
     handleModalInsert = () => {
         this.setState({
             isOpenInsert: !this.state.isOpenInsert,
-            nama_blacklist_inserted:'',
-            empty_nama_blacklist_inserted:false
+            nama_blacklist_inserted: '',
+            empty_nama_blacklist_inserted: false
         })
     }
 
     handleChange = (event) => {
         this.setState({
-          [event.target.name] : event.target.value
+            [event.target.name]: event.target.value
         })
         if (event.target.name === 'nama_blacklist_inserted') {
             this.check_field(event.target.value)
@@ -92,44 +93,46 @@ class ContentMasterBlacklistSuperAdmin extends Component {
 
     check_field = (e) => {
         if (e === '') {
-            this.setState({empty_nama_blacklist_inserted: true})
+            this.setState({ empty_nama_blacklist_inserted: true })
         } else {
-            this.setState({empty_nama_blacklist_inserted: false})
+            this.setState({ empty_nama_blacklist_inserted: false })
         }
     }
-    
+
     check_field_edited = (e) => {
         if (e === '') {
-            this.setState({empty_nama_blacklist_selected: true, isBtnUpdate: true})
-        } else if (e !== ''){
-            this.setState({empty_nama_blacklist_selected: false})
+            this.setState({ empty_nama_blacklist_selected: true, isBtnUpdate: true })
+        } else if (e !== '') {
+            this.setState({ empty_nama_blacklist_selected: false })
         }
-        if (e!== '' && e === this.state.pembanding_nama_blacklist_selected) {
-            this.setState({empty_nama_blacklist_selected: false, isBtnUpdate: true})
-        } else if (e!== '' && e !== this.state.pembanding_nama_blacklist_selected) {
-            this.setState({empty_nama_blacklist_selected: false, isBtnUpdate: false})
+        if (e !== '' && e === this.state.pembanding_nama_blacklist_selected) {
+            this.setState({ empty_nama_blacklist_selected: false, isBtnUpdate: true })
+        } else if (e !== '' && e !== this.state.pembanding_nama_blacklist_selected) {
+            this.setState({ empty_nama_blacklist_selected: false, isBtnUpdate: false })
         }
     }
 
     handleWhiteSpace = (e) => {
-        if (e.which === 32 &&  !e.target.value.length) {
+        if (e.which === 32 && !e.target.value.length) {
             e.preventDefault()
         }
     }
 
     handleModalConfirmInsert = () => {
-        if(this.state.nama_blacklist_inserted === '') { this.setState({ empty_nama_blacklist_inserted: true }) }
+        if (this.state.nama_blacklist_inserted === '') { this.setState({ empty_nama_blacklist_inserted: true }) }
         if (this.state.nama_blacklist_inserted !== '') {
-                this.setState({
-                    isOpenConfirmInsert: !this.state.isOpenConfirmInsert
-                })
+            this.setState({
+                isOpenConfirmInsert: !this.state.isOpenConfirmInsert
+            })
         }
     }
 
-    confirmActionInsertBlacklist = async() => {
-        let passqueryinsertblacklist = encrypt("insert into gcm_master_type_blacklist (nama) values ('"+this.state.nama_blacklist_inserted+"') "+
+    confirmActionInsertBlacklist = async () => {
+        Toast.loading('Loading...');
+        let passqueryinsertblacklist = encrypt("insert into gcm_master_type_blacklist (nama) values ('" + this.state.nama_blacklist_inserted + "') " +
             " returning nama;")
-        const resinsertMasterblacklist = await this.props.insertMasterBlacklist({query:passqueryinsertblacklist}).catch(err => err)
+        const resinsertMasterblacklist = await this.props.insertMasterBlacklist({ query: passqueryinsertblacklist }).catch(err => err)
+        Toast.hide();
         if (resinsertMasterblacklist) {
             swal({
                 title: "Sukses!",
@@ -137,7 +140,7 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(()=> {
+            }).then(() => {
                 this.loadBlacklist()
                 window.location.reload()
             });
@@ -148,18 +151,18 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 icon: "error",
                 button: false,
                 timer: "2500"
-              }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
         }
     }
 
-    handleDetailBlacklist = async(e, id) => {
+    handleDetailBlacklist = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation()
-        let passquerydetail = encrypt("select gcm_master_type_blacklist.id, gcm_master_type_blacklist.nama from gcm_master_type_blacklist "+
-            "where gcm_master_type_blacklist.id="+id)
-        const resdetail = await this.props.getDataDetailedMasterBlacklistAPI({query:passquerydetail}).catch(err => err)
+        let passquerydetail = encrypt("select gcm_master_type_blacklist.id, gcm_master_type_blacklist.nama from gcm_master_type_blacklist " +
+            "where gcm_master_type_blacklist.id=" + id)
+        const resdetail = await this.props.getDataDetailedMasterBlacklistAPI({ query: passquerydetail }).catch(err => err)
         if (resdetail) {
             this.setState({
                 id_blacklist_selected: id,
@@ -173,37 +176,39 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
-                    }
-                }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
-                });
+                }
+            }).then(() => {
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
+            });
         }
     }
 
     handleModalDetail = () => {
         this.setState({
             isOpen: !this.state.isOpen,
-            empty_nama_blacklist_selected:false
+            empty_nama_blacklist_selected: false
         })
     }
 
     handleModalConfirm = () => {
-        if(this.state.nama_blacklist_selected === '') { this.setState({ empty_nama_blacklist_selected: true }) }
+        if (this.state.nama_blacklist_selected === '') { this.setState({ empty_nama_blacklist_selected: true }) }
         if (this.state.nama_blacklist_selected !== '') {
-                this.setState({
-                    isOpenConfirmUpdate: !this.state.isOpenConfirmUpdate
-                })
+            this.setState({
+                isOpenConfirmUpdate: !this.state.isOpenConfirmUpdate
+            })
         }
     }
 
-    confirmActionUpdateBlacklist = async() => {
-        let passqueryupdatemasterblacklist = encrypt("update gcm_master_type_blacklist set nama='"+this.state.nama_blacklist_selected+"' "+
-            " where id="+this.state.id_blacklist_selected+" returning nama;")
-        const resupdateMasterblacklist = await this.props.updateMasterBlacklist({query:passqueryupdatemasterblacklist}).catch(err => err)
+    confirmActionUpdateBlacklist = async () => {
+        Toast.loading('Loading...');
+        let passqueryupdatemasterblacklist = encrypt("update gcm_master_type_blacklist set nama='" + this.state.nama_blacklist_selected + "' " +
+            " where id=" + this.state.id_blacklist_selected + " returning nama;")
+        const resupdateMasterblacklist = await this.props.updateMasterBlacklist({ query: passqueryupdatemasterblacklist }).catch(err => err)
+        Toast.hide();
         if (resupdateMasterblacklist) {
             swal({
                 title: "Sukses!",
@@ -211,7 +216,7 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(()=> {
+            }).then(() => {
                 this.loadBlacklist()
                 window.location.reload()
             });
@@ -222,13 +227,13 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 icon: "error",
                 button: false,
                 timer: "2500"
-              }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
         }
     }
 
-    render(){
+    render() {
         const data = {
             columns: [
                 {
@@ -241,8 +246,8 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                     field: 'keterangan',
                     width: 150
                 }],
-                rows: this.state.allDataBlacklist
-            }
+            rows: this.state.allDataBlacklist
+        }
         return (
             <div className="app-main__outer">
                 <div className="app-main__inner">
@@ -259,11 +264,11 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                                 </div>
                             </div>
                             <div className="page-title-actions">
-                                
+
                             </div>
                         </div>
                     </div>
-                    <div style={{textAlign: "right"}}>
+                    <div style={{ textAlign: "right" }}>
                         <button className="sm-2 mr-2 btn btn-primary" title="Tambah Blacklist" onClick={this.handleModalInsert}>
                             <i className="fa fa-plus" aria-hidden="true"></i>
                         </button>
@@ -278,7 +283,7 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                                             striped
                                             responsive
                                             hover
-                                            order={['id', 'asc' ]}
+                                            order={['id', 'asc']}
                                             sorting="false"
                                             data={data}
                                         />
@@ -293,12 +298,12 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 <Modal size="md" toggle={this.handleModalInsert} isOpen={this.state.isOpenInsert} backdrop="static" keyboard={false}>
                     <ModalHeader toggle={this.handleModalInsert}>Tambah Master Nonaktif</ModalHeader>
                     <ModalBody>
-                        <div className="position-relative form-group" style={{marginTop:'3%'}}>
+                        <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Master Nonaktif</p>
-                                <Input type="text" name="nama_blacklist_inserted" id="nama_blacklist_inserted" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Master Nonaktif</p>
+                                <Input type="text" name="nama_blacklist_inserted" id="nama_blacklist_inserted"
                                     placeholder="Nama Master Nonaktif" onChange={this.handleChange} onKeyPress={this.handleWhiteSpace}
-                                    invalid={this.state.empty_nama_blacklist_inserted}/>
+                                    invalid={this.state.empty_nama_blacklist_inserted} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                         </div>
@@ -327,12 +332,12 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 <Modal size="md" toggle={this.handleModalDetail} isOpen={this.state.isOpen} backdrop="static" keyboard={false}>
                     <ModalHeader toggle={this.handleModalDetail}>Detail Master Nonaktif</ModalHeader>
                     <ModalBody>
-                        <div className="position-relative form-group" style={{marginTop:'3%'}}>
+                        <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Master Nonaktif</p>
-                                <Input type="text" name="nama_blacklist_selected" id="nama_blacklist_selected" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Master Nonaktif</p>
+                                <Input type="text" name="nama_blacklist_selected" id="nama_blacklist_selected"
                                     placeholder="Nama Master Nonaktif" value={this.state.nama_blacklist_selected} onChange={this.handleChange} onKeyPress={this.handleWhiteSpace}
-                                    invalid={this.state.empty_nama_blacklist_selected}/>
+                                    invalid={this.state.empty_nama_blacklist_selected} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                         </div>
@@ -372,4 +377,4 @@ const reduxDispatch = (dispatch) => ({
     logoutAPI: () => dispatch(logoutUserAPI())
 })
 
-export default withRouter( connect(reduxState, reduxDispatch)(ContentMasterBlacklistSuperAdmin) );
+export default withRouter(connect(reduxState, reduxDispatch)(ContentMasterBlacklistSuperAdmin));

@@ -13,6 +13,7 @@ import moment from 'moment';
 import 'moment/locale/id'
 import { Modal, ModalHeader, ModalBody, Button } from 'reactstrap'
 import { withRouter } from 'react-router-dom';
+
 // kurs durung digarap (kan emang gak perlu wkwk)
 class ContentNegosiasiSuperAdmin extends Component {
     state = {

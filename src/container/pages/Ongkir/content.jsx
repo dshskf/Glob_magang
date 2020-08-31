@@ -12,6 +12,7 @@ import {
 import { withRouter, Link } from 'react-router-dom';
 import readXlsxFile from 'read-excel-file'
 import NumberFormat from 'react-number-format';
+import Toast from 'light-toast';
 
 class ContentOngkir extends Component {
     state = {
@@ -226,6 +227,7 @@ class ContentOngkir extends Component {
     }
 
     confirmActionInsertOngkir = async () => {
+        Toast.loading('Loading...');
         await this.readExcel()
         this.setState({ statusUpdate: false })
         let rowFailed = ""
@@ -250,6 +252,7 @@ class ContentOngkir extends Component {
                 }
             }
         }
+        Toast.hide();
         if (rowFailed === "") {
             swal({
                 title: "Sukses!",
@@ -320,9 +323,11 @@ class ContentOngkir extends Component {
     }
 
     confirmActionUpdateOngkir = async () => {
+        Toast.loading('Loading...');
         let passqueryupdateongkir = encrypt("update gcm_ongkos_kirim set harga='" + this.state.harga_selected.split('.').join('').split(',').join('.') + "' " +
             " where id=" + this.state.id_ongkir_selected + " returning id_company;")
         const resupdateongkir = await this.props.updateHargaOngkir({ query: passqueryupdateongkir }).catch(err => err)
+        Toast.hide();
         if (resupdateongkir) {
             swal({
                 title: "Sukses!",

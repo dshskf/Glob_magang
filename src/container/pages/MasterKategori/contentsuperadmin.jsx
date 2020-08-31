@@ -7,6 +7,7 @@ import { getDataCategoryAPI, insertMasterCategory, getDataDetailedMasterCategory
 import swal from 'sweetalert';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, FormFeedback } from 'reactstrap'
 import { withRouter } from 'react-router-dom';
+import Toast from 'light-toast';
 
 class ContentMasterKategoriSuperAdmin extends Component {
     state = {
@@ -130,9 +131,12 @@ class ContentMasterKategoriSuperAdmin extends Component {
     }
 
     confirmActionInsertCategory = async() => {
+        Toast.loading('Loading...');
         let passqueryinsertcategory = encrypt("insert into gcm_master_category (nama) values ('"+this.state.nama_kategori_inserted+"') "+
             " returning nama;")
         const resinsertMasterCategory = await this.props.insertMasterCategory({query:passqueryinsertcategory}).catch(err => err)
+        Toast.hide();
+
         if (resinsertMasterCategory) {
             swal({
                 title: "Sukses!",
@@ -205,9 +209,12 @@ class ContentMasterKategoriSuperAdmin extends Component {
     }
 
     confirmActionUpdateCategory = async() => {
+        Toast.loading('Loading...');
         let passqueryupdatemastercategory = encrypt("update gcm_master_category set nama='"+this.state.nama_kategori_selected+"' "+
             " where id="+this.state.id_kategori_selected+" returning nama;")
         const resupdateMasterCategory = await this.props.updateMasterCategory({query:passqueryupdatemastercategory}).catch(err => err)
+        Toast.hide();
+
         if (resupdateMasterCategory) {
             swal({
                 title: "Sukses!",

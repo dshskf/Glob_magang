@@ -18,6 +18,7 @@ import {
 } from 'reactstrap'
 import moment from 'moment';
 import 'moment/locale/id'
+import Toast from 'light-toast';
 
 class ContentTransaksi extends Component {
     state = {
@@ -986,6 +987,7 @@ class ContentTransaksi extends Component {
     }
 
     confirmAction = async () => {
+        Toast.loading('Loading...');
         let waiting = "WAITING"
         let ongoing = "ONGOING"
         let shipped = "SHIPPED"
@@ -1072,8 +1074,8 @@ class ContentTransaksi extends Component {
             passqueryupdatestatustransaksi = encrypt(`update gcm_master_transaction set status='FINISHED', date_finished=now() where id=${this.state.id} returning status`)
         }
 
-
         const resupdatestatustransaksi = await this.props.updateTransactionStatus({ query: passqueryupdatestatustransaksi }).catch(err => err)
+        Toast.hide();
         if (resupdatestatustransaksi) {
             swal({
                 title: "Sukses!",
@@ -1523,6 +1525,7 @@ class ContentTransaksi extends Component {
     }
 
     confirmActionLimitHariTransaksi = async () => {
+        Toast.loading('Loading...');
         let passquerylimitharitransaksi = ""
         if (this.state.flag_limit_transaksi === 'insert') {
             passquerylimitharitransaksi = encrypt("select func_change_limit_finished(" + this.state.company_id + ", " + this.state.limit_hari_transaksi_selesai_inserted + ");")
@@ -1530,6 +1533,7 @@ class ContentTransaksi extends Component {
             passquerylimitharitransaksi = encrypt("select func_change_limit_finished(" + this.state.company_id + ", " + this.state.limit_hari_transaksi_selesai_selected + ");")
         }
         const resupdateslimithari = await this.props.updateTransactionStatus({ query: passquerylimitharitransaksi }).catch(err => err)
+        Toast.hide();
         if (resupdateslimithari) {
             swal({
                 title: "Sukses!",

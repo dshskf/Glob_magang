@@ -8,6 +8,8 @@ import { getDataSalesAPI, getDataDetailedSalesAPI, getDataCheckedKodeSales, getD
 import swal from 'sweetalert';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, FormFeedback } from 'reactstrap'
 import { withRouter } from 'react-router-dom';
+import Toast from 'light-toast';
+
 // cek kode sales saat insert dan update
 class ContentSales extends Component {
     state = {
@@ -972,6 +974,7 @@ class ContentSales extends Component {
     }
 
     confirmActionInsertAkun = async() => {
+        Toast.loading('Loading...');
         let encryptpassword = encrypt(this.state.password_sales_inserted)
         let passqueryinsertakun = ""
         await this.checkFinalFieldInsert()
@@ -1023,6 +1026,7 @@ class ContentSales extends Component {
                                     "false, false, '0', false, '', '"+this.state.kode_sales_inserted+"') returning update_date")
                         }
                         const resinsertakun = await this.props.insertMasterAkun({query:passqueryinsertakun}).catch(err => err)
+                        Toast.hide();
                         if (resinsertakun) {
                             swal({
                                 title: "Sukses!",
@@ -1469,6 +1473,7 @@ class ContentSales extends Component {
     }
 
     confirmActionUpdateAkun = async() => {
+        Toast.loading('Loading...');
         let passencrypt = encrypt(this.state.password_sales)
         let passqueryupdateakun = ""
         await this.checkFinalFieldUpdate()
@@ -1538,6 +1543,7 @@ class ContentSales extends Component {
                         }
                     }
                     const resupdateAkun = await this.props.updateMasterUser({query:passqueryupdateakun}).catch(err => err)
+                    Toast.hide();
                     if (resupdateAkun) {
                         swal({
                             title: "Sukses!",

@@ -12,6 +12,7 @@ import moment from 'moment';
 import 'moment/locale/id'
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, FormFeedback, FormGroup } from 'reactstrap'
 import { firebaseApp } from '../../../config/firebase/index'
+import Toast from 'light-toast';
 import '@firebase/messaging';
 
 class ContentBerandaSuperAdmin extends Component {
@@ -1043,7 +1044,9 @@ class ContentBerandaSuperAdmin extends Component {
     confirmActionUpdateKurs = async () => {
         let passqueryupdatemasterkurs = encrypt("update gcm_master_kurs set nominal='" + this.state.updated_kurs_now_manual.split('.').join('').split(',').join('.') + "' " +
             " where id=" + this.state.id_kurs_now_manual + " returning nominal;")
+            Toast.loading('Loading...');
         const resupdateMasterKurs = await this.props.updateMasterKurs({ query: passqueryupdatemasterkurs }).catch(err => err)
+        Toast.hide();
         if (resupdateMasterKurs) {
             swal({
                 title: "Sukses!",

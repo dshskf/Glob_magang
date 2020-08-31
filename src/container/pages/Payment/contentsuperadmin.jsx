@@ -8,6 +8,7 @@ import { getDataPaymentAdminAPI, getDataPaymentAPI, insertPaymentListingSeller, 
 import swal from 'sweetalert';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap'
 import { withRouter } from 'react-router-dom';
+import Toast from 'light-toast';
 
 class ContentPaymentSuperAdmin extends Component {
     state = {
@@ -142,9 +143,12 @@ class ContentPaymentSuperAdmin extends Component {
     }
 
     confirmActionChangeStatusPayment = async() => {
+        Toast.loading('Loading...');
         let passquerychangestatuspayment = encrypt("update gcm_seller_payment_listing set status='"+this.state.status_payment_updated+"' "+
-            "where id="+this.state.id_payment+" returning status")
+            "where id="+this.state.id_payment+" returning status")            
         const resupdatestatuspayment = await this.props.updateStatusPayment({query:passquerychangestatuspayment}).catch(err => err)
+        Toast.hide();
+        
         if (resupdatestatuspayment) {
             swal({
                 title: "Sukses!",

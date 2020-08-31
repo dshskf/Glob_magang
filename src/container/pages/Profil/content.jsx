@@ -11,6 +11,7 @@ import InputMask from 'react-input-mask';
 import { Col, Card, CardTitle, Modal, ModalHeader, ModalBody, ModalFooter, Button, 
     ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, FormGroup, FormFeedback } from 'reactstrap'
 import { withRouter } from 'react-router-dom';
+import Toast from 'light-toast';
 
 class ContentProfil extends Component {
     state = {
@@ -1508,6 +1509,7 @@ class ContentProfil extends Component {
     }
 
     confirmActionUpdateAccountInfo = async() => {
+        Toast.loading('Loading...');
         await this.getCurrentPassword()
         await this.checkFinalFieldUpdate()
         if (this.state.account_info_password_inserted === this.state.pembanding_account_info_password_selected) {
@@ -1550,6 +1552,7 @@ class ContentProfil extends Component {
                             }
                         }
                         const resupdateMasterUser = await this.props.updateMasterUser({query:passqueryupdatemasteruser}).catch(err => err)
+                        Toast.hide();
                         if (resupdateMasterUser) {
                             swal({
                                 title: "Sukses!",
@@ -1600,6 +1603,7 @@ class ContentProfil extends Component {
     }
 
     confirmActionUpdateAlamatCompany = async() => {
+        Toast.loading('Loading...');
         await this.getCurrentPassword()
         if (this.state.company_alamat_password_inserted === this.state.pembanding_account_info_password_selected) {
             let passqueryupdatealamat = encrypt("update gcm_master_alamat set kelurahan='"+this.state.company_alamat_id_kelurahan_selected+"', "+
@@ -1608,6 +1612,7 @@ class ContentProfil extends Component {
                     "no_telp='"+this.state.company_alamat_telepon_selected+"', alamat='"+this.state.company_alamat_selected+"', flag_active='A' "+
                 "where id="+this.state.company_alamat_id_selected+" returning alamat")
             const resupdateMasterAlamat = await this.props.updateMasterAlamat({query:passqueryupdatealamat}).catch(err => err)
+            Toast.hide();
             if (resupdateMasterAlamat) {
                 swal({
                     title: "Sukses!",
@@ -1665,6 +1670,7 @@ class ContentProfil extends Component {
     }
 
     confirmActionUpdateCompanyInfo = async() => {
+        Toast.loading('Loading...');
         await this.getCurrentPassword()
         await this.checkFinalFieldUpdateCompany()
         if (this.state.company_info_password_inserted === this.state.pembanding_account_info_password_selected) {
@@ -1675,6 +1681,7 @@ class ContentProfil extends Component {
                         "no_siup='"+this.state.company_info_siup_selected+"', update_date=now() "+
                         "where id="+this.state.company_id+" returning nama_perusahaan;")
                     const resupdateMasterCompany = await this.props.updateMasterCompany({query:passqueryupdatemastercompany}).catch(err => err)
+                    Toast.hide()
                     if (resupdateMasterCompany) {
                         swal({
                             title: "Sukses!",
@@ -1830,6 +1837,7 @@ class ContentProfil extends Component {
     }
 
     confirmActionOTP = async() => {
+        Toast.loading('Loading...');
         let dataCheckGetOtp = Object.create(null);
         await this.checkFinalFieldUpdate()
         dataCheckGetOtp = {
@@ -1838,6 +1846,7 @@ class ContentProfil extends Component {
             key: 'z25k4at3jzob718iqceofgor6a1tbm'
         }
         const resgetotp = await this.props.getOtp(dataCheckGetOtp).catch (err => err)
+
         if (resgetotp) {
             if (this.state.valueOTP === this.state.sendValueOTP) {
                 let passqueryupdatemasteruser = ""
@@ -1877,6 +1886,7 @@ class ContentProfil extends Component {
                             }
                         }
                         const resupdateMasterUser = await this.props.updateMasterUser({query:passqueryupdatemasteruser}).catch(err => err)
+                        Toast.hide();
                         if (resupdateMasterUser) {
                             swal({
                                 title: "Sukses!",
@@ -1925,6 +1935,7 @@ class ContentProfil extends Component {
                     });
             }
         } else {
+            Toast.hide();
             swal({
                 title: "Kesalahan 503!",
                 text: "Harap periksa koneksi internet!",

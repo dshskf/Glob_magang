@@ -7,6 +7,7 @@ import { getDataReasonAPI, insertMasterReason, getDataDetailedMasterReasonAPI, u
 import swal from 'sweetalert';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, FormFeedback } from 'reactstrap'
 import { withRouter } from 'react-router-dom';
+import Toast from 'light-toast';
 
 class ContentMasterReasonSuperAdmin extends Component {
     state = {
@@ -127,9 +128,12 @@ class ContentMasterReasonSuperAdmin extends Component {
     }
 
     confirmActionInsertReason = async() => {
+        Toast.loading('Loading...');
         let passqueryinsertreason = encrypt("insert into gcm_master_reason(nama) values ('"+this.state.nama_reason_inserted+"') "+
             " returning nama;")
         const resinsertMasterReason = await this.props.insertMasterReason({query:passqueryinsertreason}).catch(err => err)
+        Toast.hide();
+
         if (resinsertMasterReason) {
             swal({
                 title: "Sukses!",
@@ -201,9 +205,12 @@ class ContentMasterReasonSuperAdmin extends Component {
     }
 
     confirmActionUpdateReason = async() => {
+        Toast.loading('Loading...');
         let passqueryupdatemasterreason = encrypt("update gcm_master_reason set nama='"+this.state.nama_reason_selected+"' "+
             " where id="+this.state.id_reason_selected+" returning nama;")
         const resupdateMasterReason = await this.props.updateMasterReason({query:passqueryupdatemasterreason}).catch(err => err)
+        Toast.hide();
+        
         if (resupdateMasterReason) {
             swal({
                 title: "Sukses!",

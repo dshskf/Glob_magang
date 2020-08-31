@@ -16,6 +16,7 @@ import {
     Modal, ModalHeader, ModalBody, ModalFooter, Button, ButtonDropdown,
     DropdownItem, DropdownMenu, DropdownToggle, Input, FormFeedback, FormGroup
 } from 'reactstrap'
+import Toast from 'light-toast';
 
 class ContentPenggunaSuperAdmin extends Component {
     state = {
@@ -564,6 +565,7 @@ class ContentPenggunaSuperAdmin extends Component {
     }
 
     confirmAction = async () => {
+        Toast.loading('Loading...');
         let activate = "A"
         let reject = "R"
         const emailData = {
@@ -580,6 +582,7 @@ class ContentPenggunaSuperAdmin extends Component {
                 ", notes_blacklist='" + this.state.notes_blacklist_company + "', blacklist_by=" + this.state.company_id +
                 " where gcm_master_company.id=" + company_reg_id + " returning seller_status;")
             const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+            Toast.hide()
             if (resupdatestatus) {
                 swal({
                     title: "Sukses!",
@@ -618,6 +621,7 @@ class ContentPenggunaSuperAdmin extends Component {
                     values (${this.state.company_id},'${this.state.kode_seller_selected}','${this.state.kode_seller_selected}') returning *`
                 )
                 const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+                Toast.hide();
                 if (resupdatestatus) {
                     await this.props.sendEmailToUser(emailData)
                     swal({
@@ -663,6 +667,7 @@ class ContentPenggunaSuperAdmin extends Component {
                 )
 
                 const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+                Toast.hide();
                 if (resupdatestatus) {
                     await this.props.sendEmailToUser(emailData)
                     swal({
@@ -994,6 +999,7 @@ class ContentPenggunaSuperAdmin extends Component {
     }
 
     confirmActionMapping = async () => {
+        Toast.loading('Loading...');
         let company_reg_id = decrypt(this.state.company_mapping_register_id)
         let passqueryupdatestatus = ""
         if (this.state.company_mapping_register_status === 'A') {
@@ -1012,6 +1018,7 @@ class ContentPenggunaSuperAdmin extends Component {
                 "' where seller_id=" + company_reg_id + " returning status;")
         }
         const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+        Toast.hide();
         if (resupdatestatus) {
             swal({
                 title: "Sukses!",

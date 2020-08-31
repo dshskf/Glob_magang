@@ -7,14 +7,15 @@ import { getDataPaymentAPI, insertMasterPayment, getDataDetailedMasterPaymentAPI
 import swal from 'sweetalert';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, FormFeedback } from 'reactstrap'
 import { withRouter } from 'react-router-dom';
+import Toast from 'light-toast';
 
 class ContentMasterPaymentSuperAdmin extends Component {
     state = {
-        id_pengguna_login:'',
-        company_id:'',
-        company_name:'',
-        tipe_bisnis:'',
-        allPayment:[],
+        id_pengguna_login: '',
+        company_id: '',
+        company_name: '',
+        tipe_bisnis: '',
+        allPayment: [],
         isOpen: false,
         isOpenInsert: false,
         isOpenConfirmInsert: false,
@@ -25,13 +26,13 @@ class ContentMasterPaymentSuperAdmin extends Component {
         empty_deskripsi_payment_selected: false,
         empty_durasi_payment_selected: false,
         empty_durasi_payment_inserted: false,
-        nama_payment_inserted:'',
-        deskripsi_payment_inserted:'',
-        durasi_payment_inserted:'',
-        id_payment_selected:'',
-        nama_payment_selected:'',
-        deskripsi_payment_selected:'',
-        durasi_payment_selected:'',
+        nama_payment_inserted: '',
+        deskripsi_payment_inserted: '',
+        durasi_payment_inserted: '',
+        id_payment_selected: '',
+        nama_payment_selected: '',
+        deskripsi_payment_selected: '',
+        durasi_payment_selected: '',
         isBtnUpdate: true,
         isBtnInsert: true
     }
@@ -47,15 +48,15 @@ class ContentMasterPaymentSuperAdmin extends Component {
         this.loadPayment()
     }
 
-    loadPayment = async() => {
+    loadPayment = async () => {
         let passquerypayment = encrypt("select * from gcm_master_payment order by gcm_master_payment.id;")
-        const respayment = await this.props.getDataPaymentAPI({query:passquerypayment}).catch(err => err)
+        const respayment = await this.props.getDataPaymentAPI({ query: passquerypayment }).catch(err => err)
         if (respayment) {
             respayment.map((user, index) => {
                 return (
                     respayment[index].durasi =
                     <p className="mb-0 text-center"> {user.durasi}</p>,
-                    respayment[index].keterangan = 
+                    respayment[index].keterangan =
                     <center>
                         <button className="mb-2 mr-2 btn-transition btn btn-outline-primary"
                             onClick={(e) => this.handleDetailPayment(e, respayment[index].id)}> Detail</button>
@@ -63,7 +64,7 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 )
             })
             this.setState({
-                allPayment:respayment
+                allPayment: respayment
             })
         } else {
             swal({
@@ -72,14 +73,14 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
-                    }
-                }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
-                });
+                }
+            }).then(() => {
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
+            });
         }
     }
 
@@ -90,9 +91,9 @@ class ContentMasterPaymentSuperAdmin extends Component {
             empty_deskripsi_payment_inserted: false,
             empty_nama_payment_inserted: false,
             empty_durasi_payment_inserted: false,
-            nama_payment_inserted:'',
-            deskripsi_payment_inserted:'',
-            durasi_payment_inserted:''
+            nama_payment_inserted: '',
+            deskripsi_payment_inserted: '',
+            durasi_payment_inserted: ''
         })
     }
 
@@ -117,67 +118,67 @@ class ContentMasterPaymentSuperAdmin extends Component {
             }
         }
         this.setState({
-            [event.target.name] : event.target.value
+            [event.target.name]: event.target.value
         })
     }
 
     check_field_nama_payment_edited = (e) => {
         if (e === '') {
-            this.setState({empty_nama_payment_selected: true, isBtnUpdate: true})
+            this.setState({ empty_nama_payment_selected: true, isBtnUpdate: true })
         } else {
-            this.setState({empty_nama_payment_selected: false})
+            this.setState({ empty_nama_payment_selected: false })
             if (this.state.deskripsi_payment_selected !== '') {
-                this.setState({isBtnUpdate: false})
+                this.setState({ isBtnUpdate: false })
             }
         }
     }
 
     check_field_deskripsi_payment_edited = (e) => {
         if (e === '') {
-            this.setState({empty_deskripsi_payment_selected: true, isBtnUpdate: true})
+            this.setState({ empty_deskripsi_payment_selected: true, isBtnUpdate: true })
         } else {
-            this.setState({empty_deskripsi_payment_selected: false})
+            this.setState({ empty_deskripsi_payment_selected: false })
             if (this.state.nama_payment_selected !== '') {
-                this.setState({isBtnUpdate: false})
+                this.setState({ isBtnUpdate: false })
             }
         }
     }
 
     check_field_nama_payment = (e) => {
         if (e === '') {
-            this.setState({empty_nama_payment_inserted: true, isBtnInsert: true})
+            this.setState({ empty_nama_payment_inserted: true, isBtnInsert: true })
         } else {
-            this.setState({empty_nama_payment_inserted: false})
+            this.setState({ empty_nama_payment_inserted: false })
             if (this.state.deskripsi_payment_inserted !== '' && this.state.durasi_payment_inserted !== '') {
-                this.setState({isBtnInsert: false})
+                this.setState({ isBtnInsert: false })
             }
         }
     }
 
     check_field_deskripsi_payment = (e) => {
         if (e === '') {
-            this.setState({empty_deskripsi_payment_inserted: true, isBtnInsert: true})
+            this.setState({ empty_deskripsi_payment_inserted: true, isBtnInsert: true })
         } else {
-            this.setState({empty_deskripsi_payment_inserted: false})
+            this.setState({ empty_deskripsi_payment_inserted: false })
             if (this.state.nama_payment_inserted !== '' && this.state.durasi_payment_inserted !== '') {
-                this.setState({isBtnInsert: false})
+                this.setState({ isBtnInsert: false })
             }
         }
     }
 
     check_field_durasi_payment = (e) => {
         if (e === '') {
-            this.setState({empty_durasi_payment_inserted: true, isBtnInsert: true})
+            this.setState({ empty_durasi_payment_inserted: true, isBtnInsert: true })
         } else {
-            this.setState({empty_durasi_payment_inserted: false})
+            this.setState({ empty_durasi_payment_inserted: false })
             if (this.state.nama_payment_inserted !== '' && this.state.deskripsi_payment_inserted !== '') {
-                this.setState({isBtnInsert: false})
+                this.setState({ isBtnInsert: false })
             }
         }
     }
 
     handleWhiteSpace = (e) => {
-        if (e.which === 32 &&  !e.target.value.length) {
+        if (e.which === 32 && !e.target.value.length) {
             e.preventDefault()
         }
     }
@@ -188,10 +189,12 @@ class ContentMasterPaymentSuperAdmin extends Component {
         })
     }
 
-    confirmActionInsertPayment = async() => {
-        let passqueryinsertpayment = encrypt("insert into gcm_master_payment(payment_name, deskripsi, durasi) values ('"+this.state.nama_payment_inserted+"', '"+
-            this.state.deskripsi_payment_inserted+"', '"+this.state.durasi_payment_inserted+"') returning payment_name;")
-        const resinsertMasterPayment = await this.props.insertMasterPayment({query:passqueryinsertpayment}).catch(err => err)
+    confirmActionInsertPayment = async () => {
+        Toast.loading('Loading...');
+        let passqueryinsertpayment = encrypt("insert into gcm_master_payment(payment_name, deskripsi, durasi) values ('" + this.state.nama_payment_inserted + "', '" +
+            this.state.deskripsi_payment_inserted + "', '" + this.state.durasi_payment_inserted + "') returning payment_name;")
+        const resinsertMasterPayment = await this.props.insertMasterPayment({ query: passqueryinsertpayment }).catch(err => err)
+        Toast.hide();
         if (resinsertMasterPayment) {
             swal({
                 title: "Sukses!",
@@ -199,7 +202,7 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
         } else {
@@ -209,17 +212,17 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 icon: "error",
                 button: false,
                 timer: "2500"
-              }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
         }
     }
 
-    handleDetailPayment = async(e, id) => {
+    handleDetailPayment = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation()
-        let passquerydetail = encrypt("select * from gcm_master_payment where gcm_master_payment.id="+id)
-        const resdetail = await this.props.getDataDetailedMasterPaymentAPI({query:passquerydetail}).catch(err => err)
+        let passquerydetail = encrypt("select * from gcm_master_payment where gcm_master_payment.id=" + id)
+        const resdetail = await this.props.getDataDetailedMasterPaymentAPI({ query: passquerydetail }).catch(err => err)
         if (resdetail) {
             this.setState({
                 id_payment_selected: id,
@@ -234,23 +237,23 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
-                    }
-                }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
-                });
+                }
+            }).then(() => {
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
+            });
         }
     }
 
     handleModalDetail = () => {
         this.setState({
             isOpen: !this.state.isOpen,
-            empty_deskripsi_payment_selected:false,
-            empty_nama_payment_selected:false,
-            empty_durasi_payment_selected:false,
+            empty_deskripsi_payment_selected: false,
+            empty_nama_payment_selected: false,
+            empty_durasi_payment_selected: false,
             isBtnUpdate: true
         })
     }
@@ -261,10 +264,12 @@ class ContentMasterPaymentSuperAdmin extends Component {
         })
     }
 
-    confirmActionUpdatePayment = async() => {
-        let passqueryupdatemasterpayment = encrypt("update gcm_master_payment set payment_name='"+this.state.nama_payment_selected+"', "+
-            "deskripsi='"+this.state.deskripsi_payment_selected+"' where id="+this.state.id_payment_selected+" returning payment_name;")
-        const resupdateMasterPayment = await this.props.updateMasterPayment({query:passqueryupdatemasterpayment}).catch(err => err)
+    confirmActionUpdatePayment = async () => {
+        Toast.loading('Loading...');
+        let passqueryupdatemasterpayment = encrypt("update gcm_master_payment set payment_name='" + this.state.nama_payment_selected + "', " +
+            "deskripsi='" + this.state.deskripsi_payment_selected + "' where id=" + this.state.id_payment_selected + " returning payment_name;")
+        const resupdateMasterPayment = await this.props.updateMasterPayment({ query: passqueryupdatemasterpayment }).catch(err => err)
+        Toast.hide();
         if (resupdateMasterPayment) {
             swal({
                 title: "Sukses!",
@@ -272,7 +277,7 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(()=> {
+            }).then(() => {
                 this.loadPayment()
                 window.location.reload()
             });
@@ -283,19 +288,19 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 icon: "error",
                 button: false,
                 timer: "2500"
-              }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
         }
     }
 
     handleWhiteSpaceNumber = (e) => {
-        if ((e.which === 32 &&  !e.target.value.length) || e.which === 32){
+        if ((e.which === 32 && !e.target.value.length) || e.which === 32) {
             e.preventDefault()
         }
     }
 
-    render(){
+    render() {
         const data = {
             columns: [
                 {
@@ -318,8 +323,8 @@ class ContentMasterPaymentSuperAdmin extends Component {
                     field: 'keterangan',
                     width: 150
                 }],
-                rows: this.state.allPayment
-            }
+            rows: this.state.allPayment
+        }
         return (
             <div className="app-main__outer">
                 <div className="app-main__inner">
@@ -336,11 +341,11 @@ class ContentMasterPaymentSuperAdmin extends Component {
                                 </div>
                             </div>
                             <div className="page-title-actions">
-                                
+
                             </div>
                         </div>
                     </div>
-                    <div style={{textAlign: "right"}}>
+                    <div style={{ textAlign: "right" }}>
                         <button className="sm-2 mr-2 btn btn-primary" title="Tambah metode payment" onClick={this.handleModalInsert}>
                             <i className="fa fa-plus" aria-hidden="true"></i>
                         </button>
@@ -355,7 +360,7 @@ class ContentMasterPaymentSuperAdmin extends Component {
                                             striped
                                             responsive
                                             hover
-                                            order={['id', 'asc' ]}
+                                            order={['id', 'asc']}
                                             sorting="false"
                                             data={data}
                                         />
@@ -370,29 +375,29 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 <Modal size="md" toggle={this.handleModalInsert} isOpen={this.state.isOpenInsert} backdrop="static" keyboard={false}>
                     <ModalHeader toggle={this.handleModalInsert}>Tambah Metode Payment</ModalHeader>
                     <ModalBody>
-                        <div className="position-relative form-group" style={{marginTop:'3%'}}>
+                        <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Payment</p>
-                                <Input type="text" name="nama_payment_inserted" id="nama_payment_inserted" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Payment</p>
+                                <Input type="text" name="nama_payment_inserted" id="nama_payment_inserted"
                                     placeholder="Nama Payment" onChange={this.handleChange} onKeyPress={this.handleWhiteSpace}
                                     value={this.state.nama_payment_inserted}
-                                    invalid={this.state.empty_nama_payment_inserted}/>
+                                    invalid={this.state.empty_nama_payment_inserted} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Deskripsi Payment</p>
-                                <Input type="text" name="deskripsi_payment_inserted" id="deskripsi_payment_inserted" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Deskripsi Payment</p>
+                                <Input type="text" name="deskripsi_payment_inserted" id="deskripsi_payment_inserted"
                                     value={this.state.deskripsi_payment_inserted}
                                     placeholder="Deskripsi Payment" onChange={this.handleChange} onKeyPress={this.handleWhiteSpace}
-                                    invalid={this.state.empty_deskripsi_payment_inserted}/>
+                                    invalid={this.state.empty_deskripsi_payment_inserted} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Durasi Payment (Hari)</p>
-                                <Input type="text" name="durasi_payment_inserted" id="durasi_payment_inserted" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Durasi Payment (Hari)</p>
+                                <Input type="text" name="durasi_payment_inserted" id="durasi_payment_inserted"
                                     value={this.state.durasi_payment_inserted}
                                     placeholder="Durasi Payment" onChange={this.handleChange} onKeyPress={this.handleWhiteSpaceNumber}
-                                    invalid={this.state.empty_durasi_payment_inserted}/>
+                                    invalid={this.state.empty_durasi_payment_inserted} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                         </div>
@@ -421,31 +426,31 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 <Modal size="md" toggle={this.handleModalDetail} isOpen={this.state.isOpen} backdrop="static" keyboard={false}>
                     <ModalHeader toggle={this.handleModalDetail}>Detail Payment</ModalHeader>
                     <ModalBody>
-                        <div className="position-relative form-group" style={{marginTop:'3%'}}>
+                        <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Payment</p>
-                                <Input type="text" name="nama_payment_selected" id="nama_payment_selected" 
-                                    placeholder="Nama Payment" value={this.state.nama_payment_selected} onChange={this.handleChange} 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Payment</p>
+                                <Input type="text" name="nama_payment_selected" id="nama_payment_selected"
+                                    placeholder="Nama Payment" value={this.state.nama_payment_selected} onChange={this.handleChange}
                                     onKeyPress={this.handleWhiteSpace}
                                     disabled={true}
-                                    invalid={this.state.empty_nama_payment_selected}/>
+                                    invalid={this.state.empty_nama_payment_selected} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Deskripsi Payment</p>
-                                <Input type="textarea" name="deskripsi_payment_selected" id="deskripsi_payment_selected" 
-                                    placeholder="Deskripsi Payment" value={this.state.deskripsi_payment_selected} onChange={this.handleChange} 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Deskripsi Payment</p>
+                                <Input type="textarea" name="deskripsi_payment_selected" id="deskripsi_payment_selected"
+                                    placeholder="Deskripsi Payment" value={this.state.deskripsi_payment_selected} onChange={this.handleChange}
                                     onKeyPress={this.handleWhiteSpace}
-                                    invalid={this.state.empty_deskripsi_payment_selected}/>
+                                    invalid={this.state.empty_deskripsi_payment_selected} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Durasi Payment</p>
-                                <Input type="text" name="durasi_payment_selected" id="durasi_payment_selected" 
-                                    placeholder="Durasi Payment" value={this.state.durasi_payment_selected} onChange={this.handleChange} 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Durasi Payment</p>
+                                <Input type="text" name="durasi_payment_selected" id="durasi_payment_selected"
+                                    placeholder="Durasi Payment" value={this.state.durasi_payment_selected} onChange={this.handleChange}
                                     onKeyPress={this.handleWhiteSpace}
                                     disabled={true}
-                                    invalid={this.state.empty_durasi_payment_selected}/>
+                                    invalid={this.state.empty_durasi_payment_selected} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                         </div>
@@ -485,4 +490,4 @@ const reduxDispatch = (dispatch) => ({
     logoutAPI: () => dispatch(logoutUserAPI())
 })
 
-export default withRouter( connect(reduxState, reduxDispatch)(ContentMasterPaymentSuperAdmin) );
+export default withRouter(connect(reduxState, reduxDispatch)(ContentMasterPaymentSuperAdmin));

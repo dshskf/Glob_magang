@@ -10,6 +10,7 @@ import { Input, Modal, ModalHeader, ModalBody, ModalFooter, ButtonDropdown, Drop
 import swal from 'sweetalert';
 import NumberFormat from 'react-number-format';
 import ButtonCustom from '../../../component/atom/Button';
+import Toast from 'light-toast';
 import './login.css'
 
 class Login extends Component {
@@ -305,7 +306,9 @@ class Login extends Component {
     confirmActionKodeSales = async() => {
         let passupdatekodesales = encrypt("update gcm_master_user set kode_sales='"+this.state.kode_sales+"' "+
             "where gcm_master_user.id="+this.state.id_user+" returning status")
+            Toast.loading('Loading...');
         const reskodesales = await this.props.updateUserStatus({query:passupdatekodesales}).catch(err => err);
+        Toast.hide();
         if (reskodesales){
             this.loginSuccess(this.state.passingusername, this.state.passingpassword)
         } else {
@@ -491,13 +494,16 @@ class Login extends Component {
             userid: 'GMOS001',
             key: 'z25k4at3jzob718iqceofgor6a1tbm'
         }
+        Toast.loading('Loading...');
         const resgetotp = await this.props.getOtp(dataCheckGetOtp).catch (err => err)
         if (resgetotp) {
             if (this.state.valueOTP === this.state.sendValueOTP) {
                 let passqueryupdatestatususer = encrypt("update gcm_master_user set status='A', update_by="+decrypt(this.state.dataLogin.id)+
                 ", update_date=now(), no_hp='"+this.state.nomor_hp+"', no_hp_verif=true" +
                 " where id="+decrypt(this.state.dataLogin.id)+" returning update_date;")
+                
                 const resupdatestatususer = await this.props.updateUserStatus({query:passqueryupdatestatususer}).catch(err=>err)
+                Toast.hide();
                 if (resupdatestatususer) {
                     // pengecekan kode sales di sini
                     if (this.state.id_sales_registered === '') {

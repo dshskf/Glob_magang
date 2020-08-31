@@ -7,6 +7,7 @@ import { queryKalenderData } from '../../../config/redux/action';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, FormFeedback, Label } from 'reactstrap'
 import swal from 'sweetalert';
 import readXlsxFile from 'read-excel-file'
+import Toast from 'light-toast';
 
 class ContentMasterKalenderLibur extends Component {
     state = {
@@ -97,6 +98,8 @@ class ContentMasterKalenderLibur extends Component {
     }
 
     updateKalender = async () => {
+        Toast.loading('Loading...');
+
         const { id, date, keterangan } = this.state.itemData
 
         let passquery = encrypt(`
@@ -106,7 +109,7 @@ class ContentMasterKalenderLibur extends Component {
         `)
 
         const getData = await this.props.queryKalender({ query: passquery }).catch(err => err)
-
+        Toast.hide();
 
         if (getData[0]) {
             swal({
@@ -132,6 +135,7 @@ class ContentMasterKalenderLibur extends Component {
     }
 
     deleteKalender = async () => {
+        Toast.loading('Loading...');
         const { id } = this.state.itemData
 
         let passquery = encrypt(`
@@ -140,6 +144,7 @@ class ContentMasterKalenderLibur extends Component {
         `)
 
         const getData = await this.props.queryKalender({ query: passquery }).catch(err => err)
+        Toast.hide();
 
         if (getData[0]) {
             swal({
@@ -182,6 +187,7 @@ class ContentMasterKalenderLibur extends Component {
     }
 
     handleInsertForm = async () => {
+        Toast.loading('Loading...');
         let passquery = `insert into gcm_kalender_libur(tanggal,keterangan) values`
 
         this.state.fileData.map((data, index) => {
@@ -199,7 +205,7 @@ class ContentMasterKalenderLibur extends Component {
         })
 
         const insertData = await this.props.queryKalender({ query: encrypt(passquery) }).catch(err => err)
-        console.log(insertData)
+        Toast.hide();
         if (insertData[0]) {
             swal({
                 title: "Sukses!",

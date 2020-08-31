@@ -7,6 +7,7 @@ import { getDataSatuanAPI, insertMasterSatuan, getDataDetailedMasterSatuanAPI, u
 import swal from 'sweetalert';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, FormFeedback } from 'reactstrap'
 import { withRouter } from 'react-router-dom';
+import Toast from 'light-toast';
 
 class ContentMasterSatuanSuperAdmin extends Component {
     state = {
@@ -165,9 +166,12 @@ class ContentMasterSatuanSuperAdmin extends Component {
     }
 
     confirmActionInsertSatuan = async() => {
+        Toast.loading('Loading...');
         let passqueryinsertsatuan = encrypt("insert into gcm_master_satuan (nama, alias) values ('"+this.state.nama_satuan_inserted+"', '"+this.state.nama_alias_satuan_inserted+"') "+
             " returning nama;")
         const resinsertMasterSatuan = await this.props.insertMasterSatuan({query:passqueryinsertsatuan}).catch(err => err)
+        Toast.hide();
+
         if (resinsertMasterSatuan) {
             swal({
                 title: "Sukses!",
@@ -243,9 +247,12 @@ class ContentMasterSatuanSuperAdmin extends Component {
     }
 
     confirmActionUpdateCategory = async() => {
+        Toast.loading('Loading...');
         let passqueryupdatemastersatuan = encrypt("update gcm_master_satuan set nama='"+this.state.nama_satuan_selected+"', alias='"+this.state.nama_alias_satuan_selected+"' "+
             " where id="+this.state.id_satuan_selected+" returning nama;")
         const resupdateMasterSatuan = await this.props.updateMasterSatuan({query:passqueryupdatemastersatuan}).catch(err => err)
+        Toast.hide();
+        
         if (resupdateMasterSatuan) {
             swal({
                 title: "Sukses!",

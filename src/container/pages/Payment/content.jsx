@@ -9,6 +9,7 @@ import swal from 'sweetalert';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup,
         ButtonDropdown, DropdownToggle, DropdownItem, DropdownMenu } from 'reactstrap'
 import { withRouter } from 'react-router-dom';
+import Toast from 'light-toast';
 
 class ContentPayment extends Component {
     state = {
@@ -196,11 +197,13 @@ class ContentPayment extends Component {
     }
 
     confirmActionInsertPayment = async() => {
+        Toast.loading('Loading...');
         // let passqueryinsertpayment = encrypt("insert into gcm_seller_payment_listing (seller_id, payment_id, status) "+
         //     "values ('"+this.state.company_id+"', '"+this.state.id_payment_inserted+"', 'C') returning status;")
         let passqueryinsertpayment = encrypt("insert into gcm_seller_payment_listing (seller_id, payment_id, status) "+
             "values ('"+this.state.company_id+"', '"+this.state.id_payment_inserted+"', 'A') returning status;")
         const resinsertpayment = await this.props.insertPaymentListingSeller({query:passqueryinsertpayment}).catch(err => err)
+        Toast.hide();
         if (resinsertpayment) {
             swal({
                 title: "Sukses!",
@@ -298,6 +301,7 @@ class ContentPayment extends Component {
     }
 
     confirmActionChangeStatusPayment = async() => {
+        Toast.loading('Loading...');
         let passquerychangestatuspayment = ""
         if (this.state.status_payment === 'R') {
             passquerychangestatuspayment = encrypt("update gcm_seller_payment_listing set status='C' "+
@@ -312,6 +316,7 @@ class ContentPayment extends Component {
                 )
         }
         const resupdatestatuspayment = await this.props.updateStatusPayment({query:passquerychangestatuspayment}).catch(err => err)
+        Toast.hide();
         if (resupdatestatuspayment) {
             if(this.state.status_payment === 'R') {
                 swal({

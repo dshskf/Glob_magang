@@ -14,6 +14,7 @@ import { MDBDataTable } from 'mdbreact';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import './Pengguna.css'
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, FormGroup, ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, FormFeedback } from 'reactstrap'
+import Toast from 'light-toast';
 
 class ContentPengguna extends Component {
     state = {
@@ -998,8 +999,8 @@ class ContentPengguna extends Component {
         })
     }
 
-    confirmAction = async () => {
-        //cafa
+    confirmAction = async () => {        
+        Toast.loading('Loading...');
         let activate = "A"
         let reject = "R"
         const emailData = {
@@ -1020,6 +1021,7 @@ class ContentPengguna extends Component {
                 "where buyer_id='" + company_reg_id + "' and seller_id='" + this.state.company_id + "' returning status;"
             )
             const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+            Toast.hide();
             if (resupdatestatus) {
                 swal({
                     title: "Sukses!",
@@ -1060,6 +1062,7 @@ class ContentPengguna extends Component {
                     )
                 }
                 const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+                Toast.hide();
                 if (resupdatestatus) {
                     await this.props.sendEmailToUser(emailData)
                     swal({
@@ -1114,7 +1117,9 @@ class ContentPengguna extends Component {
                         company_reg_id + "', '" + this.state.company_id + "', '" + this.state.kode_sales + "', 'A') returning status;"
                     )
                 }
+                
                 const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+                Toast.hide();
                 if (resupdatestatus) {
                     await this.props.sendEmailToUser(emailData)
                     swal({
@@ -1618,7 +1623,7 @@ class ContentPengguna extends Component {
     }
 
     confirmActionMappingAlamat = async () => {
-        // sini call lagi
+        Toast.loading('Loading...');
         await this.loadCheckingMappingAlamat()
         await this.checkCountKodeMappingAlamat(this.state.kode_shipto_mapping)
         let passquerymappingalamat = encrypt(`update gcm_listing_alamat set kode_shipto_customer='${this.state.kode_shipto_mapping}', kode_billto_customer='${this.state.kode_billto_mapping}'
@@ -1628,6 +1633,7 @@ class ContentPengguna extends Component {
 
         if (this.state.isConfirmAlamatValid) {
             const resupdatemappingalamat = await this.props.updateKodeMappingAlamat({ query: passquerymappingalamat }).catch(err => err)
+            Toast.hide();
             if (resupdatemappingalamat) {
                 swal({
                     title: "Sukses!",
@@ -1818,6 +1824,7 @@ class ContentPengguna extends Component {
     }
 
     confirmActionForUser = async () => {
+        Toast.loading('Loading...');
         let passqueryupdateuserstatusblacklist = ""
         if (this.state.is_blacklist) {
             passqueryupdateuserstatusblacklist = encrypt("update gcm_master_user set is_blacklist='" + this.state.is_blacklist +
@@ -1829,6 +1836,7 @@ class ContentPengguna extends Component {
                 ", update_by=" + this.state.id_pengguna_login + ", update_date=now() where id=" + this.state.id_user + " returning update_date;")
         }
         const resupdatestatususerblacklist = await this.props.updateUserStatus({ query: passqueryupdateuserstatusblacklist }).catch(err => err)
+        Toast.hide();
         if (resupdatestatususerblacklist) {
             this.handleModalConfirmBlackList()
             this.handleModalDetailUser()
@@ -1916,9 +1924,11 @@ class ContentPengguna extends Component {
     }
 
     confirmActionChangeStatusPayment = async () => {
+        Toast.loading('Loading...');
         let passquerychangestatuspayment = encrypt("update gcm_payment_listing set status='" + this.state.status_payment + "' " +
             "where id=" + this.state.id_payment + " returning status")
         const resupdatestatuspayment = await this.props.updateStatusPayment({ query: passquerychangestatuspayment }).catch(err => err)
+        Toast.hide();
         if (resupdatestatuspayment) {
             swal({
                 title: "Sukses!",
@@ -2049,9 +2059,11 @@ class ContentPengguna extends Component {
     }
 
     confirmActionInsertPayment = async () => {
+        Toast.loading('Loading...');
         let passqueryinsertpayment = encrypt("insert into gcm_payment_listing (seller_id, buyer_id, payment_id, status) " +
             "values ('" + this.state.company_id + "', '" + this.state.id_buyer + "', '" + this.state.id_payment_inserted + "', 'A') returning status;")
         const resinsertpayment = await this.props.insertPaymentListingSeller({ query: passqueryinsertpayment }).catch(err => err)
+        Toast.hide();
         if (resinsertpayment) {
             swal({
                 title: "Sukses!",
@@ -2090,6 +2102,7 @@ class ContentPengguna extends Component {
     }
 
     confirmActionMapping = async () => {
+        Toast.loading('Loading...');
         let company_reg_id = decrypt(this.state.company_mapping_register_id)
         let passqueryupdatestatus = ""
         if (this.state.company_mapping_register_status === 'A') {
@@ -2110,6 +2123,7 @@ class ContentPengguna extends Component {
                 company_reg_id + "', '" + this.state.company_id + "', '" + this.state.company_mapping_kode_sales_inserted + "', 'A') returning status;")
         }
         const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+        Toast.hide();
         if (resupdatestatus) {
             swal({
                 title: "Sukses!",
