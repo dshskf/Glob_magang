@@ -150,6 +150,7 @@ class Login extends Component {
             const res = await this.props.loginAPI({ query: passquery }).catch(err => err);
 
             if (res) {
+
                 this.setState({
                     username: '',
                     password: '',
@@ -161,7 +162,9 @@ class Login extends Component {
                         this.handleCheckingKodeSales()
                     } else {
                         const token = await this.insertFCMToken(decrypt(res.id), decrypt(res.company_id))
-                        localStorage.setItem('user_token', JSON.stringify(token))
+                        if (token !== undefined) {
+                            localStorage.setItem('user_token', JSON.stringify(token))
+                        }
                         localStorage.setItem('userData', JSON.stringify(res))
                         swal({
                             title: "Sukses!",
@@ -170,8 +173,8 @@ class Login extends Component {
                             button: false,
                             timer: "2500"
                         }).then(() => {
-                            // this.props.history.push('/admin/beranda')
-                            // window.location.reload()
+                            this.props.history.push('/admin/beranda')
+                            window.location.reload()
                         });
                     }
                 } else {
@@ -219,7 +222,9 @@ class Login extends Component {
                                 })
                                 if (decrypt(res.status) === "success") {        // handle response query
                                     const token = await this.insertFCMToken(decrypt(res.id), decrypt(res.company_id))
-                                    localStorage.setItem('user_token', JSON.stringify(token))
+                                    if (token !== undefined) {
+                                        localStorage.setItem('user_token', JSON.stringify(token))
+                                    }
                                     localStorage.setItem('userData', JSON.stringify(res))
                                     swal({
                                         title: "Sukses!",
@@ -228,8 +233,8 @@ class Login extends Component {
                                         button: false,
                                         timer: "2500"
                                     }).then(() => {
-                                        // this.props.history.push('/admin/beranda')
-                                        // window.location.reload()
+                                        this.props.history.push('/admin/beranda')
+                                        window.location.reload()
                                     });
                                 } else {
                                     // status akun = 'R'
@@ -384,7 +389,9 @@ class Login extends Component {
             })
             if (decrypt(res.status) === "success") {
                 const token = await this.insertFCMToken(decrypt(res.id), decrypt(res.company_id))
-                localStorage.setItem('user_token', JSON.stringify(token))
+                if (token !== undefined) {
+                    localStorage.setItem('user_token', JSON.stringify(token))
+                }
                 localStorage.setItem('userData', JSON.stringify(res))
                 swal({
                     title: "Sukses!",
@@ -550,7 +557,9 @@ class Login extends Component {
                         this.handleCheckingKodeSales()
                     } else {
                         const token = await this.insertFCMToken(decrypt(this.state.dataLogin.id), decrypt(this.state.dataLogin.company_id))
-                        localStorage.setItem('user_token', JSON.stringify(token))
+                        if (token !== undefined) {
+                            localStorage.setItem('user_token', JSON.stringify(token))
+                        }
                         localStorage.setItem('userData', JSON.stringify(this.state.dataLogin));
                         const userData = JSON.parse(localStorage.getItem('userData'))
                         this.setState({

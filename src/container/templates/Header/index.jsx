@@ -27,17 +27,8 @@ class Header extends Component {
         })
     }
 
-    handleLogout = async () => {
-        const userToken = JSON.parse(localStorage.getItem('user_token'))
+    Logout = async () => {
         const res = await this.props.logoutAPI();
-        const passquery = encrypt(`
-                    delete from gcm_notification_token
-                    where user_id=${this.state.user_id} and company_id=${this.state.company_id} and token='${userToken}'
-                    returning *;
-                `)
-        const post = await this.props.postData({ query: passquery }).catch(err => err)
-
-
         if (res) {
             this.setState({
                 username: '',
@@ -45,6 +36,24 @@ class Header extends Component {
             })
             this.props.history.push('/admin')
             window.location.reload()
+        }
+    }
+
+    handleLogout = async () => {
+        if (localStorage.getItem('user_token') !== null) {
+            var userToken = JSON.parse(localStorage.getItem('user_token'))
+            const passquery = encrypt(`
+                delete from gcm_notification_token
+                where user_id=${this.state.user_id} and company_id=${this.state.company_id} and token='${userToken}'
+                returning *;
+            `)
+            const post = await this.props.postData({ query: passquery }).catch(err => err)
+            if (post) {
+                this.Logout()
+            }
+        }
+        else {
+            this.Logout()
         }
     }
 

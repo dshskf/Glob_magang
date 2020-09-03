@@ -48,6 +48,7 @@ class ContentBarang extends Component {
         kurs_now_manual: '',
         isOpen: false,
         isOpenFilter: false,
+        isOpenFilterStatus: false,
         isOpenStatus: false,
         isOpenConfirm: false,
         isOpenInsert: false,
@@ -72,6 +73,9 @@ class ContentBarang extends Component {
         insertGambarBarang: false,
         editGambarBarang: false,
         selectedFilter: 'Semua',
+        selectedFilterNo: null,
+        selectedFilterStatus: 'S',
+        selectedFilterStatusTitle: 'Semua',
         detailed_id_list_barang: '',
         detailed_status: '',
         detailed_status_master: '',
@@ -352,7 +356,7 @@ class ContentBarang extends Component {
     confirmActionUpdatePPN = async () => {
         Toast.loading('Loading...');
         let passqueryupdateppn = encrypt("update gcm_master_company set ppn_seller='" + this.state.updated_ppn + "' " +
-            " where id=" + this.state.company_id + " returning ppn_seller;")        
+            " where id=" + this.state.company_id + " returning ppn_seller;")
         const resupdateppn = await this.props.updateBarangStatus({ query: passqueryupdateppn }).catch(err => err)
         Toast.hide();
         if (resupdateppn) {
@@ -698,6 +702,12 @@ class ContentBarang extends Component {
         })
     }
 
+    handleFilterStatus = () => {
+        this.setState({
+            isOpenFilterStatus: !this.state.isOpenFilterStatus
+        })
+    }
+
     handleDropDownBarang = () => {
         this.setState({
             isOpenBarang: !this.state.isOpenBarang
@@ -741,17 +751,53 @@ class ContentBarang extends Component {
     }
 
     filterBarang = (e, kategori) => {
+        let filterBarang = this.state.selectedFilterStatus === 'S' ?
+            this.state.tmpfilteredDataBarang.filter(tmpfilteredDataBarang => tmpfilteredDataBarang.filterby === e)
+            :
+            this.state.tmpfilteredDataBarang.filter(
+                tmpfilteredDataBarang => tmpfilteredDataBarang.filterby === e && tmpfilteredDataBarang.flagstatus === this.state.selectedFilterStatus
+            )
+
         if (e === 'S') {
             this.loadDataBarang()
             this.setState({
                 statusFilter: false,
-                selectedFilter: 'Semua'
+                selectedFilter: 'Semua',
+                selectedFilterNo: null
             })
         } else {
             this.setState({
                 statusFilter: true,
-                allfilteredDataBarang: this.state.tmpfilteredDataBarang.filter(tmpfilteredDataBarang => tmpfilteredDataBarang.filterby === e),
-                selectedFilter: kategori
+                allfilteredDataBarang: filterBarang,
+                selectedFilter: kategori,
+                selectedFilterNo: e
+            })
+        }
+    }
+
+    filterBarangStatus = (status) => {        
+        status = status.split('-')
+
+        let filterBarang = this.state.selectedFilterNo?
+            this.state.tmpfilteredDataBarang.filter(
+                tmpfilteredDataBarang => tmpfilteredDataBarang.filterby === this.state.selectedFilterNo && tmpfilteredDataBarang.flagstatus === status[1]
+            )
+            :
+            this.state.tmpfilteredDataBarang.filter(tmpfilteredDataBarang => tmpfilteredDataBarang.flagstatus === status[1])
+
+        if (status[1] === 'S') {
+            this.loadDataBarang()
+            this.setState({
+                statusFilter: false,
+                selectedFilterStatusTitle: status[0],
+                selectedFilterStatus: status[1]
+            })
+        } else {            
+            this.setState({
+                statusFilter: true,
+                allfilteredDataBarang: filterBarang,
+                selectedFilterStatusTitle: status[0],
+                selectedFilterStatus: status[1]
             })
         }
     }
@@ -3746,7 +3792,7 @@ class ContentBarang extends Component {
             const data = {
                 tmp: temp,
                 tmpPict: tempPict
-            }            
+            }
             // komentar
             const resupload = await this.props.uploadGambarBarang(data).catch(err => err)
             if (resupload) {
@@ -5389,6 +5435,20 @@ class ContentBarang extends Component {
                                                 </DropdownMenu>
                                             </ButtonDropdown>
                                     }
+                                </div>
+                                <div className="row" style={{ paddingTop: '2%' }}>
+                                    <ButtonDropdown direction="left" isOpen={this.state.isOpenFilterStatus} toggle={this.handleFilterStatus}>
+                                        <DropdownToggle caret color="primary" title="Filter berdasarkan status barang">
+                                            <i className="fa fa-fw" aria-hidden="true"></i>
+                                                &nbsp;&nbsp;{this.state.selectedFilterStatusTitle}
+                                        </DropdownToggle>
+                                        <DropdownMenu>
+                                            <DropdownItem onClick={() => this.filterBarangStatus('Semua-S')}>Semua</DropdownItem>
+                                            <DropdownItem onClick={() => this.filterBarangStatus('Proses Konfirmasi-C')}>Proses Konfirmasi</DropdownItem>
+                                            <DropdownItem onClick={() => this.filterBarangStatus('Tersedia-A')}>Tersedia</DropdownItem>
+                                            <DropdownItem onClick={() => this.filterBarangStatus('Tidak Tersedia-I')}>Tidak Tersedia</DropdownItem>
+                                        </DropdownMenu>
+                                    </ButtonDropdown>
                                 </div>
                             </div>
                         </div>

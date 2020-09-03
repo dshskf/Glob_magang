@@ -32,12 +32,13 @@ const MessageList = (props) => {
     firebaseApp.database().ref(roomData.roomId).on("value", async snapshot => {
       let update_read_flag_key = []
 
-      let result = Object.keys(snapshot.val().message).map((key) => {
-        if (!snapshot.val().message[key].read && snapshot.val().message[key].receiver === parseInt(user_id)) {          
+      let result = Object.keys(snapshot.val().message).map((key) => {        
+        if (!snapshot.val().message[key].read && snapshot.val().message[key].receiver === parseInt(user_id)) {
+
           update_read_flag_key.push(key);
         }
         return snapshot.val().message[key]
-      });            
+      });      
 
       result = result.map((data, index) => ({
         id: data.id,
@@ -48,9 +49,9 @@ const MessageList = (props) => {
         time_label: moment(data.timestamp.time).format("HH:mm"),
         status: data.read
       }))
-
-      update_read_flag_key.map(msg_key => firebaseApp.database().ref(`/${roomData.roomId}/message/${msg_key}`).update({ read: true }))
       
+      update_read_flag_key.map(msg_key => firebaseApp.database().ref(`/${roomData.roomId}/message/${msg_key}`).update({ read: true }))
+
       setMessages(result)
     })
   }
