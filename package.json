@@ -17,6 +17,7 @@
     "firebase": "^7.17.1",
     "font-awesome": "^4.7.0",
     "jquery": "^3.5.1",
+    "light-toast": "^0.3.0",
     "mdbreact": "^4.24.0",
     "moment": "^2.24.0",
     "moment-range": "^4.0.2",
@@ -46,6 +47,7 @@
     "redux-thunk": "^2.3.0",
     "shave": "^2.5.9",
     "socket.io-client": "^2.3.0",
+    "sort-array": "^4.1.2",
     "styled-components": "^4.4.1",
     "sweetalert": "^2.1.2",
     "sweetalert2": "^9.7.1"

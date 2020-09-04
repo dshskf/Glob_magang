@@ -8,7 +8,8 @@ export default function Message(props) {
     isMine,
     startsSequence,
     endsSequence,
-    showTimestamp
+    showTimestamp,
+    ref
   } = props;
 
   const friendlyTimestamp = moment(data.timestamp).format('LLLL');
@@ -18,7 +19,9 @@ export default function Message(props) {
       `${isMine ? 'mine' : ''}`,
       `${startsSequence ? 'start' : ''}`,
       `${endsSequence ? 'end' : ''}`
-    ].join(' ')}>
+    ].join(' ')}
+      ref={ref}
+    >
       {
         showTimestamp
         &&

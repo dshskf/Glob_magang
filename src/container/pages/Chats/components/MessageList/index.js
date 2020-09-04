@@ -32,13 +32,13 @@ const MessageList = (props) => {
     firebaseApp.database().ref(roomData.roomId).on("value", async snapshot => {
       let update_read_flag_key = []
 
-      let result = Object.keys(snapshot.val().message).map((key) => {        
+      let result = Object.keys(snapshot.val().message).map((key) => {
         if (!snapshot.val().message[key].read && snapshot.val().message[key].receiver === parseInt(user_id)) {
 
           update_read_flag_key.push(key);
         }
         return snapshot.val().message[key]
-      });      
+      });
 
       result = result.map((data, index) => ({
         id: data.id,
@@ -49,7 +49,7 @@ const MessageList = (props) => {
         time_label: moment(data.timestamp.time).format("HH:mm"),
         status: data.read
       }))
-      
+
       update_read_flag_key.map(msg_key => firebaseApp.database().ref(`/${roomData.roomId}/message/${msg_key}`).update({ read: true }))
 
       setMessages(result)
@@ -131,8 +131,12 @@ const MessageList = (props) => {
 
   const submitMessage = () => {
     let sendMsg = firebaseApp.database().ref(`/${roomData.roomId}/message`)
+    let updateTimestamp = firebaseApp.database().ref(`/${roomData.roomId}`)
     const d = new Date()
 
+    updateTimestamp.update({
+      last_timestamp: Date.now()
+    })
     sendMsg.push({
       contain: input,
       read: false,
@@ -158,12 +162,24 @@ const MessageList = (props) => {
     setInput('')
   }
 
+  const keyDownHandler = (e) => {
+    if (e.key === 'Enter') {
+      submitMessage()
+    }
+  }
+
   return (
     <div className="message-list" style={{ display: roomData ? 'block' : 'none' }}>
       <div className="message-list-container">{renderMessages()}</div>
 
       <div className="message-input">
-        <input type="text" value={input} onChange={inputHandler} placeholder="Enter text here..."></input>
+        <input
+          type="text"
+          value={input}
+          onChange={inputHandler}
+          onKeyDown={keyDownHandler}
+          placeholder="Enter text here..."
+        />
         <i className="metismenu-icon pe-7s-angle-right" onClick={submitMessage}></i>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { withRouter } from 'react-router-dom';
 import { firebaseApp } from '../../../../../config/firebase/index'
 import { postQuery } from '../../../../../config/redux/action'
 import { encrypt, decrypt } from '../../../../../config/lib';
+import sortArray from 'sort-array'
 
 import './ConversationList.css';
 
@@ -20,29 +21,16 @@ const ConversationList = props => {
   }, [])
 
 
-  const matchUserArray = (input, order) => {
-    let temp = {
-      user: [],
-      msg: []
-    }
+  const matchUserArray = (user, order) => {
+    let temp = []
 
     order.map(order => {
-      // Matching User
-      input.user.map((user, index) => {
-        if (parseInt(input.user[index].company_id) === parseInt(order.id)) {
-          temp.user.push(input.user[index])
+      user.map(user_data => {
+        if (parseInt(user_data.company_id) === parseInt(order.receiver_id)) {
+          temp.push(user_data)
         }
         return null
       })
-
-      // Matching Message
-      input.msg.map((msg, index) => {
-        if (parseInt(input.msg[index][0].sender) === parseInt(order.id)) {
-          temp.msg.push(input.msg[index])
-        }
-        return null
-      })
-
       return null
     })
 
@@ -53,6 +41,8 @@ const ConversationList = props => {
     let user_id = parseInt(decrypt(JSON.parse(localStorage.getItem('userData')).company_id))
 
     firebaseApp.database().ref().orderByChild('company_id_seller').equalTo(user_id).on("value", async snapshot => {
+
+      // Get Room Id
       let keyCollection = []
       snapshot.forEach(function (child) {
         keyCollection.push(child.key)
@@ -63,36 +53,47 @@ const ConversationList = props => {
         where 
       `
 
-      const valueArr = Object.keys(snapshot.val()).map((key) => snapshot.val()[key]); //Convert Object to array
-      let messageArr = []
-      let receiverArr = []
+      const roomData = Object.keys(snapshot.val()).map((key) => snapshot.val()[key]); //Convert Object to array      
+      let chatDataArr = []
+
 
       // Adding query
-      valueArr.map((data, index) => {
-        if (index === valueArr.length - 1) {
+      roomData.map((data, index) => {
+        if (index === roomData.length - 1) {
           passQuery += `gmu.id = ${data.user_id_buyer};`
         } else {
           passQuery += `gmu.id = ${data.user_id_buyer} or `
         }
 
-        messageArr.push(Object.keys(data.message).map((key) => data.message[key])) // Push message on room
-        receiverArr.push({ id: data.company_id_buyer, time: data.last_timestamp })
+        let convert_msg_objToArray = Object.keys(data.message).map((key) => data.message[key])
+
+        chatDataArr.push({
+          receiver_id: data.company_id_buyer,
+          time: data.last_timestamp,
+          msg: convert_msg_objToArray,
+          roomId: keyCollection[index]
+        })
+      })
+
+
+      chatDataArr = await sortArray(chatDataArr, {
+        by: 'time',
+        order: 'desc'
       })
 
       let user = await props.getUserList({ query: encrypt(passQuery) }).catch(err => err)
+      let matchArray = matchUserArray(user, chatDataArr)
+      user = matchArray
 
-      let matchArray = matchUserArray({ user: user, msg: messageArr }, receiverArr)
-
-      user = matchArray.user
-      messageArr = matchArray.msg
-
-      user = user.map((data, index) => ({
-        id: data.id,
-        nama: data.nama_perusahaan,
-        roomId: keyCollection[index],
-        last_message: messageArr[index][messageArr[index].length - 1] ? messageArr[index][messageArr[index].length - 1].contain : null,
-        receiver: receiverArr[index].id
-      }))
+      user = user.map((data, index) => {
+        return {
+          id: data.id,
+          nama: data.nama_perusahaan,
+          roomId: chatDataArr[index].roomId,
+          last_message: chatDataArr[index].msg[chatDataArr[index].msg.length - 1].contain,
+          receiver: chatDataArr[index].receiver_id
+        }
+      })
 
       setUserData(user)
     })
@@ -100,10 +101,6 @@ const ConversationList = props => {
 
   const inputHandler = (e) => {
     const input = e.target.value
-
-    if (input === '' || !input) {      
-      setUserDataFiltered(null)
-    }
 
     let user = userData.filter(data => {
       return data.nama.toLowerCase().includes(input.toLowerCase())
