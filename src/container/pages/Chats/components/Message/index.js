@@ -35,11 +35,17 @@ export default function Message(props) {
           isMine ?
             <React.Fragment>
               <div className="bubble-time">
+                {
+                  data.status ?
+                    <img src={require('../../../../../component/assets/img/read-true.png')} alt="" />
+                    :
+                    <img src={require('../../../../../component/assets/img/read-false.png')} alt="" />
+                }
+
                 {data.time_label}
               </div>
               <div className={`bubble ${data.status ? 'bubble-read' : null}`} title={friendlyTimestamp}>
                 {data.message}
-                <i className="metismenu-icon pe-7s-check" />
               </div>
             </React.Fragment>
             :

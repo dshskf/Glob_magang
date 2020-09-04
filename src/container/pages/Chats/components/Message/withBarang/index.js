@@ -67,6 +67,12 @@ const MessageWithBarang = (props) => {
           isMine ?
             <React.Fragment>
               <div className="bubble-time">
+                {
+                  data.status ?
+                    <img src={require('../../../../../../component/assets/img/read-true.png')} alt="" />
+                    :
+                    <img src={require('../../../../../../component/assets/img/read-false.png')} alt="" />
+                }
                 {data.time_label}
               </div>
               <div className="bubble" title={friendlyTimestamp}>
@@ -74,7 +80,7 @@ const MessageWithBarang = (props) => {
                 {
                   barang ?
                     <div className="bubble-barang">
-                      <img src={barang.foto} />
+                      <img src={barang.foto} alt="" />
                       <div className="bubble-barang-detail">
                         <p className={barang.nama.length > 30 ? "bubble-bd-long" : ""} >{barang.nama}</p>
                         <NumberFormat value={barang.price} displayType={'text'} thousandSeparator={true} prefix={'IDR'} />
@@ -91,7 +97,7 @@ const MessageWithBarang = (props) => {
                 {
                   barang ?
                     <div className="bubble-barang">
-                      <img src={barang.foto} />
+                      <img src={barang.foto} alt="" />
                       <div className="bubble-barang-detail">
                         <p className={barang.nama.length > 30 ? "bubble-bd-long" : ""} >{barang.nama}</p>
                         <NumberFormat value={barang.price} displayType={'text'} thousandSeparator={true} prefix={'IDR '} />

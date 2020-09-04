@@ -63,23 +63,18 @@
   border-top-right-radius: 2px;
   border-bottom-right-radius: 2px;
   padding: 10px 1rem;
-  padding-right: 2.5rem;
 }
 
-.bubble i {
-  color: gray;
-  position: absolute;
-  right: 12px;
-  bottom: 6px;
-  font-size: 14px;
-}
-
-.bubble-read i {
-  color: white !important;
-  font-weight: bold;
-}
 .bubble-time {
   color: gray;
   font-size: 0.5rem;
   margin: 4px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 2rem;
+}
+
+.bubble-time img{
+  margin-right: 4px;
 }

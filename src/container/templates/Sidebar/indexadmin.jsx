@@ -241,14 +241,14 @@ class SidebarAdmin extends Component {
                                             <li>
                                                 <Link to="/admin/chats" className="mm-active">
                                                     <i className="metismenu-icon pe-7s-chat">
-                                                    </i>Manajemen Chats
+                                                    </i>Chats
                                                 </Link>
                                             </li>
                                         ) :
                                             <li>
                                                 <Link to="/admin/chats">
                                                     <i className="metismenu-icon pe-7s-chat">
-                                                    </i>Manajemen Chats
+                                                    </i>Chats
                                                 </Link>
                                             </li>
                                     }
