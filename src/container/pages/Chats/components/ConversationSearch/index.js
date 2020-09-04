@@ -7,7 +7,7 @@ const ConversationSearch = props => {
       <input
         type="search"
         className="conversation-search-input"
-        placeholder="Search Messages"
+        placeholder="Cari User"
         value={props.value}
         onChange={props.handler}
       />
