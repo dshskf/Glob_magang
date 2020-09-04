@@ -75,15 +75,14 @@ const ConversationList = props => {
         })
       })
 
-
+      // Sort user list by last_timestamp
       chatDataArr = await sortArray(chatDataArr, {
         by: 'time',
         order: 'desc'
       })
 
       let user = await props.getUserList({ query: encrypt(passQuery) }).catch(err => err)
-      let matchArray = matchUserArray(user, chatDataArr)
-      user = matchArray
+      user = matchUserArray(user, chatDataArr)
 
       user = user.map((data, index) => {
         return {

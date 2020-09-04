@@ -1,7 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { connect } from 'react-redux';
-
-import Compose from '../Compose';
 import moment from 'moment';
 
 import { firebaseApp } from '../../../../../config/firebase/index'
@@ -19,6 +17,8 @@ const MessageList = (props) => {
 
   const user_id = parseInt(decrypt(JSON.parse(localStorage.getItem('userData')).company_id))
   const roomData = props.userIdToFecth
+
+  const lastMessageRef = useRef(null)
 
   useEffect(() => {
     if (roomData) {
@@ -73,6 +73,7 @@ const MessageList = (props) => {
       let startsSequence = true;
       let endsSequence = true;
       let showTimestamp = true;
+      let lastMessage = false;
 
       if (previous) {
         let previousMoment = moment(previous.timestamp);
@@ -98,6 +99,8 @@ const MessageList = (props) => {
         }
       }
 
+      lastMessage = i === messages.length - 1 ? lastMessageRef : null;
+
       tempMessages.push(
         messages[i].barang_id ?
           <MessageWithBarang
@@ -108,6 +111,7 @@ const MessageList = (props) => {
             showTimestamp={showTimestamp}
             data={current}
             barang_id={messages[i].barang_id}
+            isLastMessage={lastMessage}
           />
           :
           <Message
@@ -117,6 +121,7 @@ const MessageList = (props) => {
             endsSequence={endsSequence}
             showTimestamp={showTimestamp}
             data={current}
+            isLastMessage={lastMessage}
           />
       );
 
@@ -164,12 +169,16 @@ const MessageList = (props) => {
 
   const keyDownHandler = (e) => {
     if (e.key === 'Enter') {
+      lastMessageRef.current.scrollIntoView({ behavior: "smooth" })
       submitMessage()
     }
   }
 
   return (
     <div className="message-list" style={{ display: roomData ? 'block' : 'none' }}>
+      <div className="message-list-header">
+        {props.userIdToFecth ? props.userIdToFecth.nama : null}
+      </div>
       <div className="message-list-container">{renderMessages()}</div>
 
       <div className="message-input">

@@ -9,7 +9,7 @@ export default function Message(props) {
     startsSequence,
     endsSequence,
     showTimestamp,
-    ref
+    isLastMessage
   } = props;
 
   const friendlyTimestamp = moment(data.timestamp).format('LLLL');
@@ -20,7 +20,7 @@ export default function Message(props) {
       `${startsSequence ? 'start' : ''}`,
       `${endsSequence ? 'end' : ''}`
     ].join(' ')}
-      ref={ref}
+      ref={isLastMessage}
     >
       {
         showTimestamp
