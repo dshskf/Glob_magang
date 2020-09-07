@@ -9,7 +9,7 @@
   cursor: pointer;
 }
 
-.conversation-active{
+.conversation-active {
   background: #eeeef1;
 }
 
@@ -32,4 +32,19 @@
   font-size: 14px;
   color: #888;
   margin: 0;
+}
+
+.conversation-badge {
+  margin-left: 40%;
+  width: 2.5rem;
+  height: 1.5rem;
+  background: #3f6ad8;
+  border-radius: 20px;
+  color: white;
+  text-align: center;
+  font-size: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
 }

@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { firebaseApp } from '../../../config/firebase/index'
 
 import ContentBeranda from '../../pages/Beranda/content'
 import ContentBarang from '../../pages/Barang/content'
@@ -22,7 +23,8 @@ import { encrypt, decrypt } from '../../../config/lib';
 
 class SidebarAdmin extends Component {
     state = {
-        totalNotification: 0
+        totalNotification: 0,
+        totalUnreadMessages: 0
     }
 
     async componentDidMount() {
@@ -34,6 +36,32 @@ class SidebarAdmin extends Component {
             where seller_id = ${decrypt(userData.company_id)} and id_sales = ${decrypt(userData.id)} and status = 'A')
         `)
         const post = await this.props.getNumber({ query: query }).catch(err => err)
+
+        let user_id = parseInt(decrypt(userData.company_id))
+        firebaseApp.database().ref().orderByChild('company_id_seller').equalTo(user_id).on("value", async snapshot => {
+            const roomData = Object.keys(snapshot.val()).map((key) => snapshot.val()[key]); //Convert Object to array
+            let count_unread = 0
+
+            roomData.map(data => {
+                let isAdd = false
+
+                Object.keys(data.message).map((key) => {
+                    if (data.message[key].read === false && parseInt(data.message[key].receiver) === parseInt(user_id)) {
+                        isAdd = true
+                    }
+
+                })
+
+                if (isAdd) {
+                    count_unread += 1
+                }
+                return null;
+            })
+
+
+            this.setState({ totalUnreadMessages: count_unread })
+
+        })
 
         this.setState({ totalNotification: post[0].count })
     }
@@ -149,12 +177,16 @@ class SidebarAdmin extends Component {
                                                 <Link to="/admin/negosiasi" className="mm-active">
                                                     <div style={{
                                                         display: 'flex',
-                                                        alignItems: 'center'
-
+                                                        alignItems: 'center',
                                                     }}>
                                                         <i className="metismenu-icon pe-7s-comment" />
                                                         <p>Manajemen Negosiasi</p>
-                                                        {/* <p style={{ color: '#B81F44', marginLeft: '3.5rem', fontWeight: 'bold' }}>{this.state.totalNotification}</p> */}
+                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '10px' }}>{
+                                                            parseInt(this.state.totalNotification) > 99 ?
+                                                                "99+"
+                                                                :
+                                                                this.state.totalNotification
+                                                        }</p>
                                                     </div>
                                                 </Link>
                                             </li>
@@ -167,7 +199,12 @@ class SidebarAdmin extends Component {
                                                     }}>
                                                         <i className="metismenu-icon pe-7s-comment" />
                                                         <p>Manajemen Negosiasi</p>
-                                                        {/* <p style={{ color: '#B81F44', marginLeft: '3.5rem', fontWeight: 'bold' }}>{this.state.totalNotification}</p> */}
+                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '10px' }}>{
+                                                            parseInt(this.state.totalNotification) > 99 ?
+                                                                "99+"
+                                                                :
+                                                                this.state.totalNotification
+                                                        }</p>
                                                     </div>
                                                 </Link>
                                             </li>
@@ -240,16 +277,30 @@ class SidebarAdmin extends Component {
                                         page === 'chats' ? (
                                             <li>
                                                 <Link to="/admin/chats" className="mm-active">
-                                                    <i className="metismenu-icon pe-7s-chat">
-                                                    </i>Chats
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                    }}>
+                                                        <i className="metismenu-icon pe-7s-chat" />
+                                                        <p>Chats</p>
+                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '10px' }}>{this.state.totalUnreadMessages}</p>
+                                                    </div>
                                                 </Link>
+
                                             </li>
                                         ) :
                                             <li>
-                                                <Link to="/admin/chats">
-                                                    <i className="metismenu-icon pe-7s-chat">
-                                                    </i>Chats
+                                                <Link to="/admin/chats" >
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                    }}>
+                                                        <i className="metismenu-icon pe-7s-chat" />
+                                                        <p>Chats</p>
+                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '10px' }}>{this.state.totalUnreadMessages}</p>
+                                                    </div>
                                                 </Link>
+
                                             </li>
                                     }
                                 </ul>

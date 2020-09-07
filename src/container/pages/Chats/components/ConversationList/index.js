@@ -37,6 +37,17 @@ const ConversationList = props => {
     return temp
   }
 
+  const countUnReadMessages = (message, user_id) => {
+    let total = 0
+    message.map(data => {
+      if (data.read === false && parseInt(data.receiver) === parseInt(user_id)) {
+        total += 1
+      }
+      return null
+    })
+    return total
+  }
+
   const getUserList = () => {
     let user_id = parseInt(decrypt(JSON.parse(localStorage.getItem('userData')).company_id))
 
@@ -44,6 +55,7 @@ const ConversationList = props => {
       if (!snapshot.val()) {
         return
       }
+
       // Get Room Id
       let keyCollection = []
       snapshot.forEach(function (child) {
@@ -68,12 +80,14 @@ const ConversationList = props => {
         }
 
         let convert_msg_objToArray = Object.keys(data.message).map((key) => data.message[key])
+        let total_message_unread = countUnReadMessages(convert_msg_objToArray, user_id)
 
         chatDataArr.push({
           receiver_id: data.company_id_buyer,
           time: data.last_timestamp,
           msg: convert_msg_objToArray,
-          roomId: keyCollection[index]
+          roomId: keyCollection[index],
+          total_message_unread: total_message_unread
         })
       })
 
@@ -87,12 +101,15 @@ const ConversationList = props => {
       user = matchUserArray(user, chatDataArr)
 
       user = user.map((data, index) => {
+        let last_msg = chatDataArr[index].msg[chatDataArr[index].msg.length - 1] && chatDataArr[index].msg[chatDataArr[index].msg.length - 1].contain
+
         return {
           id: data.id,
           nama: data.nama_perusahaan,
           roomId: chatDataArr[index].roomId,
-          last_message: chatDataArr[index].msg[chatDataArr[index].msg.length - 1].contain,
-          receiver: chatDataArr[index].receiver_id
+          last_message: last_msg,
+          receiver: chatDataArr[index].receiver_id,
+          total_message_unread: chatDataArr[index].total_message_unread
         }
       })
 
