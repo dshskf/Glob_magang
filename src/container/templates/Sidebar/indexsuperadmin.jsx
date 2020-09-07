@@ -15,6 +15,7 @@ import ContentMasterReasonSuperAdmin from './../../pages/MasterReason/contentsup
 import ContentProfilSuperAdmin from './../../pages/Profil/contentsuperadmin'
 import ContentPaymentSuperAdmin from './../../pages/Payment/contentsuperadmin'
 import ContentMasterKalenderLibur from './../../pages/MasterKalenderLibur/contentsuperadmin'
+import ContentMasterBanner from './../../pages/MasterBanner/contentsuperadmin'
 import Footer from '../Footer';
 import HeaderSuperAdmin from '../Header';
 
@@ -71,8 +72,8 @@ class SidebarSuperAdmin extends Component {
                                 </button>
                             </span>
                         </div>
-                        <div className="scrollbar-sidebar">
-                            <div className="app-sidebar__inner">
+                        <div id="scrollbar-sidebar-scroll" className="scrollbar-sidebar">
+                            <div id="scrollbar-sidebar-scroll" className="app-sidebar__inner">
                                 <ul className="vertical-nav-menu">
                                     <li className="app-sidebar__heading">Menu Utama</li>
                                     {
@@ -285,15 +286,31 @@ class SidebarSuperAdmin extends Component {
                                         page === 'masterkalenderlibur' ? (
                                             <li>
                                                 <Link to="/admin/masterkalenderlibur" className="mm-active">
-                                                    <i className="metismenu-icon pe-7s-attention">
+                                                    <i className="metismenu-icon pe-7s-sun">
                                                     </i>Manajemen Kalender Libur
                                                 </Link>
                                             </li>
                                         ) :
                                             <li>
                                                 <Link to="/admin/masterkalenderlibur">
-                                                    <i className="metismenu-icon pe-7s-attention">
+                                                    <i className="metismenu-icon pe-7s-sun">
                                                     </i>Manajemen Kalender Libur
+                                                </Link>
+                                            </li>
+                                    }
+                                    {
+                                        page === 'masterbanner' ? (
+                                            <li>
+                                                <Link to="/admin/masterbanner" className="mm-active">
+                                                    <i className="metismenu-icon pe-7s-photo">
+                                                    </i>Manajemen Banner
+                                                </Link>
+                                            </li>
+                                        ) :
+                                            <li>
+                                                <Link to="/admin/masterbanner">
+                                                    <i className="metismenu-icon pe-7s-photo">
+                                                    </i>Manajemen Banner
                                                 </Link>
                                             </li>
                                     }
@@ -326,6 +343,8 @@ class SidebarSuperAdmin extends Component {
                             <ContentMasterReasonSuperAdmin></ContentMasterReasonSuperAdmin>
                         ) : page === 'masterkalenderlibur' ? (
                             <ContentMasterKalenderLibur></ContentMasterKalenderLibur>
+                        ) : page === 'masterbanner' ? (
+                            <ContentMasterBanner></ContentMasterBanner>
                         ) : page === 'profil' ? (
                             <ContentProfilSuperAdmin></ContentProfilSuperAdmin>
                         ) : page === 'payment' ? (

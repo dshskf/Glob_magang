@@ -168,29 +168,33 @@ const MessageList = (props) => {
   }
 
   const keyDownHandler = (e) => {
-    if (e.key === 'Enter') {      
+    if (e.key === 'Enter') {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" })
       submitMessage()
     }
   }
 
   return (
-    <div className="message-list" style={{ display: roomData ? 'block' : 'none' }}>
-      <div className="message-list-header">
-        {props.userIdToFecth ? props.userIdToFecth.nama : null}
+    <div className="message-list-box">
+      <div className="message-list" style={{ display: roomData ? 'block' : 'none' }}>
+        <div className="message-list-header">
+          {props.userIdToFecth ? props.userIdToFecth.nama : null}
+        </div>
+        <div className="message-list-container">{renderMessages()}</div>
       </div>
-      <div className="message-list-container">{renderMessages()}</div>
+      {
+        props.userIdToFecth && <div className="message-input">
+          <input
+            type="text"
+            value={input}
+            onChange={inputHandler}
+            onKeyDown={keyDownHandler}
+            placeholder="Enter text here..."
+          />
+          <i className="metismenu-icon pe-7s-angle-right" onClick={submitMessage}></i>
+        </div>
+      }
 
-      <div className="message-input">
-        <input
-          type="text"
-          value={input}
-          onChange={inputHandler}
-          onKeyDown={keyDownHandler}
-          placeholder="Enter text here..."
-        />
-        <i className="metismenu-icon pe-7s-angle-right" onClick={submitMessage}></i>
-      </div>
     </div>
   );
 }

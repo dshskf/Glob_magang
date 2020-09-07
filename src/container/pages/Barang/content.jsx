@@ -3760,14 +3760,14 @@ class ContentBarang extends Component {
     }
 
     uploadGambarBarang = async () => {
+        Toast.loading('Loading...');
         if (this.state.editGambarBarang) {
             let temp = this.state.detailed_foto_baru
             let tempPict = temp.name
             const data = {
                 tmp: temp,
                 tmpPict: tempPict
-            }
-            Toast.loading('Loading...');
+            }            
             const resupload = await this.props.uploadGambarBarang(data).catch(err => err)
             Toast.hide();
             if (resupload) {

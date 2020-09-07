@@ -120,11 +120,13 @@ const ConversationList = props => {
   const inputHandler = (e) => {
     const input = e.target.value
 
-    let user = userData.filter(data => {
-      return data.nama.toLowerCase().includes(input.toLowerCase())
-    })
+    if (userData) {
+      let user = userData.filter(data => {
+        return data.nama.toLowerCase().includes(input.toLowerCase())
+      })
 
-    setUserDataFiltered(user)
+      setUserDataFiltered(user)
+    }
     setInputSearch(input)
   }
 

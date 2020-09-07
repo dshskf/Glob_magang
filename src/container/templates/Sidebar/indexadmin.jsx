@@ -29,16 +29,34 @@ class SidebarAdmin extends Component {
 
     async componentDidMount() {
         const userData = JSON.parse(localStorage.getItem('userData'))
-        const query = encrypt(`
-        select count (*) from gcm_notification_nego gnn 
-        where seller_id = ${decrypt(userData.company_id)} and buyer_id in (
-            select buyer_id from gcm_company_listing_sales gcls 
-            where seller_id = ${decrypt(userData.company_id)} and id_sales = ${decrypt(userData.id)} and status = 'A')
-        `)
-        const post = await this.props.getNumber({ query: query }).catch(err => err)
+        let query
+        if (userData.sa_role === 'sales') {
+            query = encrypt("select count(*) " +
+                "from gcm_master_cart " +
+                "inner join gcm_history_nego on gcm_master_cart.history_nego_id = gcm_history_nego.id " +
+                "inner join gcm_master_company on gcm_master_cart.company_id = gcm_master_company.id " +
+                "inner join gcm_company_listing_sales on gcm_master_cart.company_id = gcm_company_listing_sales.buyer_id " +
+                "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
+                "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
+                "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id) +
+                " and gcm_company_listing_sales.id_sales=" + decrypt(userData.id))
+        } else {
+            query = encrypt("select count(*) " +
+                "from gcm_master_cart " +
+                "inner join gcm_history_nego on gcm_master_cart.history_nego_id = gcm_history_nego.id " +
+                "inner join gcm_master_company on gcm_master_cart.company_id = gcm_master_company.id " +
+                "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
+                "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
+                "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id))
+        }     
+        const post = await this.props.getNumber({ query: query }).catch(err => err)        
 
         let user_id = parseInt(decrypt(userData.company_id))
         firebaseApp.database().ref().orderByChild('company_id_seller').equalTo(user_id).on("value", async snapshot => {
+            if (!snapshot.val()) {
+                return
+            }
+
             const roomData = Object.keys(snapshot.val()).map((key) => snapshot.val()[key]); //Convert Object to array
             let count_unread = 0
 
@@ -49,7 +67,6 @@ class SidebarAdmin extends Component {
                     if (data.message[key].read === false && parseInt(data.message[key].receiver) === parseInt(user_id)) {
                         isAdd = true
                     }
-
                 })
 
                 if (isAdd) {
@@ -60,7 +77,6 @@ class SidebarAdmin extends Component {
 
 
             this.setState({ totalUnreadMessages: count_unread })
-
         })
 
         this.setState({ totalNotification: post[0].count })
@@ -181,12 +197,12 @@ class SidebarAdmin extends Component {
                                                     }}>
                                                         <i className="metismenu-icon pe-7s-comment" />
                                                         <p>Manajemen Negosiasi</p>
-                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '10px' }}>{
+                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '12px' }}>({
                                                             parseInt(this.state.totalNotification) > 99 ?
                                                                 "99+"
                                                                 :
                                                                 this.state.totalNotification
-                                                        }</p>
+                                                        })</p>
                                                     </div>
                                                 </Link>
                                             </li>
@@ -199,12 +215,12 @@ class SidebarAdmin extends Component {
                                                     }}>
                                                         <i className="metismenu-icon pe-7s-comment" />
                                                         <p>Manajemen Negosiasi</p>
-                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '10px' }}>{
+                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '12px' }}>({
                                                             parseInt(this.state.totalNotification) > 99 ?
                                                                 "99+"
                                                                 :
                                                                 this.state.totalNotification
-                                                        }</p>
+                                                        })</p>
                                                     </div>
                                                 </Link>
                                             </li>
@@ -283,7 +299,7 @@ class SidebarAdmin extends Component {
                                                     }}>
                                                         <i className="metismenu-icon pe-7s-chat" />
                                                         <p>Chats</p>
-                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '10px' }}>{this.state.totalUnreadMessages}</p>
+                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '12px' }}>({this.state.totalUnreadMessages})</p>
                                                     </div>
                                                 </Link>
 
@@ -297,7 +313,7 @@ class SidebarAdmin extends Component {
                                                     }}>
                                                         <i className="metismenu-icon pe-7s-chat" />
                                                         <p>Chats</p>
-                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '10px' }}>{this.state.totalUnreadMessages}</p>
+                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '12px' }}>({this.state.totalUnreadMessages})</p>
                                                     </div>
                                                 </Link>
 
