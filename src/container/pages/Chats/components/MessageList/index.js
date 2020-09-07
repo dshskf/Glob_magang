@@ -168,7 +168,7 @@ const MessageList = (props) => {
   }
 
   const keyDownHandler = (e) => {
-    if (e.key === 'Enter') {
+    if (e.key === 'Enter') {      
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" })
       submitMessage()
     }

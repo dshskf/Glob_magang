@@ -41,7 +41,9 @@ const ConversationList = props => {
     let user_id = parseInt(decrypt(JSON.parse(localStorage.getItem('userData')).company_id))
 
     firebaseApp.database().ref().orderByChild('company_id_seller').equalTo(user_id).on("value", async snapshot => {
-
+      if (!snapshot.val()) {
+        return
+      }
       // Get Room Id
       let keyCollection = []
       snapshot.forEach(function (child) {

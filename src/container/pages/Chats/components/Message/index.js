@@ -30,7 +30,7 @@ export default function Message(props) {
         </div>
       }
 
-      <div className="bubble-container">
+      <div className="bubble-container">        
         {
           isMine ?
             <React.Fragment>

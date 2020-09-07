@@ -14,6 +14,7 @@ const MessageWithBarang = (props) => {
 
   const {
     data,
+    isLastMessage,
     isMine,
     startsSequence,
     endsSequence,
@@ -54,7 +55,9 @@ const MessageWithBarang = (props) => {
       `${isMine ? 'mine' : ''}`,
       `${startsSequence ? 'start' : ''}`,
       `${endsSequence ? 'end' : ''}`
-    ].join(' ')}>
+    ].join(' ')}
+      ref={isLastMessage}
+    >
       {
         showTimestamp &&
         <div className="timestamp">
