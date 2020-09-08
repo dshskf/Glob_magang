@@ -4493,6 +4493,10 @@ export const navigationHandler = (data) => (dispatch) => {
     dispatch({ type: "CHANGE_IS_SHOWN", value: data })
 }
 
+export const checkRenderedSidebar = (data) => (dispatch) => {
+    dispatch({ type: "SET_SIDEBAR", value: data })
+}
+
 
 export const getNotifyData = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {

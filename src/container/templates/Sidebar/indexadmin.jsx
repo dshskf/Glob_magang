@@ -18,7 +18,7 @@ import ContentChats from '../../pages/Chats/content'
 import Footer from '../Footer';
 import Header from '../Header';
 
-import { getNotificationNumber } from '../../../config/redux/action';
+import { getNotificationNumber, checkRenderedSidebar } from '../../../config/redux/action';
 import { encrypt, decrypt } from '../../../config/lib';
 
 class SidebarAdmin extends Component {
@@ -29,27 +29,34 @@ class SidebarAdmin extends Component {
 
     async componentDidMount() {
         const userData = JSON.parse(localStorage.getItem('userData'))
-        let query
-        if (userData.sa_role === 'sales') {
-            query = encrypt("select count(*) " +
-                "from gcm_master_cart " +
-                "inner join gcm_history_nego on gcm_master_cart.history_nego_id = gcm_history_nego.id " +
-                "inner join gcm_master_company on gcm_master_cart.company_id = gcm_master_company.id " +
-                "inner join gcm_company_listing_sales on gcm_master_cart.company_id = gcm_company_listing_sales.buyer_id " +
-                "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
-                "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-                "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id) +
-                " and gcm_company_listing_sales.id_sales=" + decrypt(userData.id))
+
+        if (!this.props.sidebarStatus) {
+            let query
+            if (userData.sa_role === 'sales') {
+                query = encrypt("select count(*) " +
+                    "from gcm_master_cart " +
+                    "inner join gcm_history_nego on gcm_master_cart.history_nego_id = gcm_history_nego.id " +
+                    "inner join gcm_master_company on gcm_master_cart.company_id = gcm_master_company.id " +
+                    "inner join gcm_company_listing_sales on gcm_master_cart.company_id = gcm_company_listing_sales.buyer_id " +
+                    "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
+                    "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
+                    "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id) +
+                    " and gcm_company_listing_sales.id_sales=" + decrypt(userData.id))
+            } else {
+                query = encrypt("select count(*) " +
+                    "from gcm_master_cart " +
+                    "inner join gcm_history_nego on gcm_master_cart.history_nego_id = gcm_history_nego.id " +
+                    "inner join gcm_master_company on gcm_master_cart.company_id = gcm_master_company.id " +
+                    "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
+                    "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
+                    "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id))
+            }
+            const post = await this.props.getNumber({ query: query }).catch(err => err)
+            this.setState({ totalNotification: post[0].count })
+            this.props.checkRenderedSidebar(post[0].count)
         } else {
-            query = encrypt("select count(*) " +
-                "from gcm_master_cart " +
-                "inner join gcm_history_nego on gcm_master_cart.history_nego_id = gcm_history_nego.id " +
-                "inner join gcm_master_company on gcm_master_cart.company_id = gcm_master_company.id " +
-                "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
-                "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-                "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id))
+            this.setState({ totalNotification: this.props.sidebarStatus })
         }
-        const post = await this.props.getNumber({ query: query }).catch(err => err)
 
         let user_id = parseInt(decrypt(userData.company_id))
         firebaseApp.database().ref().orderByChild('company_id_seller').equalTo(user_id).on("value", async snapshot => {
@@ -81,7 +88,7 @@ class SidebarAdmin extends Component {
             this.setState({ totalUnreadMessages: count_unread })
         })
 
-        this.setState({ totalNotification: post[0].count })
+
     }
     render() {
         const page = this.props.page;
@@ -360,11 +367,13 @@ class SidebarAdmin extends Component {
 }
 
 const reduxState = (state) => ({
-    isShown: state.isShown
+    isShown: state.isShown,
+    sidebarStatus: state.isSidebarRendered
 })
 
 const reduxDispatch = (dispatch) => ({
-    getNumber: data => dispatch(getNotificationNumber(data))
+    getNumber: data => dispatch(getNotificationNumber(data)),
+    checkRenderedSidebar: data => dispatch(checkRenderedSidebar(data))
 })
 
 export default connect(reduxState, reduxDispatch)(SidebarAdmin);
