@@ -3,9 +3,11 @@ import { MDBDataTable } from 'mdbreact';
 import { withRouter, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { encrypt } from '../../../config/lib';
-import { queryKalenderData } from '../../../config/redux/action';
+import { uploadGambarBanner, postQuery } from '../../../config/redux/action';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, FormFeedback, Label } from 'reactstrap'
+import Resizer from './react-file-image-resizer';
 import swal from 'sweetalert';
+import Toast from 'light-toast';
 
 
 class ContentMasterBanner extends Component {
@@ -13,41 +15,173 @@ class ContentMasterBanner extends Component {
         isUpdateOpen: false,
         isDeleteOpen: false,
         isInsertOpen: false,
-        itemData: null,
-        isUpdate: false,
-        fileData: null
+        imageData: null,
+        imageShow: null,
+        bannerData: null,
+        selectedBannerData: null,
     }
 
-    handleFileInput = () => {
+    async componentDidMount() {
+        const passquery = encrypt(`select * from gcm_master_banner`)
+        const banner = await this.props.postData({ query: passquery }).catch(err => err)
 
+        const bannerList = banner.map(data => ({
+            id: data.id,
+            foto: data.foto,
+            nama: data.nama,
+            action: <center>
+                <button className="mb-2 mr-2 btn-transition btn btn-outline-primary" name={data.id} onClick={this.handleOpenUpdateBanner} value="update"> Edit</button>
+                <button className="mb-2 mr-2 btn-transition btn btn-outline-danger" name={data.id} onClick={this.handleOpenDeleteBanner} value="delete"> Delete</button>
+            </center>
+        }))
+
+        this.setState({ bannerData: bannerList })
     }
 
-    confirmInsertForm = () => {
-        // const passQuery =
+    resizeImage = (imgData, width, height) => {
+        const fileName = imgData.name
+        const fileExtension = fileName.split(".")[1]
+        if (imgData) {
+            Resizer.imageFileResizer(
+                imgData,
+                width,
+                height,
+                fileExtension,
+                100,
+                0,
+                uri => {
+                    // let randNum = (Math.round(Math.random() * 10000000) + 1) * (Math.round(Math.random() * 10000000) + 1)
+                    // let blobName = randNum.toString() + "-" + fileName + "." + fileExtension
+
+                    // uri.blobImg.name = blobName
+                    const img = {
+                        tmp: uri.blobImg,
+                        tmpPict: fileName
+                    }
+                    this.setState({ imageData: img, imageShow: uri.base64Img })
+                }
+                ,
+                'base64'
+            );
+        }
     }
 
+    handleFileInput = async (e) => {
+        const scope = this
+        const file = e.target.files[0]
+        const img = new Image()
+
+        img.src = window.URL.createObjectURL(e.target.files[0])
+        img.onload = function () {
+            scope.resizeImage(file, this.width, this.height)
+        }
+    }
+
+    handleOpenTambahBanner = () => {
+        const { isInsertOpen } = this.state
+        this.setState({ isInsertOpen: isInsertOpen ? false : true, imageData: null, imageShow: null })
+    }
+
+    handleOpenUpdateBanner = (e) => {
+        const { isUpdateOpen } = this.state
+
+        if (!isUpdateOpen) {
+            let banner = this.state.bannerData.filter(data => data.id === e.target.name)
+            banner = banner[0]
+
+            this.setState({
+                imageShow: banner.foto,
+                selectedBannerData: banner
+            })
+        }
+        this.setState({ isUpdateOpen: isUpdateOpen ? false : true })
+    }
+
+    handleOpenDeleteBanner = (e) => {
+        const { isDeleteOpen } = this.state
+        if (!isDeleteOpen) {
+            let banner = this.state.bannerData.filter(data => data.id === e.target.name)
+            banner = banner[0]
+
+            this.setState({
+                imageShow: banner.foto,
+                selectedBannerData: banner
+            })
+        }
+        this.setState({ isDeleteOpen: isDeleteOpen ? false : true })
+    }
+
+    confirmAction = async (method) => {
+        Toast.loading('Loading...');
+        let resupload = null
+        let passQuery = ''
+
+        if (method !== "D") {
+            resupload = await this.props.uploadGambarBanner(this.state.imageData).catch(err => err)
+        }
+
+        if (resupload || method === "D") {
+            if (method === "C") {
+                const fileName = this.state.imageData.tmpPict
+                passQuery = encrypt(`insert into gcm_master_banner(foto,nama) values('${resupload}','${fileName}') returning *`)
+            } else if (method === "U") {
+                const fileName = this.state.imageData.tmpPict
+                passQuery = encrypt(`update gcm_master_banner set foto='${resupload}',nama='${fileName}' where id=${this.state.selectedBannerData.id} returning *`)
+            } else {
+                passQuery = encrypt(`delete from gcm_master_banner where id=${this.state.selectedBannerData.id} returning *`)
+            }
+
+            const insertBanner = await this.props.postData({ query: passQuery }).catch(err => err)
+
+            if (insertBanner) {
+                swal({
+                    title: "Sukses!",
+                    text: "Perubahan disimpan!",
+                    icon: "success",
+                    button: false,
+                    timer: "2500"
+                }).then(() => {
+                    window.location.reload()
+                });
+            } else {
+                swal({
+                    title: "Gagal!",
+                    text: "Tidak ada perubahan disimpan!",
+                    icon: "error",
+                    button: false,
+                    timer: "2500"
+                }).then(() => {
+                    window.location.reload()
+                });
+            }
+        } else {
+            swal({
+                title: "Gagal!",
+                text: "Tidak ada perubahan disimpan!",
+                icon: "error",
+                button: false,
+                timer: "2500"
+            }).then(() => {
+                window.location.reload()
+            });
+        }
+
+        Toast.hide();
+    }
 
     render() {
         const dataBanner = {
             columns: [
                 {
                     label: 'Nama Gambar',
-                    field: 'nama_gambar',
+                    field: 'nama',
                 },
                 {
                     label: 'Action',
                     field: 'action',
                 }
             ],
-            rows: [
-                {
-                    nama_gambar: 'super',
-                    action: <center>
-                        <button className="mb-2 mr-2 btn-transition btn btn-outline-primary" value="update"> Edit</button>
-                        <button className="mb-2 mr-2 btn-transition btn btn-outline-danger" value="delete"> Delete</button>
-                    </center>
-                }
-            ]
+            rows: this.state.bannerData
         }
 
         return (
@@ -71,7 +205,7 @@ class ContentMasterBanner extends Component {
                     </div>
 
                     <div style={{ textAlign: "right" }}>
-                        <button className="sm-2 mr-2 btn btn-primary" title="Perbarui data ongkir" onClick={() => this.setState({ isInsertOpen: true })}>
+                        <button className="sm-2 mr-2 btn btn-primary" title="Perbarui data ongkir" onClick={this.handleOpenTambahBanner}>
                             <i className="fa fa-plus" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -93,10 +227,14 @@ class ContentMasterBanner extends Component {
                             </div>
                         </div>
                     </div>
-
-                    <Modal size="md" toggle={() => this.setState({ isInsertOpen: false })} isOpen={this.state.isInsertOpen} backdrop="static" keyboard={false}>
-                        <ModalHeader toggle={() => this.setState({ isInsertOpen: false })}>Unggah Banner</ModalHeader>
+                    {/* ADD */}
+                    <Modal size="md" toggle={this.handleOpenTambahBanner} isOpen={this.state.isInsertOpen} backdrop="static" keyboard={false}>
+                        <ModalHeader toggle={this.handleOpenTambahBanner}>Unggah Banner</ModalHeader>
                         <ModalBody>
+                            {
+                                this.state.imageShow && <img style={{ width: '100%' }} src={this.state.imageShow} alt="" />
+                            }
+
                             <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                                 <FormGroup>
                                     <Input type="file" accept=".png, .jpg, .jpeg"
@@ -105,14 +243,18 @@ class ContentMasterBanner extends Component {
                             </div>
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="primary" disabled={this.state.fileData ? false : true} onClick={this.confirmInsertForm}>Perbarui</Button>
-                            <Button color="danger" onClick={() => this.setState({ isInsertOpen: false })}>Batal</Button>
+                            <Button color="primary" disabled={this.state.imageData ? false : true} onClick={() => this.confirmAction("C")}>Tambah</Button>
+                            <Button color="danger" onClick={this.handleOpenTambahBanner}>Batal</Button>
                         </ModalFooter>
                     </Modal>
 
-                    <Modal size="md" toggle={() => this.setState({ isUpdateOpen: false })} isOpen={this.state.isUpdateOpen} backdrop="static" keyboard={false}>
-                        <ModalHeader toggle={() => this.setState({ isUpdateOpen: false })}>Edit Banner</ModalHeader>
+                    {/* UPDATE */}
+                    <Modal size="md" toggle={this.handleOpenUpdateBanner} isOpen={this.state.isUpdateOpen} backdrop="static" keyboard={false}>
+                        <ModalHeader toggle={this.handleOpenUpdateBanner}>Edit Banner</ModalHeader>
                         <ModalBody>
+                            {
+                                this.state.imageShow && <img style={{ width: '100%' }} src={this.state.imageShow} alt="" />
+                            }
                             <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                                 <FormGroup>
                                     <Input type="file" accept=".png, .jpg, .jpeg"
@@ -121,8 +263,25 @@ class ContentMasterBanner extends Component {
                             </div>
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="primary" disabled={this.state.fileData ? false : true} onClick={this.confirmInsertForm}>Perbarui</Button>
-                            <Button color="danger" onClick={() => this.setState({ isUpdateOpen: false })}>Batal</Button>
+                            <Button color="primary" disabled={this.state.imageData ? false : true} onClick={() => this.confirmAction("U")}>Perbarui</Button>
+                            <Button color="danger" onClick={this.handleOpenUpdateBanner}>Batal</Button>
+                        </ModalFooter>
+                    </Modal>
+
+                    {/* DELETE */}
+                    <Modal size="md" toggle={this.handleOpenDeleteBanner} isOpen={this.state.isDeleteOpen} backdrop="static" keyboard={false}>
+                        <ModalHeader toggle={this.handleOpenDeleteBanner}>Edit Banner</ModalHeader>
+                        <ModalBody>
+                            {
+                                this.state.imageShow && <img style={{ width: '100%' }} src={this.state.imageShow} alt="" />
+                            }
+                            <div className="position-relative form-group" style={{ marginTop: '3%' }}>
+                                <label>Apakah yakin akan melakukan aksi ini?</label>
+                            </div>
+                        </ModalBody>
+                        <ModalFooter>
+                            <Button color="primary" onClick={() => this.confirmAction("D")}>Delete</Button>
+                            <Button color="danger" onClick={this.handleOpenDeleteBanner}>Batal</Button>
                         </ModalFooter>
                     </Modal>
 
@@ -137,7 +296,8 @@ const reduxState = (state) => ({
 })
 
 const reduxDispatch = (dispatch) => ({
-    // queryKalender: (data) => dispatch(queryKalenderData(data))
+    uploadGambarBanner: (data) => dispatch(uploadGambarBanner(data)),
+    postData: (data) => dispatch(postQuery(data))
 })
 
 export default withRouter(connect(reduxState, reduxDispatch)(ContentMasterBanner));

@@ -73,7 +73,7 @@ class SidebarSuperAdmin extends Component {
                             </span>
                         </div>
                         <div id="scrollbar-sidebar-scroll" className="scrollbar-sidebar">
-                            <div id="scrollbar-sidebar-scroll" className="app-sidebar__inner">
+                            <div id="app-sidebar__inner-scroll" className="app-sidebar__inner">
                                 <ul className="vertical-nav-menu">
                                     <li className="app-sidebar__heading">Menu Utama</li>
                                     {

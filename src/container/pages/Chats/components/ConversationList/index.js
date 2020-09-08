@@ -70,9 +70,12 @@ const ConversationList = props => {
       const roomData = Object.keys(snapshot.val()).map((key) => snapshot.val()[key]); //Convert Object to array      
       let chatDataArr = []
 
-
       // Adding query
       roomData.map((data, index) => {
+        if (!data.message || data.message === "") {
+          return null
+        }
+
         if (index === roomData.length - 1) {
           passQuery += `gmu.id = ${data.user_id_buyer};`
         } else {

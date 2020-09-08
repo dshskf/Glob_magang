@@ -23212,6 +23212,10 @@ a.fc-more:hover {
     overflow-y:auto !important;
 }
 
+#app-sidebar__inner-scroll{
+    overflow:hidden !important;
+}
+
 @media (max-width:992px){
     .showing {
         display: flex !important;

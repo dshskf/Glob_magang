@@ -48,8 +48,8 @@ class SidebarAdmin extends Component {
                 "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
                 "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
                 "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id))
-        }     
-        const post = await this.props.getNumber({ query: query }).catch(err => err)        
+        }
+        const post = await this.props.getNumber({ query: query }).catch(err => err)
 
         let user_id = parseInt(decrypt(userData.company_id))
         firebaseApp.database().ref().orderByChild('company_id_seller').equalTo(user_id).on("value", async snapshot => {
@@ -63,11 +63,13 @@ class SidebarAdmin extends Component {
             roomData.map(data => {
                 let isAdd = false
 
-                Object.keys(data.message).map((key) => {
-                    if (data.message[key].read === false && parseInt(data.message[key].receiver) === parseInt(user_id)) {
-                        isAdd = true
-                    }
-                })
+                if (data.message) {
+                    Object.keys(data.message).map((key) => {
+                        if (data.message[key].read === false && parseInt(data.message[key].receiver) === parseInt(user_id)) {
+                            isAdd = true
+                        }
+                    })
+                }
 
                 if (isAdd) {
                     count_unread += 1

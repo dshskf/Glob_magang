@@ -2027,6 +2027,27 @@ export const uploadGambarBarang = (data) => (dispatch) => {
     })
 }
 
+export const uploadGambarBanner = (data) => (dispatch) => {
+    const urlPict = storage.ref(`banner/` + data.tmpPict).put(data.tmp)
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        urlPict.on('state_changed', (snapshot) => {
+            let progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
+        }, (err) => {
+            var errorCode = err.code;
+            var errorMessage = err.message;
+            console.log(errorCode, errorMessage)
+            reject(false)
+        }, () => {
+            urlPict.snapshot.ref.getDownloadURL()
+                .then(function (downloadURL) {
+                    resolve(downloadURL)
+                })
+        })
+    })
+}
+
 export const insertListBarang = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
@@ -2676,8 +2697,8 @@ export const getDataDetailedNegotiationAPI = (data) => (dispatch) => {
                             dataDetailed = {
                                 id_listing_barang: dt[index].id_listing_barang,
                                 status: dt[index].status,
-                                company_id:dt[index].company_id,
-                                token:token,
+                                company_id: dt[index].company_id,
+                                token: token,
                                 nama_barang: dt[index].nama_barang,
                                 berat: dt[index].berat,
                                 qty: dt[index].qty,
@@ -4565,6 +4586,6 @@ export const postQuery = (data) => (dispatch) => {
     })
 }
 
-export const changeFetchCartUserId= (data) => (dispatch) => {    
+export const changeFetchCartUserId = (data) => (dispatch) => {
     dispatch({ type: "CHANGE_FETCH_CHAT_USER", value: data })
 }
