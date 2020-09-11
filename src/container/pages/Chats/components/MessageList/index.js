@@ -14,6 +14,7 @@ import './MessageList.css';
 const MessageList = (props) => {
   const [messages, setMessages] = useState([])
   const [input, setInput] = useState('')
+  const [msgComponent, setMsgComponent] = useState(null)
 
   const user_id = parseInt(decrypt(JSON.parse(localStorage.getItem('userData')).company_id))
   const roomData = props.userIdToFecth
@@ -27,6 +28,17 @@ const MessageList = (props) => {
 
   }, [roomData ? roomData.roomId : roomData])
 
+  useEffect(() => {
+    renderMessages()
+  }, [messages])
+
+  useEffect(() => {
+    if (lastMessageRef.current) {
+      lastMessageRef.current.scrollIntoView({ behavior: "smooth" })
+      // var objDiv = document.getElementById("l-message");
+      // objDiv.scrollTop = objDiv.scrollHeight;
+    }
+  }, [msgComponent])
 
   const getMessages = () => {
     firebaseApp.database().ref(roomData.roomId).on("value", async snapshot => {
@@ -129,7 +141,7 @@ const MessageList = (props) => {
       i += 1;
     }
 
-    return tempMessages;
+    setMsgComponent(tempMessages)
   }
 
   const inputHandler = e => setInput(e.target.value)
@@ -176,12 +188,17 @@ const MessageList = (props) => {
 
   return (
     <div className="message-list-box">
-      <div className="message-list" style={{ display: roomData ? 'block' : 'none' }}>
-        <div className="message-list-header">
-          {props.userIdToFecth ? props.userIdToFecth.nama : null}
+      {
+        msgComponent &&
+        <div className="message-list" style={{ display: roomData ? 'block' : 'none' }}>
+          <div className="message-list-header">
+            {props.userIdToFecth ? props.userIdToFecth.nama : null}
+          </div>
+          <div className="message-list-container">{msgComponent && msgComponent}</div>
+          {/* <div className="message-list-last" ref={lastMessageRef}></div> */}
         </div>
-        <div className="message-list-container">{renderMessages()}</div>
-      </div>
+      }
+
       {
         props.userIdToFecth && <div className="message-input">
           <input
@@ -194,6 +211,7 @@ const MessageList = (props) => {
           <i className="metismenu-icon pe-7s-angle-right" onClick={submitMessage}></i>
         </div>
       }
+
 
     </div>
   );

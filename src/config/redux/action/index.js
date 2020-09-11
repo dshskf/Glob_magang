@@ -4504,8 +4504,6 @@ export const getNotifyData = (data) => (dispatch) => {
         API.postQuery(data)
             .then(res => {
                 let status = res.data.status;
-                let dt = [];
-                let dataDetailed = Object.create(null);
                 if (status === "success") {
 
                 } else {
@@ -4553,7 +4551,6 @@ export const getNotificationNumber = (data) => (dispatch) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
         API.postQuery(data)
             .then(res => {
-                let status = res.data.status;
                 dispatch({ type: "CHANGE_LOADING", value: false })
                 dispatch({ type: "CHANGE_IS_LOGIN", value: true })
                 resolve(res.data.data)
@@ -4574,7 +4571,6 @@ export const postQuery = (data) => (dispatch) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
         API.postQuery(data)
             .then(res => {
-                let status = res.data.status;
                 dispatch({ type: "CHANGE_LOADING", value: false })
                 dispatch({ type: "CHANGE_IS_LOGIN", value: true })
                 resolve(res.data.data)

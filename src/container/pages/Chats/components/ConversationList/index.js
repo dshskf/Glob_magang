@@ -53,8 +53,9 @@ const ConversationList = props => {
 
     firebaseApp.database().ref().orderByChild('company_id_seller').equalTo(user_id).on("value", async snapshot => {
       if (!snapshot.val()) {
+        alert('Chat is empty!')
         return
-      }
+      }      
 
       // Get Room Id
       let keyCollection = []
@@ -72,14 +73,11 @@ const ConversationList = props => {
 
       // Adding query
       roomData.map((data, index) => {
-        if (!data.message || data.message === "") {
-          return null
-        }
 
-        if (index === roomData.length - 1) {
-          passQuery += `gmu.id = ${data.user_id_buyer};`
+        if (index === roomData.length - 1 || (!roomData[index + 1].message && index === roomData.length - 2)) {
+          passQuery += roomData[index].message && `gmu.id = ${data.user_id_buyer};`
         } else {
-          passQuery += `gmu.id = ${data.user_id_buyer} or `
+          passQuery += roomData[index].message && `gmu.id = ${data.user_id_buyer} or `
         }
 
         let convert_msg_objToArray = Object.keys(data.message).map((key) => data.message[key])
@@ -93,7 +91,7 @@ const ConversationList = props => {
           total_message_unread: total_message_unread
         })
       })
-
+      console.log(passQuery)
       // Sort user list by last_timestamp
       chatDataArr = await sortArray(chatDataArr, {
         by: 'time',

@@ -11,9 +11,7 @@ import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
 import moment from 'moment';
 import 'moment/locale/id'
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, FormFeedback, FormGroup } from 'reactstrap'
-import { firebaseApp } from '../../../config/firebase/index'
 import Toast from 'light-toast';
-import '@firebase/messaging';
 
 class ContentBerandaSuperAdmin extends Component {
     state = {

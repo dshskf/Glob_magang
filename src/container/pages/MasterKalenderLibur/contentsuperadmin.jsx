@@ -40,19 +40,14 @@ class ContentMasterKalenderLibur extends Component {
                 keterangan: data.keterangan,
                 action: actionButton
             })
-            return
+            return data
         })
 
         this.setState({ kalenderData: tempData })
     }
 
     filterData = (id) => {
-        return this.state.kalenderData.filter(data => {
-            if (data.id === id) {
-                return data
-            }
-            return
-        })
+        return this.state.kalenderData.filter(data => data.id === id)
     }
 
     handleModalOpen = e => {
@@ -179,7 +174,7 @@ class ContentMasterKalenderLibur extends Component {
                         keterangan: data[1]
                     })
                 }
-                return
+                return data
             })
         })
 
@@ -200,7 +195,7 @@ class ContentMasterKalenderLibur extends Component {
                 }
 
             }
-            return
+            return data
 
         })
 

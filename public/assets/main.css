@@ -14535,7 +14535,7 @@ legend {
 
 .scrollbar-sidebar, .scrollbar-container {
     position: relative;
-    height: 100%
+    height: 100%;
 }
 
 .scroll-area {
@@ -23208,13 +23208,37 @@ a.fc-more:hover {
 }
 
 #scrollbar-sidebar-scroll{
-    overflow-x:hidden !important;
-    overflow-y:auto !important;
+    /* overflow-x:hidden !important;
+    overflow-y:auto !important; */
+    position: relative;
 }
 
-#app-sidebar__inner-scroll{
-    overflow:hidden !important;
+#scroll-down-sidebar{
+    position: absolute;
+    bottom:-3.5rem;
+    width:100%;
+    height:4rem;
+    text-align: center;          
 }
+
+#scroll-down-sidebar i{
+    left:50%;
+    position: absolute;
+    font-size: 2rem;
+    font-weight: bold;    
+    cursor: pointer;
+}
+
+#scroll-down-sidebar i:hover{
+    transform:scale(1.1);
+    color:blue;
+}
+
+
+#app-sidebar__inner-scroll{
+    /* overflow:hidden !important; */
+}
+
 
 @media (max-width:992px){
     .showing {

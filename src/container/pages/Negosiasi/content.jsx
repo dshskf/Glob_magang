@@ -4,7 +4,7 @@ import { encrypt, decrypt } from '../../../config/lib';
 import { withRouter } from 'react-router-dom';
 import {
     getDataNegotiationAPI, getKursActiveAPIManual, showLastUpdatedNego, getDataDetailedNegotiationAPI,
-    updateNegoStatus, getKursAPI, getKursAPIManual, getDataDetailedSalesHandlerAPI, logoutUserAPI
+    updateNegoStatus, getKursAPI, getKursAPIManual, getDataDetailedSalesHandlerAPI, logoutUserAPI, checkRenderedSidebar
 } from '../../../config/redux/action';
 import { MDBDataTable } from 'mdbreact';
 import './Negosiasi.css'
@@ -444,7 +444,7 @@ class ContentNegosiasi extends Component {
                     text: "Data negosiasi berhasil diperbarui!",
                     icon: "success",
                     button: false,
-                    timer: "2500"
+                    timer: "1500"
                 }).then(() => {
 
                 });
@@ -467,7 +467,7 @@ class ContentNegosiasi extends Component {
         }
     }
 
-    handleDetailNegotiation = async (e, id_history_nego, id_master_cart) => {        
+    handleDetailNegotiation = async (e, id_history_nego, id_master_cart) => {
         this.handleModalDetail()
         this.loadDataSalesTerkait(id_history_nego)
         e.stopPropagation();
@@ -475,7 +475,7 @@ class ContentNegosiasi extends Component {
             history_nego_id: id_history_nego,
             cart_id: id_master_cart
         })
-        
+
         let passquerydetailnegotiation = encrypt("select gcm_list_barang.id as id_listing_barang, gcm_master_barang.nama as nama_barang, gcm_master_cart.qty, gcm_list_barang.price, gcm_master_satuan.alias, " +
             "gcm_list_barang.price_terendah, gcm_list_barang.foto, gcm_master_company.nama_perusahaan, gcm_master_cart.nego_count, to_char(gcm_master_cart.create_date, 'DD/MM/YYYY HH24:MI:SS') create_date, gcm_master_user.nama, " +
             "gcm_history_nego.harga_nego, gcm_history_nego.harga_sales, gcm_history_nego.notes, gcm_master_barang.berat, " +
@@ -658,7 +658,7 @@ class ContentNegosiasi extends Component {
         }
     }
 
-    handleModalDetail = () => {
+    handleModalDetail = () => {        
         this.setState({
             isOpen: !this.state.isOpen,
             empty_harga_tawar_terbaru: false,
@@ -774,22 +774,21 @@ class ContentNegosiasi extends Component {
         }
     }
 
-    sendNotificationFCM = async (token) => {
-      
+    sendNotificationFCM = async (token, stat) => {
+
         const array_token = []
-        for (var i = 0; i < token.length; i++){
+        for (var i = 0; i < token.length; i++) {
             array_token.push(token[i])
         }
 
         const fetchOptions = {
             "registration_ids": array_token,
-            "notification": {
-                "title": "GLOB",
-                "body": "Balasan negosisasi dari penjual"
-            },
             "data": {
-                "key1": "value1",
-                "key2": "value2"
+                "key": stat === 'Nego' ? "nego" : "nego_approved",
+                "notification": {
+                    "title": "GLOB",
+                    "body": "Balasan negosisasi dari penjual"
+                },
             }
         }
 
@@ -805,13 +804,10 @@ class ContentNegosiasi extends Component {
 
     confirmAction = async (stat) => {
         Toast.loading('Loading...');
-        if(this.state.cart_user_token != null){
-            const postNotification = await this.sendNotificationFCM(this.state.cart_user_token)
-        }
 
         if (stat === 'Nego') {
-            let passqueryupdatehistorynego = `with insertion as(insert into gcm_notification_nego (barang_id,barang_nama,buyer_id,buyer_nama,seller_id,seller_nama,date,source)
-            values (${this.state.cart_id_list_barang},'${this.state.cart_nama_barang}',${this.state.cart_id_nama_perusahaan},'${this.state.cart_nama_perusahaan}',${this.state.company_id},'${this.state.company_name}',now(),'seller'))`
+            let passqueryupdatehistorynego = `with insertion as(insert into gcm_notification_nego (barang_id,buyer_id,seller_id,date,source,status)
+            values (${this.state.cart_id_list_barang},${this.state.cart_id_nama_perusahaan},${this.state.company_id},now(),'seller','${stat.toLowerCase()}'))`
 
             if (this.state.cart_nego_count === '1') {
                 passqueryupdatehistorynego += "update gcm_history_nego set harga_sales='" + this.state.harga_tawar_terbaru.split('.').join('') + "', " +
@@ -830,7 +826,11 @@ class ContentNegosiasi extends Component {
                 let passqueryupdatemastercart = encrypt("update gcm_master_cart set harga_sales='" + (this.state.harga_tawar_terbaru.split('.').join('')) * this.state.cart_qty_total + "', " +
                     "update_by=" + this.state.id_pengguna_login + ", update_date=now() where id=" + this.state.cart_id + " returning update_date")
                 const resupdatemastercart = await this.props.updateNegoStatus({ query: passqueryupdatemastercart }).catch(err => err)
-                if (resupdatemastercart) {
+                let postNotification = null
+                if (this.state.cart_user_token != null) {
+                    postNotification = await this.sendNotificationFCM(this.state.cart_user_token, stat)
+                }
+                if (resupdatemastercart && postNotification) {
                     swal({
                         title: "Sukses!",
                         text: "Perubahan disimpan!",
@@ -838,7 +838,7 @@ class ContentNegosiasi extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        window.location.reload()
+                        // window.location.reload()
                     });
                 } else {
                     swal({
@@ -848,7 +848,7 @@ class ContentNegosiasi extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        window.location.reload()
+                        // window.location.reload()
                     });
                 }
             } else {
@@ -859,12 +859,12 @@ class ContentNegosiasi extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    window.location.reload()
+                    // window.location.reload()
                 });
             }
         } else if (stat === 'Approve') {
-            let passqueryupdatehistorynego = `with insertion as(insert into gcm_notification_nego (barang_id,barang_nama,buyer_id,buyer_nama,seller_id,seller_nama,date,source)
-            values (${this.state.cart_id_list_barang},'${this.state.cart_nama_barang}',${this.state.cart_id_nama_perusahaan},'${this.state.cart_nama_perusahaan}',${this.state.company_id},'${this.state.company_name}',now(),'seller'))`
+            let passqueryupdatehistorynego = `with insertion as(insert into gcm_notification_nego (barang_id,buyer_id,seller_id,date,source,status)
+            values (${this.state.cart_id_list_barang},${this.state.cart_id_nama_perusahaan},${this.state.company_id},now(),'seller','${stat.toLowerCase()}'))`
 
             if (this.state.cart_nego_count === '1') {
                 passqueryupdatehistorynego += "update gcm_history_nego set harga_sales='" + this.state.cart_price_current_buyer + "', " +
@@ -883,7 +883,11 @@ class ContentNegosiasi extends Component {
                 let passqueryupdatemastercart = encrypt("update gcm_master_cart set harga_sales='" + this.state.cart_price_current_buyer * this.state.cart_qty_total + "', " +
                     "harga_konsumen='" + this.state.cart_price_current_buyer * this.state.cart_qty * this.state.cart_berat + "', update_by=" + this.state.id_pengguna_login + ", update_date=now() where id=" + this.state.cart_id + " returning update_date")
                 const resupdatemastercart = await this.props.updateNegoStatus({ query: passqueryupdatemastercart }).catch(err => err)
-                if (resupdatemastercart) {
+                let postNotification = null
+                if (this.state.cart_user_token != null) {
+                    postNotification = await this.sendNotificationFCM(this.state.cart_user_token, stat)
+                }
+                if (resupdatemastercart && postNotification) {
                     swal({
                         title: "Sukses!",
                         text: "Perubahan disimpan!",
@@ -891,7 +895,7 @@ class ContentNegosiasi extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        window.location.reload()
+                        // window.location.reload()
                     });
                 } else {
                     swal({
@@ -901,7 +905,7 @@ class ContentNegosiasi extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        window.location.reload()
+                        // window.location.reload()
                     });
                 }
             } else {
@@ -912,12 +916,12 @@ class ContentNegosiasi extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    window.location.reload()
+                    // window.location.reload()
                 });
             }
         } else if (stat === 'ApproveHargaFinal') {
-            let passqueryupdatehistorynego = encrypt(`with insertion as(insert into gcm_notification_nego (barang_id,barang_nama,buyer_id,buyer_nama,seller_id,seller_nama,date,source)
-                values (${this.state.cart_id_list_barang},'${this.state.cart_nama_barang}',${this.state.cart_id_nama_perusahaan},'${this.state.cart_nama_perusahaan}',${this.state.company_id},'${this.state.company_name}',now(),'seller'))` +
+            let passqueryupdatehistorynego = encrypt(`with insertion as(insert into gcm_notification_nego (barang_id,buyer_id,seller_id,date,source,status)
+                values (${this.state.cart_id_list_barang},${this.state.cart_id_nama_perusahaan},${this.state.company_id},now(),'seller','${stat.toLowerCase()}'))` +
                 "update gcm_history_nego set harga_final='" + (this.state.harga_final.split('.').join('')) + "', " +
                 "updated_by=" + this.state.id_pengguna_login + ", updated_date=now() where id=" + this.state.history_nego_id + " returning updated_date")
 
@@ -928,7 +932,11 @@ class ContentNegosiasi extends Component {
                 const resupdatemastercart = await this.props.updateNegoStatus({ query: passqueryupdatemastercart }).catch(err => err)
                 Toast.hide()
 
-                if (resupdatemastercart) {
+                let postNotification = null
+                if (this.state.cart_user_token != null) {
+                    postNotification = await this.sendNotificationFCM(this.state.cart_user_token, stat)
+                }
+                if (resupdatemastercart && postNotification) {
                     swal({
                         title: "Sukses!",
                         text: "Perubahan disimpan!",
@@ -936,7 +944,7 @@ class ContentNegosiasi extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        window.location.reload()
+                        // window.location.reload()
                     });
                 } else {
                     swal({
@@ -946,7 +954,7 @@ class ContentNegosiasi extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        window.location.reload()
+                        // window.location.reload()
                     });
                 }
             } else {
@@ -957,7 +965,7 @@ class ContentNegosiasi extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    window.location.reload()
+                    // window.location.reload()
                 });
             }
         }
@@ -978,6 +986,7 @@ class ContentNegosiasi extends Component {
         await this.loadDataNegotiationActive("1")
         await this.loadDataNegotiationInActive("1")
         await this.setState({ isBtnRefreshNegotiation: false })
+        this.props.checkRenderedSidebar(this.state.allDataNegotiationActive.length)
     }
 
     render() {
@@ -1046,8 +1055,8 @@ class ContentNegosiasi extends Component {
             rows: this.state.allDataNegotiationInActive
         }
         return (
-            <div className="app-main__outer">
-                <div className="app-main__inner">
+            <div className="app-main__outer">                
+                <div className="app-main__inner">                    
                     <div className="app-page-title">
                         <div className="page-title-wrapper">
                             <div className="page-title-heading">
@@ -1456,6 +1465,7 @@ const reduxDispatch = (dispatch) => ({
     getDataDetailedNegotiationAPI: (data) => dispatch(getDataDetailedNegotiationAPI(data)),
     showLastUpdatedNego: (data) => dispatch(showLastUpdatedNego(data)),
     updateNegoStatus: (data) => dispatch(updateNegoStatus(data)),
+    checkRenderedSidebar: (data) => dispatch(checkRenderedSidebar(data)),
     getKursAPI: () => dispatch(getKursAPI()),
     logoutAPI: () => dispatch(logoutUserAPI())
 })

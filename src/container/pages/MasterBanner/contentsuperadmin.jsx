@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { MDBDataTable } from 'mdbreact';
-import { withRouter, Link } from 'react-router-dom';
+import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { encrypt } from '../../../config/lib';
 import { uploadGambarBanner, postQuery } from '../../../config/redux/action';
-import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, FormFeedback, Label } from 'reactstrap'
+import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup } from 'reactstrap'
 import Resizer from './react-file-image-resizer';
 import swal from 'sweetalert';
 import Toast from 'light-toast';

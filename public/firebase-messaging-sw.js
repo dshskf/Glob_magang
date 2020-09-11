@@ -19,11 +19,17 @@ firebase.initializeApp(config)
 const messaging = firebase.messaging()
 
 messaging.setBackgroundMessageHandler(payload => {
-    const title = payload.notification.title;
-    console.log('payload', payload.notification.icon);    
-    const options = {
-        body: "payload.notification.body",
-        icon: payload.notification.icon
-    }
-    return self.registration.showNotification("GOtcha", options);
+    self.clients.matchAll({
+        includeUncontrolled: true
+    }).then(function (clients) {
+        clients.forEach(function (client) {
+            client.postMessage(payload)
+        })
+    })
+    // const title = 'GLOB';
+    // const options = {
+    //     body: "Ada negosiasi dari pembeli!",
+    //     icon: payload.notification.icon
+    // }
+    // return self.registration.showNotification(title, options);
 })

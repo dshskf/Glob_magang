@@ -87,7 +87,9 @@ class SidebarAdmin extends Component {
 
             this.setState({ totalUnreadMessages: count_unread })
         })
-
+        if (this.props.sidebarStatus) {
+            this.setState({ totalNotification: this.props.sidebarStatus })
+        }
 
     }
     render() {

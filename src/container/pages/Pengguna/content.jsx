@@ -1237,8 +1237,8 @@ class ContentPengguna extends Component {
         if (event.target.name === 'kode_billto_mapping') {
             this.check_kode_billto_mapping(event.target.value)
         }
-        if (this.state.insert_kode_shipto_ok == true && this.state.insert_kode_billto_ok == true
-            && event.target.value != '') {
+        if (this.state.insert_kode_shipto_ok === true && this.state.insert_kode_billto_ok === true
+            && event.target.value !== '') {
             this.setState({ isbtnupdatekodemappingalamat: false })
         }
         if (event.target.name === 'kode_sales') {
@@ -1323,14 +1323,14 @@ class ContentPengguna extends Component {
             }
         }
 
-        if(document.getElementById("kode_shipto_mapping").value != "" && document.getElementById("kode_billto_mapping").value != ""){
+        if(document.getElementById("kode_shipto_mapping").value !== "" && document.getElementById("kode_billto_mapping").value !== ""){
             this.setState({ validation_kode_shipto_mapping: true, feedback_kode_shipto_mapping: '', empty_kode_shipto_mapping: false })
             this.setState({ insert_kode_shipto_ok: true,  isbtnupdatekodemappingalamat: false })
         }
     }
 
     check_kode_billto_mapping = (e) => {
-        if(this.state.kode_shipto_mapping != ""){
+        if(this.state.kode_shipto_mapping !== ""){
             if (e === '') {
                 this.setState({
                     isbtnupdatekodemappingalamat: true, feedback_kode_billto_mapping: 'Kolom ini wajib diisi',
@@ -1342,7 +1342,7 @@ class ContentPengguna extends Component {
                 this.setState({ isbtnupdatekodemappingalamat: false, insert_kode_billto_ok: true })
             }
         }
-        else if (this.state.kode_shipto_mapping == ""){
+        else if (this.state.kode_shipto_mapping === ""){
             if (e === '') {
                 console.log('billto kosong')
                 this.setState({
@@ -1367,7 +1367,7 @@ class ContentPengguna extends Component {
             }
         }
 
-        if(document.getElementById("kode_shipto_mapping").value != "" && document.getElementById("kode_billto_mapping").value != ""){
+        if(document.getElementById("kode_shipto_mapping").value !== "" && document.getElementById("kode_billto_mapping").value !== ""){
             this.setState({ validation_kode_billto_mapping: true, feedback_kode_billto_mapping: '', empty_kode_billto_mapping: false })
             this.setState({ insert_kode_billto_ok: true,  isbtnupdatekodemappingalamat: false })
         }
@@ -1575,7 +1575,7 @@ class ContentPengguna extends Component {
         await this.loadCheckingMappingAlamat()
         await this.checkCountKodeMappingAlamat(this.state.kode_shipto_mapping)
 
-        let allCheckedKodeAlamat = this.state.allCheckedKodeAlamat[0]
+        // let allCheckedKodeAlamat = this.state.allCheckedKodeAlamat[0]
 
         if (this.state.isConfirmAlamatValid) {
             this.setState({

@@ -4,6 +4,13 @@ import { logoutUserAPI, navigationHandler, postQuery } from '../../../config/red
 import { encrypt, decrypt } from '../../../config/lib';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
+import { firebaseApp } from '../../../config/firebase/index'
+import { NotificationContainer, NotificationManager } from 'react-notifications';
+import { Notifications } from 'react-push-notification';
+import addNotification from 'react-push-notification';
+
+import 'react-notifications/lib/notifications.css';
+
 import '@firebase/messaging';
 
 
@@ -17,7 +24,37 @@ class Header extends Component {
 
     async componentDidMount() {
         const userData = JSON.parse(localStorage.getItem('userData'));
-        navigator.serviceWorker.addEventListener("message", (message) => console.log(message));
+        navigator.serviceWorker.addEventListener("message", (message) => {
+
+            // console.log(JSON.parse(message.data.firebaseMessaging.payload.data.notification))
+            if (message.data.firebaseMessaging) {
+                console.log(message.data.firebaseMessaging.payload.data)
+            } else {
+                console.log(message.data)
+            }
+
+            addNotification({
+                title: 'Warning',
+                subtitle: 'This is a subtitle',
+                message: 'This is a very long message',
+                theme: 'darkblue',
+                native: true // when using native, your OS will handle theming.
+            });
+
+            NotificationManager.success('Success message', 'New Nego!');
+            return message
+        });
+
+
+        const messaging = firebaseApp.messaging()
+        messaging.requestPermission()
+            .then(() => messaging.getToken())
+            .then(token => {
+                console.log(token);
+            })
+            .catch(err => {
+                console.log(err)
+            })
 
         this.setState({
             username: decrypt(userData.username),
@@ -64,6 +101,8 @@ class Header extends Component {
     render() {
         return (
             <div>
+                <Notifications />
+                <NotificationContainer />
                 <div className="app-header header-shadow">
                     <div className="app-header__logo">
                         {/* <div className="logo-src"></div> */}
