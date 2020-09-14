@@ -133,6 +133,9 @@ class ContentNegosiasi extends Component {
         await this.loadKursManual()
         await this.loadDataNegotiationActive("0")
         await this.loadDataNegotiationInActive("0")
+        navigator.serviceWorker.addEventListener("message", async (message) => {
+            this.handleRefreshNegotiation()
+        })
     }
 
     loadKurs = async () => {
@@ -658,7 +661,7 @@ class ContentNegosiasi extends Component {
         }
     }
 
-    handleModalDetail = () => {        
+    handleModalDetail = () => {
         this.setState({
             isOpen: !this.state.isOpen,
             empty_harga_tawar_terbaru: false,
@@ -1055,8 +1058,8 @@ class ContentNegosiasi extends Component {
             rows: this.state.allDataNegotiationInActive
         }
         return (
-            <div className="app-main__outer">                
-                <div className="app-main__inner">                    
+            <div className="app-main__outer">
+                <div className="app-main__inner">
                     <div className="app-page-title">
                         <div className="page-title-wrapper">
                             <div className="page-title-heading">

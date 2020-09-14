@@ -92,8 +92,7 @@ class SidebarAdmin extends Component {
         }
 
         navigator.serviceWorker.addEventListener("message", async (message) => {
-            const post = await this.props.getNumber({ query: query }).catch(err => err)
-            console.log(post[0].count)
+            const post = await this.props.getNumber({ query: query }).catch(err => err)            
             this.setState({ totalNotification: post[0].count })
             this.props.checkRenderedSidebar(post[0].count)
         })

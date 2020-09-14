@@ -3,6 +3,7 @@ const initialState = {
     isLoading: false,
     isShown: "hiding",
     isSidebarRendered: false,
+    isContactListScreen: true,
     fetchChatUserId: null,
 }
 
@@ -37,6 +38,13 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             isSidebarRendered: action.value
+        }
+    }
+
+    if (action.type === "SET_CHAT_SCREEN") {
+        return {
+            ...state,
+            isContactListScreen: action.value
         }
     }
 

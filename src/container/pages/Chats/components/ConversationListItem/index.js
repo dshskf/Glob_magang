@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { changeFetchCartUserId } from '../../../../../config/redux/action'
+import { changeFetchCartUserId, changeChatScreen } from '../../../../../config/redux/action'
 
 // import shave from 'shave';
 
@@ -10,7 +10,8 @@ const ConversationListItem = (props) => {
 
   const userClick = e => {
     const getData = e.currentTarget.id.split('#')
-
+    
+    props.changeChatScreen(false)
     props.changeUser({
       id: getData[0],
       nama: getData[1],
@@ -59,7 +60,8 @@ const reduxState = (state) => ({
 })
 
 const reduxDispatch = (dispatch) => ({
-  changeUser: data => dispatch(changeFetchCartUserId(data))
+  changeUser: data => dispatch(changeFetchCartUserId(data)),
+  changeChatScreen: data => dispatch(changeChatScreen(data))
 })
 
 export default connect(reduxState, reduxDispatch)(ConversationListItem);

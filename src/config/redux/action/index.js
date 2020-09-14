@@ -4589,3 +4589,7 @@ export const postQuery = (data) => (dispatch) => {
 export const changeFetchCartUserId = (data) => (dispatch) => {
     dispatch({ type: "CHANGE_FETCH_CHAT_USER", value: data })
 }
+
+export const changeChatScreen = (data) => (dispatch) => {
+    dispatch({ type: "SET_CHAT_SCREEN", value: data })
+}

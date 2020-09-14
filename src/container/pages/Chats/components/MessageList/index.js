@@ -8,7 +8,7 @@ import { decrypt } from '../../../../../config/lib';
 import Message from '../Message';
 import MessageWithBarang from '../Message/withBarang/index'
 
-
+import { changeChatScreen } from '../../../../../config/redux/action/index'
 import './MessageList.css';
 
 const MessageList = (props) => {
@@ -186,12 +186,17 @@ const MessageList = (props) => {
     }
   }
 
+  const handleChangeScreen = () => props.changeChatScreen(true)
+
   return (
+
+    !props.boolChatSceen &&
     <div className="message-list-box">
       {
         msgComponent &&
         <div className="message-list" style={{ display: roomData ? 'block' : 'none' }}>
           <div className="message-list-header">
+            <h1 onClick={handleChangeScreen}>X</h1>
             {props.userIdToFecth ? props.userIdToFecth.nama : null}
           </div>
           <div className="message-list-container">{msgComponent && msgComponent}</div>
@@ -200,7 +205,8 @@ const MessageList = (props) => {
       }
 
       {
-        props.userIdToFecth && <div className="message-input">
+        props.userIdToFecth &&
+        <div className="message-input">
           <input
             type="text"
             value={input}
@@ -214,15 +220,18 @@ const MessageList = (props) => {
 
 
     </div>
+
+
   );
 }
 
 const reduxState = (state) => ({
-  userIdToFecth: state.fetchChatUserId
+  userIdToFecth: state.fetchChatUserId,
+  boolChatSceen: state.isContactListScreen
 })
 
 const reduxDispatch = (dispatch) => ({
-
+  changeChatScreen: (data) => dispatch(changeChatScreen(data))
 })
 
 export default connect(reduxState, reduxDispatch)(MessageList);

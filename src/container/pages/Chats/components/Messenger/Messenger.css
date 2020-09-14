@@ -11,6 +11,10 @@
   overflow: hidden;
 }
 
+.messenger-full{
+  grid-template-columns: 100% !important;  
+}
+
 .container {
   padding: 10px;
 }

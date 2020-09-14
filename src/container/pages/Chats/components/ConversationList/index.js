@@ -91,7 +91,7 @@ const ConversationList = props => {
           total_message_unread: total_message_unread
         })
       })
-      console.log(passQuery)
+      
       // Sort user list by last_timestamp
       chatDataArr = await sortArray(chatDataArr, {
         by: 'time',
