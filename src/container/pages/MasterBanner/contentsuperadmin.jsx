@@ -9,7 +9,6 @@ import Resizer from './react-file-image-resizer';
 import swal from 'sweetalert';
 import Toast from 'light-toast';
 
-
 class ContentMasterBanner extends Component {
     state = {
         isUpdateOpen: false,
@@ -18,7 +17,7 @@ class ContentMasterBanner extends Component {
         imageData: null,
         imageShow: null,
         bannerData: null,
-        selectedBannerData: null,
+        selectedBannerData: null
     }
 
     async componentDidMount() {
@@ -50,10 +49,6 @@ class ContentMasterBanner extends Component {
                 100,
                 0,
                 uri => {
-                    // let randNum = (Math.round(Math.random() * 10000000) + 1) * (Math.round(Math.random() * 10000000) + 1)
-                    // let blobName = randNum.toString() + "-" + fileName + "." + fileExtension
-
-                    // uri.blobImg.name = blobName
                     const img = {
                         tmp: uri.blobImg,
                         tmpPict: fileName
@@ -119,6 +114,8 @@ class ContentMasterBanner extends Component {
         if (method !== "D") {
             resupload = await this.props.uploadGambarBanner(this.state.imageData).catch(err => err)
         }
+
+        // C-> Create, U-> Update, D-> Delete
 
         if (resupload || method === "D") {
             if (method === "C") {

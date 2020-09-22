@@ -209,7 +209,10 @@ class ContentBarangSuperAdmin extends Component {
     loadDataBarangSeller = async (id) => {
         this.setState({ statusFilter: false, selectedFilter: 'Semua' })
         let passquerybarangseller = encrypt("select	gcm_list_barang.id, gcm_master_barang.status as status_master, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, " +
-            "gcm_list_barang.company_id, gcm_list_barang.foto, gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
+            "gcm_list_barang.company_id," +
+            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://www.glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
+            "else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto, " +
+            "gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
             "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, gcm_master_barang.volume, " +
             "gcm_master_user.nama as nama_update, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias, gcm_listing_kurs.nominal " +
             "from gcm_list_barang " +
@@ -232,7 +235,10 @@ class ContentBarangSuperAdmin extends Component {
     loadDataBarangSellerOnConfirm = async (id) => {
         this.setState({ statusFilter: false, selectedFilter: 'Semua' })
         let passquerybarangselleronconfirm = encrypt("select gcm_list_barang.id, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, " +
-            "gcm_list_barang.company_id, gcm_list_barang.foto, gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
+            "gcm_list_barang.company_id," +
+            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://www.glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
+            "else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto, " +
+            "gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
             "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, gcm_master_barang.volume, " +
             "gcm_master_user.nama as nama_update, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias, gcm_listing_kurs.nominal " +
             "from gcm_list_barang " +
@@ -272,7 +278,10 @@ class ContentBarangSuperAdmin extends Component {
     loadDataBarangSellerOnConfirmWithoutId = async () => {
         this.setState({ statusFilter: false, selectedFilter: 'Semua' })
         let passquerybarangselleronconfirmwithoutid = encrypt("select gcm_list_barang.id, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, " +
-            "gcm_list_barang.company_id, gcm_list_barang.foto, gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
+            "gcm_list_barang.company_id, " +
+            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://www.glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
+            "else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto, " +
+            " gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
             "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, gcm_master_barang.volume, " +
             "gcm_master_user.nama as nama_update, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias, gcm_listing_kurs.nominal " +
             "from gcm_list_barang " +
@@ -371,7 +380,10 @@ class ContentBarangSuperAdmin extends Component {
     handleDetailBarang = async (id) => {
         this.handleModalDetail()
         let passquerydetail = encrypt("select gcm_list_barang.id, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, gcm_list_barang.price_terendah," +
-            "gcm_list_barang.company_id, gcm_list_barang.foto, gcm_list_barang.deskripsi, gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
+            "gcm_list_barang.company_id, " +
+            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://www.glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
+            "else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto, " +
+            " gcm_list_barang.deskripsi, gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
             "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, " +
             "gcm_master_barang.volume, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias, gcm_list_barang.jumlah_min_beli, gcm_list_barang.jumlah_min_nego, gcm_master_barang.status as status_master, " +
             "gcm_list_barang.persen_nego_1, gcm_list_barang.persen_nego_2, gcm_list_barang.persen_nego_3, gcm_list_barang.kode_barang, gcm_listing_kurs.nominal " +
@@ -429,7 +441,10 @@ class ContentBarangSuperAdmin extends Component {
     handleDetailBarangOnConfirm = async (id) => {
         this.handleModalDetailOnConfirm()
         let passquerydetailonconfirm = encrypt("select gcm_list_barang.id, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, gcm_list_barang.price_terendah, " +
-            "gcm_list_barang.company_id, gcm_master_company.nama_perusahaan, gcm_list_barang.foto, gcm_list_barang.deskripsi, gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
+            "gcm_list_barang.company_id, gcm_master_company.nama_perusahaan, " +
+            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://www.glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
+            "else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto, " +
+            " gcm_list_barang.deskripsi, gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
             "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, " +
             "gcm_master_barang.volume, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias, gcm_list_barang.jumlah_min_beli, gcm_list_barang.jumlah_min_nego, " +
             "gcm_master_barang.id as id_from_master, gcm_master_barang.status as status_master, gcm_listing_kurs.nominal, " +
