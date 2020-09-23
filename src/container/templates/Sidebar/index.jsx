@@ -7,10 +7,13 @@ import ContentNegosiasi from './../../pages/Negosiasi/content'
 import ContentTransaksi from './../../pages/Transaksi/content'
 import ContentPengguna from './../../pages/Pengguna/content'
 import ContentProfil from '../../pages/Profil/content'
+import ContentChats from '../../pages/Chats/content'
+import { firebaseApp } from '../../../config/firebase/index'
+
 import Footer from '../Footer';
 import Header from '../Header';
 
-import { getNotificationNumber } from '../../../config/redux/action';
+import { getNotificationNumber, checkRenderedSidebar } from '../../../config/redux/action';
 import { encrypt, decrypt } from '../../../config/lib';
 
 class Sidebar extends Component {
@@ -19,15 +22,73 @@ class Sidebar extends Component {
     }
     async componentDidMount() {
         const userData = JSON.parse(localStorage.getItem('userData'))
-        const query = encrypt(`
-        select count (*) from gcm_notification_nego gnn 
-        where seller_id = ${decrypt(userData.company_id)} and buyer_id in (
-            select buyer_id from gcm_company_listing_sales gcls 
-            where seller_id = ${decrypt(userData.company_id)} and id_sales = ${decrypt(userData.id)} and status = 'A')
-        `)
-        const post = await this.props.getNumber({ query: query }).catch(err => err)
+        let query
 
-        this.setState({ totalNotification: post[0].count })
+        if (userData.sa_role === 'sales') {
+            query = encrypt("select count(*) " +
+                "from gcm_master_cart " +
+                "inner join gcm_history_nego on gcm_master_cart.history_nego_id = gcm_history_nego.id " +
+                "inner join gcm_master_company on gcm_master_cart.company_id = gcm_master_company.id " +
+                "inner join gcm_company_listing_sales on gcm_master_cart.company_id = gcm_company_listing_sales.buyer_id " +
+                "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
+                "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
+                "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id) +
+                " and gcm_company_listing_sales.id_sales=" + decrypt(userData.id))
+        } else {
+            query = encrypt("select count(*) " +
+                "from gcm_master_cart " +
+                "inner join gcm_history_nego on gcm_master_cart.history_nego_id = gcm_history_nego.id " +
+                "inner join gcm_master_company on gcm_master_cart.company_id = gcm_master_company.id " +
+                "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
+                "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
+                "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id))
+        }
+
+        if (!this.props.sidebarStatus) {
+            const post = await this.props.getNumber({ query: query }).catch(err => err)
+            this.setState({ totalNotification: post[0].count })
+            this.props.checkRenderedSidebar(post[0].count)
+        }
+
+
+        let user_id = parseInt(decrypt(userData.id))
+        firebaseApp.database().ref().orderByChild('user_id_seller').equalTo(user_id).on("value", async snapshot => {
+            if (!snapshot.val()) {
+                return
+            }
+
+            const roomData = Object.keys(snapshot.val()).map((key) => snapshot.val()[key]); //Convert Object to array
+            let count_unread = 0
+
+            roomData.map(data => {
+                let isAdd = false
+
+                if (data.message) {
+                    Object.keys(data.message).map((key) => {
+                        if (data.message[key].read === false && parseInt(data.message[key].receiver) === parseInt(user_id)) {
+                            isAdd = true
+                        }
+                    })
+                }
+
+                if (isAdd) {
+                    count_unread += 1
+                }
+                return null;
+            })
+
+
+            this.setState({ totalUnreadMessages: count_unread })
+        })
+        if (this.props.sidebarStatus) {
+            this.setState({ totalNotification: this.props.sidebarStatus })
+        }
+
+        navigator.serviceWorker.addEventListener("message", async (message) => {
+            const post = await this.props.getNumber({ query: query }).catch(err => err)
+            this.setState({ totalNotification: post[0].count })
+            this.props.checkRenderedSidebar(post[0].count)
+        })
     }
 
 
@@ -37,7 +98,7 @@ class Sidebar extends Component {
             <div className={`app-container app-theme-white body-tabs-shadow fixed-sidebar fixed-header ${this.props.isShown === "hiding" ? "closed-sidebar" : ""}`}>
                 <Header></Header>
                 <div className="app-main">
-                <div className={`app-sidebar sidebar-shadow ${this.props.isShown}`}>
+                    <div className={`app-sidebar sidebar-shadow ${this.props.isShown}`}>
                         <div className="app-header__logo">
                             <div className="logo-src"></div>
                             <div className="header__pane ml-auto">
@@ -123,7 +184,7 @@ class Sidebar extends Component {
                                     {
                                         page === 'negosiasi' ? (
                                             <li>
-                                               <Link to="/admin/negosiasi" className="mm-active">
+                                                <Link to="/admin/negosiasi" className="mm-active">
                                                     <div style={{
                                                         display: 'flex',
                                                         alignItems: 'center'
@@ -137,7 +198,7 @@ class Sidebar extends Component {
                                             </li>
                                         ) :
                                             <li>
-                                              <Link to="/admin/negosiasi">
+                                                <Link to="/admin/negosiasi">
                                                     <div style={{
                                                         display: 'flex',
                                                         alignItems: 'center',
@@ -165,6 +226,36 @@ class Sidebar extends Component {
                                                 </Link>
                                             </li>
                                     }
+                                    {
+                                        page === 'chats' ? (
+                                            <li>
+                                                <Link to="/admin/chats" className="mm-active">
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                    }}>
+                                                        <i className="metismenu-icon pe-7s-chat" />
+                                                        <p>Chats</p>
+                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '12px' }}>({this.state.totalUnreadMessages})</p>
+                                                    </div>
+                                                </Link>
+
+                                            </li>
+                                        ) :
+                                            <li>
+                                                <Link to="/admin/chats" >
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                    }}>
+                                                        <i className="metismenu-icon pe-7s-chat" />
+                                                        <p>Chats</p>
+                                                        <p style={{ color: '#B81F44', marginLeft: '1.5rem', fontWeight: 'bold', fontSize: '12px' }}>({this.state.totalUnreadMessages})</p>
+                                                    </div>
+                                                </Link>
+
+                                            </li>
+                                    }
                                 </ul>
                             </div>
                         </div>
@@ -180,6 +271,8 @@ class Sidebar extends Component {
                             <ContentTransaksi></ContentTransaksi>
                         ) : page === 'pengguna' ? (
                             <ContentPengguna></ContentPengguna>
+                        ) : page === 'chats' ? (
+                            <ContentChats></ContentChats>
                         ) : page === 'profil' ? (
                             <ContentProfil></ContentProfil>
                         ) : null
@@ -194,11 +287,13 @@ class Sidebar extends Component {
 }
 
 const reduxState = (state) => ({
-    isShown: state.isShown
+    isShown: state.isShown,
+    sidebarStatus: state.isSidebarRendered
 })
 
 const reduxDispatch = (dispatch) => ({
-    getNumber: data => dispatch(getNotificationNumber(data))
+    getNumber: data => dispatch(getNotificationNumber(data)),
+    checkRenderedSidebar: data => dispatch(checkRenderedSidebar(data))
 })
 
 export default connect(reduxState, reduxDispatch)(Sidebar);

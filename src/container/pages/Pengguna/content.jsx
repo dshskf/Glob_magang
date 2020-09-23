@@ -355,7 +355,7 @@ class ContentPengguna extends Component {
         }
     }
 
-    handleDetailUser = async (e, id) => {
+    handleDetailUser = async (e, id) => {        
         this.handleModalDetail()
         e.stopPropagation();
         let passquerydetail = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan, " +
@@ -2286,10 +2286,15 @@ class ContentPengguna extends Component {
                     width: 30
                 },
                 {
-                    label: 'Kode Mapping Alamat',
+                    label: 'Kode Mapping Alamat Pengiriman',
                     field: 'kode_shipto_customer',
                     width: 100
-                }],
+                },
+                {
+                    label: 'Kode Mapping Alamat Penagihan',
+                    field: 'kode_billto_customer',
+                    width: 100
+                },],
             rows: this.state.allAlamat
         }
         const dataPaymentListing = {

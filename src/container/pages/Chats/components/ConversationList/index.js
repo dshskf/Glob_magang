@@ -49,9 +49,8 @@ const ConversationList = props => {
   }
 
   const getUserList = () => {
-    let user_id = parseInt(decrypt(JSON.parse(localStorage.getItem('userData')).company_id))
-
-    firebaseApp.database().ref().orderByChild('company_id_seller').equalTo(user_id).on("value", async snapshot => {
+    let user_id = parseInt(decrypt(JSON.parse(localStorage.getItem('userData')).id))    
+    firebaseApp.database().ref().orderByChild('user_id_seller').equalTo(user_id).on("value", async snapshot => {
       if (!snapshot.val()) {
         alert('Chat is empty!')
         return
@@ -99,6 +98,7 @@ const ConversationList = props => {
       })
 
       let user = await props.getUserList({ query: encrypt(passQuery) }).catch(err => err)
+      console.log(user)
       user = matchUserArray(user, chatDataArr)
 
       user = user.map((data, index) => {

@@ -58,8 +58,8 @@ class SidebarAdmin extends Component {
         }
 
 
-        let user_id = parseInt(decrypt(userData.company_id))
-        firebaseApp.database().ref().orderByChild('company_id_seller').equalTo(user_id).on("value", async snapshot => {
+        let user_id = parseInt(decrypt(userData.id))
+        firebaseApp.database().ref().orderByChild('user_id_seller').equalTo(user_id).on("value", async snapshot => {
             if (!snapshot.val()) {
                 return
             }
