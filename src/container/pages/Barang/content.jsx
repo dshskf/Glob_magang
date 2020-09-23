@@ -3784,8 +3784,6 @@ class ContentBarang extends Component {
 
             const resupload = await axios.post("http://localhost:1234/update", formData)
 
-
-
             Toast.hide();
             if (resupload) {
                 await this.setState({
@@ -3806,8 +3804,7 @@ class ContentBarang extends Component {
         } else if (this.state.insertGambarBarang) {
             const ext = this.state.insert_foto_baru.name.split('.')[1]
             const imgName = this.state.insert_kode_barang_distributor + "." + ext
-            console.log("2")
-            console.log(this.state)
+            
             formData.append('imageName', imgName)
             formData.append('image', this.state.insert_foto_baru)
             const resupload = await axios.post("http://localhost:1234/", formData)
@@ -3852,7 +3849,7 @@ class ContentBarang extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    // window.location.reload()
+                    window.location.reload()
                 });
             }
         }
