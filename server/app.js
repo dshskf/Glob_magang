@@ -47,14 +47,13 @@ app.use('/images', express.static(path.join(dir)));
 let upload = multer({ storage: filestorage, fileFilter: filefilter })
 
 app.post('/update', upload.single('image'), (req, res, next) => {
-    console.log(req.body)
     if (req.body.oldPictureName !== req.body.imageName) {
         fs.unlink(dir + req.body.company_id + "\\" + req.body.oldPictureName, (err) => err)
-        return res.status(200).json({
-            path: "http://localhost:1234/images/" + req.body.company_id + "/" + req.body.imageName,
-            name: req.body.imageName
-        })
     }
+    return res.status(200).json({
+        path: "http://localhost:1234/images/" + req.body.company_id + "/" + req.body.imageName,
+        name: req.body.imageName
+    })    
 })
 
 app.post('/', upload.single('image'), (req, res, next) => {
@@ -63,18 +62,6 @@ app.post('/', upload.single('image'), (req, res, next) => {
         name: req.body.imageName
     })
 })
-
-// app.post('/', upload.single('image'), (req, res, next) => {
-//     // console.log(req.body)
-//     // const t = JSON.parse(JSON.stringify(req.body))
-//     // console.log(t)
-//     // console.log(req.body)
-
-//     return res.status(200).json({
-//         path: "http://localhost:1234/images/" + req.body.company_id + "/" + req.body.imageName.replace(" ", "-"),
-//         name: req.body.imageName.replace(" ", "-")
-//     })
-// })
 
 server.listen(1234, () => {
     console.log("Server running...")

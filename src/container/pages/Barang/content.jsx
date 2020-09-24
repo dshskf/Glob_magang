@@ -3752,6 +3752,7 @@ class ContentBarang extends Component {
     }
 
     confirmAction = async () => {
+        alert("heo")
         this.setState({ disable_btnconfirmupdate: true })
         await this.loadCheckingKodeBarang(this.state.detailed_kode_barang_distributor)
         if (Number(this.state.allCheckedKodeBarang) > 1) {
@@ -3772,23 +3773,21 @@ class ContentBarang extends Component {
         formData.append("company_id", this.state.company_id)
 
         if (this.state.editGambarBarang) {
-            const ext = this.state.detailed_foto_baru.name.split('.')[1]
-            const old_picture = this.state.detailedEditOldFoto.split(`${this.state.company_id}/`)[1]
+            const ext = this.state.detailed_foto_baru.name.split('.')[1]            
             const imgName = this.state.detailed_kode_barang_distributor + "." + ext
             // const resupload = await this.props.uploadGambarBarang(data).catch(err => err)
             // ugb
             
-            formData.append('oldPictureName', old_picture)
             formData.append('imageName', imgName)
             formData.append('image', this.state.detailed_foto_baru)
-
-            const resupload = await axios.post("http://localhost:1234/update", formData)
-
-            Toast.hide();
+            
+            const resupload = await axios.post("http://localhost:1234/", formData)
+            alert("Edit alert!")
+            // Toast.hide();
             if (resupload) {
                 await this.setState({
                     detailed_foto_baru_url: resupload.data.path
-                })
+                })            
                 this.updateBarang()
             } else {
                 swal({
@@ -3804,11 +3803,11 @@ class ContentBarang extends Component {
         } else if (this.state.insertGambarBarang) {
             const ext = this.state.insert_foto_baru.name.split('.')[1]
             const imgName = this.state.insert_kode_barang_distributor + "." + ext
-            
+
             formData.append('imageName', imgName)
             formData.append('image', this.state.insert_foto_baru)
             const resupload = await axios.post("http://localhost:1234/", formData)
-
+            alert("insert alert!")
             // const resupload = await this.props.uploadGambarBarang(data).catch(err => err)
             if (resupload) {
                 await this.setState({
@@ -3829,12 +3828,11 @@ class ContentBarang extends Component {
         } else {
             const ext = this.state.insert_foto_master_baru.name.split('.')[1]
             const imgName = this.state.insert_master_kode_barang_distributor + "." + ext
-            console.log("3")
-            console.log(this.state)
+            
             formData.append('imageName', imgName)
             formData.append('image', this.state.insert_foto_master_baru)
             const resupload = await axios.post("http://localhost:1234/", formData)
-
+            alert("insert master alert!")
             // const resupload = await this.props.uploadGambarBarang(data).catch(err => err)
             if (resupload) {
                 await this.setState({
@@ -3871,10 +3869,10 @@ class ContentBarang extends Component {
             let harga_terendah = (b / this.state.kurs_now_manual).toFixed(2)
             if (this.state.default_currency_terendah === 'IDR') { // default_currency_terendah = IDR
                 passqueryinsertlistbarang = "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang) values ('" + this.state.id_barang_registered_insert + "', '" +
+                    "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto) values ('" + this.state.id_barang_registered_insert + "', '" +
                     harga + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
                     this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + harga_terendah + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
-                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + "') returning id)"
+                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + "', 'Y') returning id)"
                     +
                     `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                     values ((select id from new insert),${this.state.company_id},${harga},
@@ -3885,10 +3883,10 @@ class ContentBarang extends Component {
             } else { // default_currency_terendah = USD
                 passqueryinsertlistbarang =
                     "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang) values ('" + this.state.id_barang_registered_insert + "', '" +
+                    "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto) values ('" + this.state.id_barang_registered_insert + "', '" +
                     harga + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
                     this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + this.state.insert_price_terendah.split(',').join('') + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
-                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + "') returning id)"
+                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + "', 'Y') returning id)"
                     +
                     `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                     values ((select id from new insert),${this.state.company_id},${harga},
@@ -3906,10 +3904,10 @@ class ContentBarang extends Component {
             if (this.state.default_currency_terendah === 'USD') { // default_currency_terendah = USD
                 passqueryinsertlistbarang =
                     "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang) values ('" + this.state.id_barang_registered_insert + "', '" +
+                    "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto) values ('" + this.state.id_barang_registered_insert + "', '" +
                     (this.state.insert_price.split(',').join('')) + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
                     this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + (this.state.insert_price_terendah.split(',').join('')) + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
-                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + "') returning id)"
+                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + "', 'Y') returning id)"
                     +
                     `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                     values ((select id from new_insert),${this.state.company_id},${(this.state.insert_price.split(',').join(''))},
@@ -3920,10 +3918,10 @@ class ContentBarang extends Component {
             } else { // default_currency_terendah = IDR
                 passqueryinsertlistbarang =
                     "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang) values ('" + this.state.id_barang_registered_insert + "', '" +
+                    "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto) values ('" + this.state.id_barang_registered_insert + "', '" +
                     (this.state.insert_price.split(',').join('')) + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
                     this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + harga_terendah + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
-                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + "') returning id)"
+                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + "', 'Y') returning id)"
                     +
                     `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                     values ((select id from new_insert),${this.state.company_id},${(this.state.insert_price.split(',').join(''))},
@@ -3988,11 +3986,11 @@ class ContentBarang extends Component {
                 if (this.state.default_currency_master_barang_terendah === 'IDR') { // jika semua IDR
                     passqueryinsertlistbarang =
                         "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
+                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
                         harga + "', '" + this.state.company_id + "', '" + this.state.insert_foto_master_baru_url + "', '" +
                         this.state.insert_deskripsi_master_barang + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + harga_terendah + "', '" + this.state.insert_master_minimum_pembelian + "', '" + this.state.insert_master_minimum_nego + "', '" +
                         this.state.insert_master_nominal_persen_nego_pertama + "', '" + this.state.insert_master_nominal_persen_nego_kedua + "', '" + this.state.insert_master_nominal_persen_nego_ketiga + "', '" +
-                        this.state.insert_master_kode_barang_distributor + "') returning id)"
+                        this.state.insert_master_kode_barang_distributor + "', 'Y') returning id)"
                         +
                         `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                         values ((select id from new_insert),${this.state.company_id},${harga},
@@ -4003,11 +4001,11 @@ class ContentBarang extends Component {
                 } else { // jika default_currency_master_barang = IDR dan default_currency_master_barang_terendah = USD
                     passqueryinsertlistbarang =
                         "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
+                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
                         harga + "', '" + this.state.company_id + "', '" + this.state.insert_foto_master_baru_url + "', '" +
                         this.state.insert_deskripsi_master_barang + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + this.state.insert_price_master_barang_terendah.split(',').join('') + "', '" + this.state.insert_master_minimum_pembelian + "', '" + this.state.insert_master_minimum_nego + "', '" +
                         this.state.insert_master_nominal_persen_nego_pertama + "', '" + this.state.insert_master_nominal_persen_nego_kedua + "', '" + this.state.insert_master_nominal_persen_nego_ketiga + "', '" +
-                        this.state.insert_master_kode_barang_distributor + "') returning id)"
+                        this.state.insert_master_kode_barang_distributor + "', 'Y') returning id)"
                         +
                         `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                         values ((select id from new_insert),${this.state.company_id},${harga},
@@ -4023,11 +4021,11 @@ class ContentBarang extends Component {
                 if (this.state.default_currency_master_barang_terendah === 'USD') { // default_currency_master_barang_terendah = USD
                     passqueryinsertlistbarang =
                         "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
+                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
                         (this.state.insert_price_master_barang.split(',').join('')) + "', '" + this.state.company_id + "', '" + this.state.insert_foto_master_baru_url + "', '" +
                         this.state.insert_deskripsi_master_barang + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + (this.state.insert_price_master_barang_terendah.split(',').join('')) + "', '" + this.state.insert_master_minimum_pembelian + "', '" + this.state.insert_master_minimum_nego + "', '" +
                         this.state.insert_master_nominal_persen_nego_pertama + "', '" + this.state.insert_master_nominal_persen_nego_kedua + "', '" + this.state.insert_master_nominal_persen_nego_ketiga + "', '" +
-                        this.state.insert_master_kode_barang_distributor + "') returning id)"
+                        this.state.insert_master_kode_barang_distributor + "', 'Y') returning id)"
                         +
                         `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                         values ((select id from new_insert),${this.state.company_id},${(this.state.insert_price_master_barang.split(',').join(''))},
@@ -4038,11 +4036,11 @@ class ContentBarang extends Component {
                 } else { // default_currency_master_barang_terendah = IDR
                     passqueryinsertlistbarang =
                         "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
+                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
                         (this.state.insert_price_master_barang.split(',').join('')) + "', '" + this.state.company_id + "', '" + this.state.insert_foto_master_baru_url + "', '" +
                         this.state.insert_deskripsi_master_barang + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + harga_terendah + "', '" + this.state.insert_master_minimum_pembelian + "', '" + this.state.insert_master_minimum_nego + "', '" +
                         this.state.insert_master_nominal_persen_nego_pertama + "', '" + this.state.insert_master_nominal_persen_nego_kedua + "', '" + this.state.insert_master_nominal_persen_nego_ketiga + "', '" +
-                        this.state.insert_master_kode_barang_distributor + "') returning id)"
+                        this.state.insert_master_kode_barang_distributor + "', 'Y') returning id)"
                         +
                         `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                         values ((select id from new_insert),${this.state.company_id},${(this.state.insert_price_master_barang.split(',').join(''))},
@@ -4099,7 +4097,7 @@ class ContentBarang extends Component {
         const is_harga_change = parseFloat(this.state.detailed_price) === parseFloat(this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].harga)
 
         const is_update = is_harga_terendah_change && is_harga_change ? true : false
-        console.log(is_update)
+        alert('hrllo')
 
         if (this.state.editGambarBarang) {
             console.log("1")
@@ -4131,7 +4129,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah='" + harga_terendah + "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4152,7 +4150,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) + ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4180,7 +4178,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah='" + harga_terendah + "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4202,7 +4200,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) + ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4233,7 +4231,7 @@ class ContentBarang extends Component {
                             "price=" + harga + ", deskripsi='" + this.state.detailed_deskripsi + "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah='" + harga_terendah + "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4254,7 +4252,7 @@ class ContentBarang extends Component {
                             "price=" + harga + ", deskripsi='" + this.state.detailed_deskripsi + "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) + ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4279,7 +4277,7 @@ class ContentBarang extends Component {
                             "price=" + (this.state.detailed_price.toString().split(',').join('')) + ", deskripsi='" + this.state.detailed_deskripsi + "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah='" + harga_terendah + "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4300,7 +4298,7 @@ class ContentBarang extends Component {
                             "price=" + (this.state.detailed_price.toString().split(',').join('')) + ", deskripsi='" + this.state.detailed_deskripsi + "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) + ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4360,7 +4358,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah='" + harga_terendah +
                             "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4380,7 +4378,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) +
                             ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4405,7 +4403,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah='" + harga_terendah +
                             "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4426,7 +4424,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) +
                             ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4456,7 +4454,7 @@ class ContentBarang extends Component {
                             "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah='" + harga_terendah +
                             "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4477,7 +4475,7 @@ class ContentBarang extends Component {
                             "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) +
                             ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4503,7 +4501,7 @@ class ContentBarang extends Component {
                             "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah='" + harga_terendah +
                             "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4524,7 +4522,7 @@ class ContentBarang extends Component {
                             "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) +
                             ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
