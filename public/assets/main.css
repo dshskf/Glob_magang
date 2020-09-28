@@ -23240,6 +23240,10 @@ a.fc-more:hover {
 }
 
 
+.select-insert-barang-element{
+    color:red !important;
+}
+
 @media (max-width:992px){
     .showing {
         display: flex !important;

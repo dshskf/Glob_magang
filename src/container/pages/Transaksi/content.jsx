@@ -2718,7 +2718,7 @@ class ContentTransaksi extends Component {
                                 <p className="mb-0" style={{ fontWeight: 'bold' }}>Limit Hari Transaksi Selesai</p>
                                 <Input type="text" name="limit_hari_transaksi_selesai_inserted" id="limit_hari_transaksi_selesai_inserted"
                                     className="form-control"
-                                    onChange={this.handleChange}
+                                    onChange={this.handleChangeLimitTransaksi}
                                     onKeyPress={this.handleWhiteSpaceNumber}
                                     invalid={this.state.empty_limit_hari_transaksi}
                                     value={this.state.limit_hari_transaksi_selesai_inserted}

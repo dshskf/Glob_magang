@@ -833,7 +833,7 @@ class ContentNegosiasi extends Component {
                 if (this.state.cart_user_token != null) {
                     postNotification = await this.sendNotificationFCM(this.state.cart_user_token, stat)
                 }
-                if (resupdatemastercart && postNotification) {
+                if (resupdatemastercart) {
                     swal({
                         title: "Sukses!",
                         text: "Perubahan disimpan!",
@@ -841,7 +841,7 @@ class ContentNegosiasi extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        // window.location.reload()
+                        window.location.reload()
                     });
                 } else {
                     swal({
@@ -851,7 +851,7 @@ class ContentNegosiasi extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        // window.location.reload()
+                        window.location.reload()
                     });
                 }
             } else {
@@ -862,7 +862,7 @@ class ContentNegosiasi extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    // window.location.reload()
+                    window.location.reload()
                 });
             }
         } else if (stat === 'Approve') {
@@ -890,7 +890,7 @@ class ContentNegosiasi extends Component {
                 if (this.state.cart_user_token != null) {
                     postNotification = await this.sendNotificationFCM(this.state.cart_user_token, stat)
                 }
-                if (resupdatemastercart && postNotification) {
+                if (resupdatemastercart ) {
                     swal({
                         title: "Sukses!",
                         text: "Perubahan disimpan!",
@@ -898,7 +898,7 @@ class ContentNegosiasi extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        // window.location.reload()
+                        window.location.reload()
                     });
                 } else {
                     swal({
@@ -908,7 +908,7 @@ class ContentNegosiasi extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        // window.location.reload()
+                        window.location.reload()
                     });
                 }
             } else {
@@ -919,7 +919,7 @@ class ContentNegosiasi extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    // window.location.reload()
+                    window.location.reload()
                 });
             }
         } else if (stat === 'ApproveHargaFinal') {
@@ -939,7 +939,7 @@ class ContentNegosiasi extends Component {
                 if (this.state.cart_user_token != null) {
                     postNotification = await this.sendNotificationFCM(this.state.cart_user_token, stat)
                 }
-                if (resupdatemastercart && postNotification) {
+                if (resupdatemastercart ) {
                     swal({
                         title: "Sukses!",
                         text: "Perubahan disimpan!",
@@ -947,7 +947,7 @@ class ContentNegosiasi extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        // window.location.reload()
+                        window.location.reload()
                     });
                 } else {
                     swal({
@@ -957,7 +957,7 @@ class ContentNegosiasi extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        // window.location.reload()
+                        window.location.reload()
                     });
                 }
             } else {
@@ -968,7 +968,7 @@ class ContentNegosiasi extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    // window.location.reload()
+                    window.location.reload()
                 });
             }
         }

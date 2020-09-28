@@ -27,8 +27,8 @@ const MessageWithBarang = (props) => {
   useEffect(() => {
     const fetchBarang = async () => {
       const passQuery = `select a.id, b.nama, 
-      case when a.flag_foto = 'Y' then  (select concat('https://www.glob.co.id/admin/assets/images/product/', a.company_id,'/',a.kode_barang,'.png')) 
-      else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto,
+      case when a.flag_foto = 'Y' then  (select concat('assets/images/product/', a.company_id,'/',a.kode_barang,'.png')) 
+      else 'assets/images/no_image.png' end as foto,
       a.price, c.nominal as kurs, d.alias as satuan 
       from gcm_list_barang a 
       inner join gcm_master_barang b on a.barang_id = b.id 

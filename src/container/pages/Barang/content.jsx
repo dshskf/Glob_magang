@@ -73,10 +73,10 @@ class ContentBarang extends Component {
         statusBarangFilter: false,
         insertGambarBarang: false,
         editGambarBarang: false,
-        selectedFilter: 'Semua',
+        selectedFilter: 'Semua kategori',
         selectedFilterNo: null,
         selectedFilterStatus: 'S',
-        selectedFilterStatusTitle: 'Semua',
+        selectedFilterStatusTitle: 'Semua status',
         detailed_id_list_barang: '',
         detailed_status: '',
         detailed_status_master: '',
@@ -631,8 +631,8 @@ class ContentBarang extends Component {
         if (this.state.sa_divisi !== '1') {
             passquery = encrypt("select	gcm_list_barang.id, gcm_list_barang.status, gcm_master_barang.status as status_master, gcm_list_barang.barang_id, gcm_list_barang.price, " +
                 "gcm_list_barang.company_id, " +
-                "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://www.glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
-                "else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto, " +
+                "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
+                "else 'assets/images/no_image.png' end as foto, " +
                 "gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
                 "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, gcm_master_barang.volume, " +
                 "gcm_master_user.nama as nama_alias, gcm_master_satuan.alias " +
@@ -647,8 +647,8 @@ class ContentBarang extends Component {
         } else {
             passquery = encrypt("select	gcm_list_barang.id, gcm_list_barang.status, gcm_master_barang.status as status_master, gcm_list_barang.barang_id, gcm_list_barang.price, " +
                 "gcm_list_barang.company_id," +
-                "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://www.glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
-                "else 'https://glob.co.id/admin/assets/images/no_image.png' end as foto, " +
+                "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
+                "else 'assets/images/no_image.png' end as foto, " +
                 "gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
                 "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, gcm_master_barang.volume, " +
                 "gcm_master_user.nama as nama_alias, gcm_master_satuan.alias " +
@@ -661,7 +661,6 @@ class ContentBarang extends Component {
                 "order by gcm_list_barang.update_date desc, gcm_master_barang.category_id asc, gcm_master_barang.nama asc")
         }
         let res = await this.props.getDataBarangAPI({ query: passquery }).catch(err => err)
-
         if (res) {
             this.setState({
                 allDataBarang: res,
@@ -686,6 +685,7 @@ class ContentBarang extends Component {
     }
 
     changeBarangDropdown = (val) => {
+        console.log(this.state.allRegisteredBarang)
         this.setState({
             id_barang_registered_insert: val.value,
             nama_barang_registered_insert: val.label,
@@ -770,7 +770,7 @@ class ContentBarang extends Component {
             this.loadDataBarang()
             this.setState({
                 statusFilter: false,
-                selectedFilter: 'Semua',
+                selectedFilter: 'Semua kategori',
                 selectedFilterNo: null
             })
         } else {
@@ -840,11 +840,14 @@ class ContentBarang extends Component {
 
     handleDetailBarang = async (id) => {
         this.handleModalDetail()
+
         let passquerydetail = encrypt("select gcm_list_barang.id, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, gcm_list_barang.price_terendah, " +
-            "gcm_list_barang.company_id, gcm_list_barang.foto, gcm_list_barang.deskripsi, gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
+            "gcm_list_barang.company_id, gcm_list_barang.deskripsi, gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
             "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, " +
             "gcm_master_barang.volume, gcm_list_barang.jumlah_min_beli, gcm_list_barang.jumlah_min_nego, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias, gcm_master_barang.status as status_master, " +
-            "gcm_list_barang.persen_nego_1, gcm_list_barang.persen_nego_2, gcm_list_barang.persen_nego_3, gcm_list_barang.kode_barang " +
+            "gcm_list_barang.persen_nego_1, gcm_list_barang.persen_nego_2, gcm_list_barang.persen_nego_3, gcm_list_barang.kode_barang, " +
+            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
+            "else 'assets/images/no_image.png' end as foto " +
             "from gcm_list_barang " +
             "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
             "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
@@ -854,7 +857,7 @@ class ContentBarang extends Component {
         Toast.loading('Loading...');
         const resdetail = await this.props.getDataDetailedBarangAPI({ query: passquerydetail }).catch(err => err)
 
-        let riwayatHargaQuery = encrypt(`select * from gcm_listing_harga_barang where barang_id='${decrypt(resdetail.id)}'`)
+        let riwayatHargaQuery = encrypt(`select * from gcm_listing_harga_barang where barang_id='${decrypt(resdetail.id)}' order by id asc`)
         const reqRiwayatHarga = await this.props.getDataBarangAPI({ query: riwayatHargaQuery }).catch(err => err)
 
         Toast.hide();
@@ -867,7 +870,7 @@ class ContentBarang extends Component {
                 end_date: data.end_date ?
                     data.end_date.split("T")[0]
                     :
-                    index + 1 < reqRiwayatHarga.length ? reqRiwayatHarga[index + 1].start_date.split("T")[0] : "berlaku sekarang"
+                    "Berlaku Sekarang"
             }
         })
 
@@ -919,6 +922,7 @@ class ContentBarang extends Component {
                 filterDataRiwayatHarga: riwayatHargaRow,
                 detailedEditOldFoto: resdetail.foto
             })
+
         } else {
             swal({
                 title: "Kesalahan 503!",
@@ -3217,7 +3221,6 @@ class ContentBarang extends Component {
 
     handleModalConfirm = async () => {
         //hmc
-        console.log("hello")
         await this.setState({ warningharga: '', warningberikutshowharga: '', warningshowhargaterendah: '', warningshowhargatertinggi: '' })
         // if (this.state.detailed_price !== '' && this.state.detailed_foto !== '') {
         //     if (this.state.default_currency_update === 'IDR') {
@@ -3721,38 +3724,41 @@ class ContentBarang extends Component {
     }
 
     handleGambarEdit = (e) => {
-        if (e.target.value !== '' && (this.state.detailed_minimum_nego !== '' && this.state.detailed_minimum_nego !== '0' && Number(this.state.detailed_minimum_nego) % Number(this.state.detailed_berat) === 0) &&
-            (this.state.detailed_minimum_pembelian !== '' && this.state.detailed_minimum_pembelian !== '0' && Number(this.state.detailed_minimum_pembelian) % Number(this.state.detailed_berat) === 0) &&
-            ((this.state.detailed_price_terendah !== '' && this.state.detailed_price_terendah !== '0') || (this.state.flag_status_update_price === true && this.state.flag_status_update_price_tertinggi === true)) &&
-            ((this.state.detailed_price_in_rupiah_terendah !== '' && this.state.detailed_price_in_rupiah_terendah !== '0') || (this.state.flag_status_update_price === true && this.state.flag_status_update_price_tertinggi === true)) &&
-            ((this.state.detailed_price !== '' && this.state.detailed_price !== '0') || (this.state.flag_status_update_price === true && this.state.flag_status_update_price_tertinggi === true)) &&
-            ((this.state.detailed_price_in_rupiah !== '' && this.state.detailed_price_in_rupiah !== '0') || (this.state.flag_status_update_price === true && this.state.flag_status_update_price_tertinggi === true)) &&
-            Number(this.state.detailed_nominal_persen_nego_pertama) >= Number(this.state.detailed_nominal_persen_nego_kedua) &&
-            Number(this.state.detailed_nominal_persen_nego_pertama) >= Number(this.state.detailed_nominal_persen_nego_ketiga) &&
-            Number(this.state.detailed_nominal_persen_nego_kedua) >= Number(this.state.detailed_nominal_persen_nego_ketiga) &&
-            Number(this.state.detailed_nominal_persen_nego_pertama) <= 100 &&
-            this.state.detailed_nominal_persen_nego_pertama !== '' &&
-            this.state.detailed_nominal_persen_nego_kedua !== '' &&
-            this.state.detailed_nominal_persen_nego_ketiga !== '' &&
-            this.state.detailed_kode_barang_distributor !== '' && this.state.detailed_kode_barang_distributor !== null) {
-            this.resizeImage(e.target.files[0], "edit-1")
-        } else if (e.target.value !== '') {
-            this.resizeImage(e.target.files[0], "edit-2")
-        }
-        else if (e.target.value === '') {
-            this.setState({
-                detailed_foto: '',
-                detailed_foto_baru: '',
-                editGambarBarang: true,
-                errormessage: 'Harap pilih gambar barang yang akan dimasukkan!',
-                isOpenPictureInserted: !this.state.isOpenPictureInserted,
-                isBtnConfirmUpdate: true
-            })
+        const isPNG = e.target.files[0].name.includes('.png')
+        if (isPNG) {
+            if (e.target.value !== '' && (this.state.detailed_minimum_nego !== '' && this.state.detailed_minimum_nego !== '0' && Number(this.state.detailed_minimum_nego) % Number(this.state.detailed_berat) === 0) &&
+                (this.state.detailed_minimum_pembelian !== '' && this.state.detailed_minimum_pembelian !== '0' && Number(this.state.detailed_minimum_pembelian) % Number(this.state.detailed_berat) === 0) &&
+                ((this.state.detailed_price_terendah !== '' && this.state.detailed_price_terendah !== '0') || (this.state.flag_status_update_price === true && this.state.flag_status_update_price_tertinggi === true)) &&
+                ((this.state.detailed_price_in_rupiah_terendah !== '' && this.state.detailed_price_in_rupiah_terendah !== '0') || (this.state.flag_status_update_price === true && this.state.flag_status_update_price_tertinggi === true)) &&
+                ((this.state.detailed_price !== '' && this.state.detailed_price !== '0') || (this.state.flag_status_update_price === true && this.state.flag_status_update_price_tertinggi === true)) &&
+                ((this.state.detailed_price_in_rupiah !== '' && this.state.detailed_price_in_rupiah !== '0') || (this.state.flag_status_update_price === true && this.state.flag_status_update_price_tertinggi === true)) &&
+                Number(this.state.detailed_nominal_persen_nego_pertama) >= Number(this.state.detailed_nominal_persen_nego_kedua) &&
+                Number(this.state.detailed_nominal_persen_nego_pertama) >= Number(this.state.detailed_nominal_persen_nego_ketiga) &&
+                Number(this.state.detailed_nominal_persen_nego_kedua) >= Number(this.state.detailed_nominal_persen_nego_ketiga) &&
+                Number(this.state.detailed_nominal_persen_nego_pertama) <= 100 &&
+                this.state.detailed_nominal_persen_nego_pertama !== '' &&
+                this.state.detailed_nominal_persen_nego_kedua !== '' &&
+                this.state.detailed_nominal_persen_nego_ketiga !== '' &&
+                this.state.detailed_kode_barang_distributor !== '' && this.state.detailed_kode_barang_distributor !== null) {
+                this.resizeImage(e.target.files[0], "edit-1")
+            } else if (e.target.value !== '') {
+                this.resizeImage(e.target.files[0], "edit-2")
+            }
+            else if (e.target.value === '') {
+                this.setState({
+                    detailed_foto: '',
+                    detailed_foto_baru: '',
+                    editGambarBarang: true,
+                    errormessage: 'Harap pilih gambar barang yang akan dimasukkan!',
+                    isOpenPictureInserted: !this.state.isOpenPictureInserted,
+                    isBtnConfirmUpdate: true
+                })
+            }
         }
     }
 
     confirmAction = async () => {
-        alert("heo")
+
         this.setState({ disable_btnconfirmupdate: true })
         await this.loadCheckingKodeBarang(this.state.detailed_kode_barang_distributor)
         if (Number(this.state.allCheckedKodeBarang) > 1) {
@@ -3773,21 +3779,23 @@ class ContentBarang extends Component {
         formData.append("company_id", this.state.company_id)
 
         if (this.state.editGambarBarang) {
-            const ext = this.state.detailed_foto_baru.name.split('.')[1]            
+
+            const ext = this.state.detailed_foto_baru.name.split('.')[1]
             const imgName = this.state.detailed_kode_barang_distributor + "." + ext
-            // const resupload = await this.props.uploadGambarBarang(data).catch(err => err)
-            // ugb
-            
+            const oldPicture = this.state.detailedEditOldFoto.split(`${this.state.company_id}/`)[1]
+
+
+            formData.append('oldPictureName', oldPicture)
             formData.append('imageName', imgName)
             formData.append('image', this.state.detailed_foto_baru)
-            
-            const resupload = await axios.post("http://localhost:1234/", formData)
-            alert("Edit alert!")
+
+            const resupload = await axios.post("https://glob.co.id/image/update", formData)
+
             // Toast.hide();
             if (resupload) {
                 await this.setState({
                     detailed_foto_baru_url: resupload.data.path
-                })            
+                })
                 this.updateBarang()
             } else {
                 swal({
@@ -3806,8 +3814,7 @@ class ContentBarang extends Component {
 
             formData.append('imageName', imgName)
             formData.append('image', this.state.insert_foto_baru)
-            const resupload = await axios.post("http://localhost:1234/", formData)
-            alert("insert alert!")
+            const resupload = await axios.post("https://glob.co.id/image/add", formData)
             // const resupload = await this.props.uploadGambarBarang(data).catch(err => err)
             if (resupload) {
                 await this.setState({
@@ -3828,12 +3835,12 @@ class ContentBarang extends Component {
         } else {
             const ext = this.state.insert_foto_master_baru.name.split('.')[1]
             const imgName = this.state.insert_master_kode_barang_distributor + "." + ext
-            
+
             formData.append('imageName', imgName)
             formData.append('image', this.state.insert_foto_master_baru)
-            const resupload = await axios.post("http://localhost:1234/", formData)
-            alert("insert master alert!")
-            // const resupload = await this.props.uploadGambarBarang(data).catch(err => err)
+
+            const resupload = await axios.post("https://glob.co.id/image/add", formData)
+
             if (resupload) {
                 await this.setState({
                     insert_foto_master_baru_url: resupload.data.path
@@ -3854,6 +3861,8 @@ class ContentBarang extends Component {
     }
 
     insertBarang = async () => {
+        Toast.loading('Loading...');
+
         let passqueryinsertlistbarang = ""
 
         if (this.state.default_currency === 'IDR') {
@@ -3932,7 +3941,7 @@ class ContentBarang extends Component {
         }
 
         //komentar
-        Toast.loading('Loading...');
+
         const resinsertlistbarang = await this.props.insertListBarang({ query: encrypt(passqueryinsertlistbarang) }).catch(err => err)
         Toast.hide();
         if (resinsertlistbarang) {
@@ -3960,6 +3969,7 @@ class ContentBarang extends Component {
     }
 
     insertMasterBarang = async () => {
+        Toast.loading('Loading...');
         let passqueryinsertmasterbarang = ""
         passqueryinsertmasterbarang = encrypt("insert into gcm_master_barang (nama, category_id, berat, " +
             "volume, ex, create_by, create_date, update_by, update_date, status, satuan) values ('" + this.state.nama_barang_inserted + "', " +
@@ -4050,7 +4060,7 @@ class ContentBarang extends Component {
                 }
             }
 
-            Toast.loading('Loading...');
+
             const resinsertlistbarang = await this.props.insertListBarang({ query: encrypt(passqueryinsertlistbarang) }).catch(err => err)
             Toast.hide();
 
@@ -4090,14 +4100,13 @@ class ContentBarang extends Component {
     }
 
     updateBarang = async () => {
-
+        Toast.loading('Loading...');
         let passqueryupdatebarang = ""
 
         const is_harga_terendah_change = parseFloat(this.state.detailed_price_terendah) === parseFloat(this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].harga_terendah)
         const is_harga_change = parseFloat(this.state.detailed_price) === parseFloat(this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].harga)
 
         const is_update = is_harga_terendah_change && is_harga_change ? true : false
-        alert('hrllo')
 
         if (this.state.editGambarBarang) {
             console.log("1")
@@ -4129,7 +4138,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah='" + harga_terendah + "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4150,7 +4159,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) + ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4178,7 +4187,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah='" + harga_terendah + "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4200,7 +4209,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) + ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4231,7 +4240,7 @@ class ContentBarang extends Component {
                             "price=" + harga + ", deskripsi='" + this.state.detailed_deskripsi + "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah='" + harga_terendah + "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4252,7 +4261,7 @@ class ContentBarang extends Component {
                             "price=" + harga + ", deskripsi='" + this.state.detailed_deskripsi + "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) + ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4277,7 +4286,7 @@ class ContentBarang extends Component {
                             "price=" + (this.state.detailed_price.toString().split(',').join('')) + ", deskripsi='" + this.state.detailed_deskripsi + "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah='" + harga_terendah + "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4298,7 +4307,7 @@ class ContentBarang extends Component {
                             "price=" + (this.state.detailed_price.toString().split(',').join('')) + ", deskripsi='" + this.state.detailed_deskripsi + "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login +
                             ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) + ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4309,7 +4318,7 @@ class ContentBarang extends Component {
                     }
                 }
             }
-            Toast.loading('Loading...');
+
             const resupdateBarang = await this.props.updateBarangStatus({ query: encrypt(passqueryupdatebarang) }).catch(err => err)
             Toast.hide();
             if (resupdateBarang) {
@@ -4337,7 +4346,6 @@ class ContentBarang extends Component {
             }
         } else {
             if (this.state.detailed_status_for_reject === 'R') {
-                console.log("in 2-1")
                 let status = 'C'
                 if (this.state.default_currency_update === 'IDR') {
                     let x = this.state.detailed_price_in_rupiah.toString().split('.').join('')
@@ -4358,7 +4366,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah='" + harga_terendah +
                             "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4378,7 +4386,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) +
                             ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4403,7 +4411,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah='" + harga_terendah +
                             "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4424,7 +4432,7 @@ class ContentBarang extends Component {
                             "', status='" + status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) +
                             ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4454,7 +4462,7 @@ class ContentBarang extends Component {
                             "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah='" + harga_terendah +
                             "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4475,7 +4483,7 @@ class ContentBarang extends Component {
                             "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) +
                             ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4501,7 +4509,7 @@ class ContentBarang extends Component {
                             "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah='" + harga_terendah +
                             "', jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4522,7 +4530,7 @@ class ContentBarang extends Component {
                             "', status='" + this.state.detailed_status + "', update_by=" + this.state.id_pengguna_login + ", price_terendah=" + (this.state.detailed_price_terendah.toString().split(',').join('')) +
                             ", jumlah_min_beli='" + this.state.detailed_minimum_pembelian + "', jumlah_min_nego='" + this.state.detailed_minimum_nego + "', " +
                             "persen_nego_1='" + this.state.detailed_nominal_persen_nego_pertama + "', persen_nego_2='" + this.state.detailed_nominal_persen_nego_kedua + "', persen_nego_3='" + this.state.detailed_nominal_persen_nego_ketiga + "', " +
-                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + " flag_foto='Y'" +
+                            "kode_barang='" + this.state.detailed_kode_barang_distributor + "'" + ", flag_foto='Y'" +
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
@@ -4533,9 +4541,11 @@ class ContentBarang extends Component {
                     }
                 }
             }
-            Toast.loading('Loading...');
+
+
             const resupdateBarang = await this.props.updateBarangStatus({ query: encrypt(passqueryupdatebarang) }).catch(err => err)
             Toast.hide();
+
 
             if (resupdateBarang) {
                 swal({
@@ -4673,26 +4683,29 @@ class ContentBarang extends Component {
     }
 
     handleGambarInsert = (e) => {
-        if (e.target.value !== '' &&
-            this.state.id_barang_registered_insert !== '0' &&
-            this.state.insert_deskripsi !== '' && this.state.insert_kode_barang_distributor !== '' &&
-            (this.state.insert_minimum_pembelian !== '' && this.state.insert_minimum_pembelian !== '0' && Number(this.state.insert_minimum_pembelian) % Number(this.state.berat_barang_registered_insert) === 0) &&
-            (this.state.insert_minimum_nego !== '' && this.state.insert_minimum_nego !== '0' && Number(this.state.insert_minimum_nego) % Number(this.state.berat_barang_registered_insert) === 0) &&
-            (this.state.insert_price !== '' && this.state.insert_price !== '0' && this.state.flag_status_insert_price === true && this.state.flag_status_insert_price_tertinggi === true) &&
-            (this.state.insert_price_terendah !== '' && this.state.insert_price_terendah !== '0' && this.state.flag_status_insert_price === true && this.state.flag_status_insert_price_tertinggi === true)) {
+        const isPNG = e.target.files[0].name.includes('.png')
+        if (isPNG) {
+            if (e.target.value !== '' &&
+                this.state.id_barang_registered_insert !== '0' &&
+                this.state.insert_deskripsi !== '' && this.state.insert_kode_barang_distributor !== '' &&
+                (this.state.insert_minimum_pembelian !== '' && this.state.insert_minimum_pembelian !== '0' && Number(this.state.insert_minimum_pembelian) % Number(this.state.berat_barang_registered_insert) === 0) &&
+                (this.state.insert_minimum_nego !== '' && this.state.insert_minimum_nego !== '0' && Number(this.state.insert_minimum_nego) % Number(this.state.berat_barang_registered_insert) === 0) &&
+                (this.state.insert_price !== '' && this.state.insert_price !== '0' && this.state.flag_status_insert_price === true && this.state.flag_status_insert_price_tertinggi === true) &&
+                (this.state.insert_price_terendah !== '' && this.state.insert_price_terendah !== '0' && this.state.flag_status_insert_price === true && this.state.flag_status_insert_price_tertinggi === true)) {
 
-            this.resizeImage(e.target.files[0], "insert-1")
-        } else if (e.target.value !== '') {
-            this.resizeImage(e.target.files[0], "insert-2")
-        } else if (e.target.value === '') {
-            this.setState({
-                insert_foto: '',
-                insert_foto_baru: '',
-                insertGambarBarang: false,
-                errormessage: 'Harap pilih gambar barang yang akan dimasukkan!',
-                isOpenPictureInserted: !this.state.isOpenPictureInserted,
-                isBtnConfirmInsert: true
-            })
+                this.resizeImage(e.target.files[0], "insert-1")
+            } else if (e.target.value !== '') {
+                this.resizeImage(e.target.files[0], "insert-2")
+            } else if (e.target.value === '') {
+                this.setState({
+                    insert_foto: '',
+                    insert_foto_baru: '',
+                    insertGambarBarang: false,
+                    errormessage: 'Harap pilih gambar barang yang akan dimasukkan!',
+                    isOpenPictureInserted: !this.state.isOpenPictureInserted,
+                    isBtnConfirmInsert: true
+                })
+            }
         }
     }
 
@@ -5381,6 +5394,8 @@ class ContentBarang extends Component {
             })
         const showAllDataBarangPagination = showAllDataBarang.slice(this.state.slicex, this.state.slicey)
         const showFilteredDataBarangPagination = showFilteredDataBarang.slice(this.state.slicex, this.state.slicey)
+
+
         return (
             <div className="app-main__outer">
                 <div className="app-main__inner">
@@ -5430,7 +5445,7 @@ class ContentBarang extends Component {
                                                 &nbsp;&nbsp;{this.state.selectedFilter}
                                                 </DropdownToggle>
                                                 <DropdownMenu>
-                                                    <DropdownItem onClick={() => this.filterBarang('S')}>Semua</DropdownItem>
+                                                    <DropdownItem onClick={() => this.filterBarang('S')}>Semua kategori</DropdownItem>
                                                     {
                                                         this.state.allCategory.map(allCategory => {
                                                             return <DropdownItem onClick={() => this.filterBarang(allCategory.id, allCategory.nama)}>{allCategory.nama}</DropdownItem>
@@ -5446,7 +5461,7 @@ class ContentBarang extends Component {
                                                 &nbsp;&nbsp;{this.state.selectedFilter}
                                                 </DropdownToggle>
                                                 <DropdownMenu>
-                                                    <DropdownItem onClick={() => this.filterBarang('S')}>Semua</DropdownItem>
+                                                    <DropdownItem onClick={() => this.filterBarang('S')}>Semua kategori</DropdownItem>
                                                     {
                                                         this.state.allCategoryKhusus.map(allCategoryKhusus => {
                                                             return <DropdownItem onClick={() => this.filterBarang(allCategoryKhusus.id, allCategoryKhusus.nama)}>{allCategoryKhusus.nama}</DropdownItem>
@@ -5463,7 +5478,7 @@ class ContentBarang extends Component {
                                                 &nbsp;&nbsp;{this.state.selectedFilterStatusTitle}
                                         </DropdownToggle>
                                         <DropdownMenu>
-                                            <DropdownItem onClick={() => this.filterBarangStatus('Semua-S')}>Semua</DropdownItem>
+                                            <DropdownItem onClick={() => this.filterBarangStatus('Semua status-S')}>Semua status</DropdownItem>
                                             <DropdownItem onClick={() => this.filterBarangStatus('Proses Konfirmasi-C')}>Proses Konfirmasi</DropdownItem>
                                             <DropdownItem onClick={() => this.filterBarangStatus('Tersedia-A')}>Tersedia</DropdownItem>
                                             <DropdownItem onClick={() => this.filterBarangStatus('Tidak Tersedia-I')}>Tidak Tersedia</DropdownItem>
@@ -5590,11 +5605,11 @@ class ContentBarang extends Component {
                         <div className="card-body">
                             <div style={{ marginTop: '3%' }}>
                                 <div style={{ width: '50%', float: 'left', paddingRight: '3%' }}>
-                                    <img src={(this.state.detailed_foto === '') ? "assets/images/default_image_not_found.jpg" : this.state.detailed_foto} alt="" style={{ width: "50%" }} />
+                                    <img src={(this.state.detailed_foto === '') ? "assets/images/no_image.png" : this.state.detailed_foto} alt="" style={{ width: "50%" }} />
                                     {
                                         (this.state.detailed_status !== 'C') && (this.state.sa_role === 'admin') ?
                                             <div>
-                                                <Input type="file" accept="image/*" className="insert-gambar"
+                                                <Input type="file" accept=".png" className="insert-gambar"
                                                     onChange={this.handleGambarEdit} style={{ marginTop: '5%' }} />
                                             </div>
                                             : false
@@ -5889,11 +5904,11 @@ class ContentBarang extends Component {
                                                     data={{
                                                         columns: [
                                                             {
-                                                                label: 'Harga(USD)',
+                                                                label: 'Harga (USD)',
                                                                 field: 'harga'
                                                             },
                                                             {
-                                                                label: 'Harga Terendah(USD)',
+                                                                label: 'Harga Terendah (USD)',
                                                                 field: 'harga_terendah'
                                                             },
                                                             {
@@ -5983,7 +5998,7 @@ class ContentBarang extends Component {
                             <div style={{ marginTop: '3%' }}>
                                 <div style={{ width: '50%', float: 'left', paddingRight: '3%' }}>
                                     <img src={(this.state.insert_foto === '') ? "assets/images/default_image_not_found.jpg" : this.state.insert_foto} alt="" style={{ width: "50%" }} />
-                                    <Input type="file" accept="image/*" className="insert-gambar"
+                                    <Input type="file" accept=".png" className="insert-gambar"
                                         onChange={this.handleGambarInsert} style={{ marginTop: '5%' }}></Input>
                                     <p className="mb-0" style={{ fontWeight: 'bold', marginTop: '5%' }}> Kode Barang Distributor</p>
                                     <Input type="text" name="insert_kode_barang_distributor" id="insert_kode_barang_distributor" className="form-control"
@@ -6002,7 +6017,7 @@ class ContentBarang extends Component {
                                     <FormFeedback>{this.state.feedback_insert_deskripsi}</FormFeedback>
                                 </div>
                                 <div style={{ width: '50%', float: 'right', paddingRight: '3%' }}>
-                                    <p className="mb-0" style={{ fontWeight: 'bold' }}> Nama Barang</p>
+                                    <p className="mb-0" style={{ fontWeight: 'bold' }}> Nama Barangx</p>
                                     {/* <ButtonDropdown isOpen={this.state.isOpenBarang} toggle={this.handleDropDownBarang} style={{width:'100%'}}>
                                         <DropdownToggle caret color="light" title="Daftar barang yang tersedia">
                                             {(this.state.nama_barang_registered_insert === '') ? 'Pilih Barang' : this.state.nama_barang_registered_insert}
@@ -6020,7 +6035,6 @@ class ContentBarang extends Component {
                                         </DropdownMenu>
                                     </ButtonDropdown> */}
                                     <Select
-                                        // value={this.state.id_barang_registered_insert}
                                         options={this.state.allRegisteredBarang}
                                         onChange={this.changeBarangDropdown}
                                     />
@@ -6055,8 +6069,8 @@ class ContentBarang extends Component {
                                     </p>
                                     <div className="input-group">
                                         <div className="input-group-prepend" style={{ width: '100%' }}>
-                                            <ButtonDropdown isOpen={this.state.isOpenCurrencyInsertBarangTerendah} toggle={this.handleDropDownCurrencyInsertBarangTerendah} style={{ width: '100%' }}>
-                                                <DropdownToggle caret color="light" title="Daftar mata uang yang tersedia">
+                                            <ButtonDropdown isOpen={this.state.isOpenCurrencyInsertBarangTerendah} toggle={this.handleDropDownCurrencyInsertBarangTerendah} style={{ width: '100%', zIndex: this.state.isOpenCurrencyInsertBarangTerendah ? 1 : 0 }}>
+                                                <DropdownToggle caret color="light" title="Daftar mata uang yang tersedia" >
                                                     {this.state.default_currency_terendah}
                                                 </DropdownToggle>
                                                 <DropdownMenu>
@@ -6088,7 +6102,7 @@ class ContentBarang extends Component {
                                     </p>
                                     <div className="input-group">
                                         <div className="input-group-prepend" style={{ width: '100%' }}>
-                                            <ButtonDropdown isOpen={this.state.isOpenCurrencyInsertBarang} toggle={this.handleDropDownCurrencyInsertBarang} style={{ width: '100%' }}>
+                                            <ButtonDropdown isOpen={this.state.isOpenCurrencyInsertBarang} toggle={this.handleDropDownCurrencyInsertBarang} style={{ width: '100%', zIndex: 0 }}>
                                                 <DropdownToggle caret color="light" title="Daftar mata uang yang tersedia">
                                                     {this.state.default_currency}
                                                 </DropdownToggle>

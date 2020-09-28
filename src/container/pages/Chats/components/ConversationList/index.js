@@ -52,7 +52,7 @@ const ConversationList = props => {
     let user_id = parseInt(decrypt(JSON.parse(localStorage.getItem('userData')).id))    
     firebaseApp.database().ref().orderByChild('user_id_seller').equalTo(user_id).on("value", async snapshot => {
       if (!snapshot.val()) {
-        alert('Chat is empty!')
+        alert('Belum ada chat !')
         return
       }      
 

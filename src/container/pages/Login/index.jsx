@@ -102,7 +102,6 @@ class Login extends Component {
         const messaging = firebaseApp.messaging()
         return messaging.requestPermission()
             .then(() => {
-                console.log('Approved')
                 return messaging.getToken()
             })
             .then(async token => {
@@ -432,9 +431,26 @@ class Login extends Component {
     }
 
     handleChange = (event) => {
-        this.setState({
-            [event.target.name]: event.target.value
-        })
+
+        if (event.target.name === 'nomor_hp') {
+            let get_input = event.target.value
+            if (isNaN(Number(get_input))) {
+                return;
+            }
+            else {
+                this.setState({
+                    [event.target.name]: event.target.value
+                })
+            }
+
+        }
+
+        else {
+            this.setState({
+                [event.target.name]: event.target.value
+            })
+        }
+
     }
 
     timerBtnKirimUlangOtp = () => {
@@ -517,7 +533,6 @@ class Login extends Component {
     }
 
     handleChangeOTP = (event) => {
-        console.log(event.target.value)
         this.setState({ valueOTP: event.target.value })
     }
 
@@ -572,7 +587,7 @@ class Login extends Component {
                             button: false,
                             timer: "2500"
                         }).then(() => {
-                            // this.props.history.push('/admin/beranda')
+                            this.props.history.push('/admin/beranda')
                         });
                     }
                 }
@@ -697,7 +712,20 @@ class Login extends Component {
                                     <div className="col-md-6">
                                         <div className="position-relative form-group">
                                             <p className="mb-0" style={{ fontWeight: 'bold' }}>Nomor HP</p>
-                                            <NumberFormat isNumericString={true} name="nomor_hp" id="nomor_hp" className="form-control" placeholder="Nomor HP" onChange={this.handleChange} />
+
+                                            <Input
+                                                type="text"
+                                                spellCheck="false"
+                                                autoComplete="off"
+                                                name="nomor_hp"
+                                                id="nomor_hp"
+                                                className="form-control"
+                                                maxLength="15"
+                                                placeholder="Nomor HP"
+                                                onChange={this.handleChange}
+                                                value={this.state.nomor_hp}
+                                            />
+
                                             <div id="errornomorhp" style={{ display: 'none' }}>
                                                 <p style={{ color: 'red' }}>Kolom ini harus diisi</p>
                                             </div>

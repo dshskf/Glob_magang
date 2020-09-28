@@ -1,7 +1,7 @@
 .message {
   display: flex;
   flex-direction: column;
-  margin-top: 10px;
+  margin-top: 5px;
 }
 
 .message .timestamp {
@@ -25,21 +25,21 @@
 }
 
 .message.start .bubble-container .bubble {
-  border-top-left-radius: 20px;
+  border-top-left-radius: 10px;
 }
 
 .message.end .bubble-container .bubble {
-  border-bottom-left-radius: 20px;
+  border-bottom-left-radius: 10px;
 }
 
 .message.mine.start .bubble-container .bubble {
-  margin-top: 4px;
-  border-top-right-radius: 20px;
+  margin-top: 2px;
+  border-top-right-radius: 10px;
 }
 
 .message.mine.end .bubble-container .bubble {
-  border-bottom-right-radius: 20px;
-  margin-bottom: 4px;
+  border-bottom-right-radius: 10px;
+  margin-bottom: 2px;
 }
 
 .message .bubble-container .bubble {
@@ -48,20 +48,20 @@
   padding: 10px 15px;
   border-radius: 20px;
   max-width: 75%;
-  border-top-left-radius: 2px;
-  border-bottom-left-radius: 2px;
-  border-top-right-radius: 20px;
-  border-bottom-right-radius: 20px;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
   position: relative;
 }
 
 .message.mine .bubble-container .bubble {
   background: #007aff;
   color: white;
-  border-top-left-radius: 20px;
-  border-bottom-left-radius: 20px;
-  border-top-right-radius: 2px;
-  border-bottom-right-radius: 2px;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
   padding: 10px 1rem;
 }
 

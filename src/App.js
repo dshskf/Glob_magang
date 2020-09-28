@@ -51,15 +51,15 @@ function App() {
         console.log(message.data)
       }
 
-      addNotification({
-        title: 'Warning',
-        subtitle: 'This is a subtitle',
-        message: 'This is a very long message',
-        theme: 'darkblue',
-        native: true // when using native, your OS will handle theming.
-      });
+      // addNotification({
+      //   title: 'Warning',
+      //   subtitle: 'This is a subtitle',
+      //   message: 'This is a very long message',
+      //   theme: 'darkblue',
+      //   native: true // when using native, your OS will handle theming.
+      // });
 
-      NotificationManager.success('Success message', 'New Nego!');
+      NotificationManager.success('Ada negosiasi dari pembeli', 'Glob');
       return message
     });
   }, [])

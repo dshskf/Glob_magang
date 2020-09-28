@@ -408,7 +408,7 @@ class ContentOngkir extends Component {
                         </button>
                         <button className="sm-2 mr-2 btn btn-danger" >
                             <Link
-                                to="admin/assets/files/TemplateOngkir.xlsx"
+                                to="assets/files/TemplateOngkir.xlsx"
                                 target="_blank"
                                 download
                                 style={{

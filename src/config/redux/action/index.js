@@ -3249,7 +3249,7 @@ export const getOtp = (data) => (dispatch) => {
                 // let desc = res.data.desc;
                 let message = res.data.message
                 let dataReturned = Object.create(null);
-                if (status === "0") {
+                if (status === "0" || status === "1") {
                     dataReturned = {
                         nohp: message.nohp,
                         text: message.text,
