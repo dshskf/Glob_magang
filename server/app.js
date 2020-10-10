@@ -43,7 +43,7 @@ app.use(bp.json({ limit: '10mb' }));
 app.use(bp.urlencoded({ limit: '10mb', extended: true }));
 app.use('/images', express.static(path.join(dir)));
 
-// app.use(multer({ storage: filestorage, fileFilter: filefilter }).single('image'))
+app.use(multer({ storage: filestorage, fileFilter: filefilter }).single('image'))
 let upload = multer({ storage: filestorage, fileFilter: filefilter })
 
 app.post('/update', upload.single('image'), (req, res, next) => {

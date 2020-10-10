@@ -16,11 +16,19 @@ import {
     Modal, ModalHeader, ModalBody, ModalFooter, Button, ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle,
     Col, Input, FormGroup, Label, Card, CardImg, CardBody, CardTitle, CardText, FormFeedback
 } from 'reactstrap'
+import io from 'socket.io-client'
 import moment from 'moment';
 import 'moment/locale/id'
 import Toast from 'light-toast';
 
+import { socket_uri } from '../../../config/services/socket'
+
 class ContentTransaksi extends Component {
+
+    constructor(props) {
+        super(props);
+    }
+
     state = {
         id_pengguna_login: '',
         company_id: '',
@@ -162,6 +170,21 @@ class ContentTransaksi extends Component {
     }
 
     async componentDidMount() {
+        let socket = io(socket_uri)
+
+        socket.on('transaction_from_user', async (data) => {
+            if (data.type === 'admin') {
+                await this.loadData()
+            } else if (data.type === 'sales') {
+                await this.loadData()
+            }
+        })
+
+        await this.loadData()
+    }
+
+
+    loadData = async () => {
         await this.loadDataTransactions("0")
         await this.checkDataCanceledTransactions()
         if (this.state.allTransactionToCanceled.length > 0) {
@@ -622,7 +645,7 @@ class ContentTransaksi extends Component {
                     window.location.reload()
                 }
             });
-        }        
+        }
         await this.loadDataSales(this.state.company_id, this.state.company_tipe_bisnis)
         await this.loadDetailedOrder(this.state.id_transaction, this.state.status)
         await this.loadTransactionComplained(this.state.id_transaction)
@@ -1070,7 +1093,7 @@ class ContentTransaksi extends Component {
         } else if (this.state.status === shipped) {
             passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + received + "', update_by='" +
                 this.state.id_pengguna_login + "', date_received=now() where id=" + this.state.id + " returning status;")
-        } else if(this.state.status===complained){
+        } else if (this.state.status === complained) {
             passqueryupdatestatustransaksi = encrypt(`update gcm_master_transaction set status='FINISHED', date_finished=now() where id=${this.state.id} returning status`)
         }
 
@@ -2751,7 +2774,8 @@ class ContentTransaksi extends Component {
     }
 }
 const reduxState = (state) => ({
-    userData: state.userData
+    userData: state.userData,
+    io: state.io
 })
 
 const reduxDispatch = (dispatch) => ({

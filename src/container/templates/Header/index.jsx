@@ -20,7 +20,7 @@ class Header extends Component {
 
     async componentDidMount() {
         const userData = JSON.parse(localStorage.getItem('userData'));       
-console.log("gotcha")
+
         this.setState({
             username: decrypt(userData.username),
             role: decrypt(userData.role),

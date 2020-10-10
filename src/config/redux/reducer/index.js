@@ -5,6 +5,7 @@ const initialState = {
     isSidebarRendered: false,
     isContactListScreen: true,
     fetchChatUserId: null,
+    io: null
 }
 
 const reducer = (state = initialState, action) => {
@@ -45,6 +46,13 @@ const reducer = (state = initialState, action) => {
         return {
             ...state,
             isContactListScreen: action.value
+        }
+    }
+
+    if (action.type === "SET_IO_CONNECTION") {        
+        return {
+            ...state,
+            io: action.value
         }
     }
 

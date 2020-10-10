@@ -4593,3 +4593,7 @@ export const changeFetchCartUserId = (data) => (dispatch) => {
 export const changeChatScreen = (data) => (dispatch) => {
     dispatch({ type: "SET_CHAT_SCREEN", value: data })
 }
+
+export const setSocketIOConnection = (data) => dispatch => {
+    dispatch({ type: "SET_IO_CONNECTION", value: data })
+}

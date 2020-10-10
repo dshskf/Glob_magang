@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { firebaseApp } from '../../../config/firebase/index'
-
+import io from 'socket.io-client'
 import ContentBeranda from '../../pages/Beranda/content'
 import ContentBarang from '../../pages/Barang/content'
 import ContentNegosiasi from '../../pages/Negosiasi/content'
@@ -18,7 +18,8 @@ import ContentChats from '../../pages/Chats/content'
 import Footer from '../Footer';
 import Header from '../Header';
 
-import { getNotificationNumber, checkRenderedSidebar } from '../../../config/redux/action';
+import { socket_uri } from '../../../config/services/socket'
+import { getNotificationNumber, checkRenderedSidebar, setSocketIOConnection } from '../../../config/redux/action';
 import { encrypt, decrypt } from '../../../config/lib';
 
 class SidebarAdmin extends Component {
@@ -29,6 +30,8 @@ class SidebarAdmin extends Component {
 
     async componentDidMount() {
         const userData = JSON.parse(localStorage.getItem('userData'))
+        let user_id = parseInt(decrypt(userData.id))
+        let company_id = parseInt(decrypt(userData.company_id))
         let query
 
         if (userData.sa_role === 'sales') {
@@ -58,7 +61,7 @@ class SidebarAdmin extends Component {
         }
 
 
-        let user_id = parseInt(decrypt(userData.id))
+
         firebaseApp.database().ref().orderByChild('user_id_seller').equalTo(user_id).on("value", async snapshot => {
             if (!snapshot.val()) {
                 return
@@ -92,11 +95,34 @@ class SidebarAdmin extends Component {
         }
 
         navigator.serviceWorker.addEventListener("message", async (message) => {
-            const post = await this.props.getNumber({ query: query }).catch(err => err)            
+            const post = await this.props.getNumber({ query: query }).catch(err => err)
             this.setState({ totalNotification: post[0].count })
             this.props.checkRenderedSidebar(post[0].count)
         })
 
+        const messaging = firebaseApp.messaging()
+        messaging.requestPermission()
+            .then(() => {
+                return messaging.getToken()
+            })
+            .then(async token => {
+                console.log(token)
+            })
+
+        if (!this.props.io) {
+            let socket = io(socket_uri)
+            socket.emit('admin_room', {
+                room_id: `${company_id}-${user_id}`
+            })
+            
+            this.props.setSocketIOConnection(socket)
+        }
+        else {            
+            let socket = this.props.io
+            socket.on('transaction_from_user', (data) => {
+                console.log(data)
+            })
+        }
     }
 
 
@@ -378,12 +404,14 @@ class SidebarAdmin extends Component {
 
 const reduxState = (state) => ({
     isShown: state.isShown,
-    sidebarStatus: state.isSidebarRendered
+    sidebarStatus: state.isSidebarRendered,
+    io: state.io
 })
 
 const reduxDispatch = (dispatch) => ({
     getNumber: data => dispatch(getNotificationNumber(data)),
-    checkRenderedSidebar: data => dispatch(checkRenderedSidebar(data))
+    checkRenderedSidebar: data => dispatch(checkRenderedSidebar(data)),
+    setSocketIOConnection: data => dispatch(setSocketIOConnection(data))
 })
 
 export default connect(reduxState, reduxDispatch)(SidebarAdmin);

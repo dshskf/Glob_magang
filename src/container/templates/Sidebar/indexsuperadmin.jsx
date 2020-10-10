@@ -309,7 +309,7 @@ class SidebarSuperAdmin extends Component {
                                                 </Link>
                                                     </li>
                                             }
-                                            {/* {
+                                            {
                                                 page === 'masterbanner' ? (
                                                     <li>
                                                         <Link to="/admin/masterbanner" className="mm-active">
@@ -324,7 +324,7 @@ class SidebarSuperAdmin extends Component {
                                                             </i>Manajemen Banner
                                                 </Link>
                                                     </li>
-                                            } */}
+                                            }
                                         </React.Fragment>
                                     }
 
