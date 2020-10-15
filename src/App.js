@@ -19,6 +19,7 @@ import MasterPayment from './container/pages/MasterPayment'
 import MasterReason from './container/pages/MasterReason'
 import MasterKalenderLibur from './container/pages/MasterKalenderLibur'
 import MasterBanner from './container/pages/MasterBanner'
+import MasterBank from './container/pages/MasterBank'
 import Profil from './container/pages/Profil'
 import Sales from './container/pages/Sales'
 import Payment from './container/pages/Payment'
@@ -95,6 +96,7 @@ function App() {
             <PrivateRoute path="/admin/masterreason" exact component={MasterReason} />
             <PrivateRoute path="/admin/masterkalenderlibur" exact component={MasterKalenderLibur} />
             <PrivateRoute path="/admin/masterbanner" exact component={MasterBanner} />
+            <PrivateRoute path="/admin/masterbank" exact component={MasterBank} />
             <PrivateRoute path="/admin/chats" exact component={Chats} />
           </Switch>
         </Router>

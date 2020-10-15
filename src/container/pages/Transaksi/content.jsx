@@ -7,7 +7,7 @@ import swal from 'sweetalert';
 import {
     getDataTransactionsAPI, getDataDetailedTransactionAPI, getDataTypeCancelReason, getDataDetailedOrderAPI, updateTransactionStatus, getDataDetailedAlamatTransactionAPI,
     insertTransactionReceived, getDataDetailedSalesTransactionAPI, getDataSalesTransactionAPI, getDataTransactionComplainedAPI,
-    getPPNBarang, checkIdTransactionCanceled, totalBeranda, getDataLimitHariTransaksi, checkIdTransactionReceivedToFinished, logoutUserAPI
+    getPPNBarang, checkIdTransactionCanceled, totalBeranda, getDataLimitHariTransaksi, checkIdTransactionReceivedToFinished, logoutUserAPI, postQuery
 } from '../../../config/redux/action';
 import { MDBDataTable } from 'mdbreact';
 import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
@@ -55,6 +55,8 @@ class ContentTransaksi extends Component {
         isOpenBuktiTransfer: false,
         isOpenDropdownStatusPayment: false,
         isOpenConfirmCancel: false,
+        isOpenUbahTanggalPengirimanKirim: false,
+        updateTanggalPengirimanKirim: null,
         selectedFilterPayment: 'Semua',
         id: '',
         id_transaction: '',
@@ -1608,6 +1610,48 @@ class ContentTransaksi extends Component {
         }
     }
 
+    handleModalUbahTanggalPengiriman = () => {
+        this.setState({
+            isOpenUbahTanggalPengirimanKirim: !this.state.isOpenUbahTanggalPengirimanKirim
+        })
+    }
+
+    handleUbahPengirimanInput = e => {
+        console.log(e.target.value)
+        this.setState({
+            updateTanggalPengirimanKirim: e.target.value
+        })
+    }
+
+    updateTanggalPengirimanKirim = async () => {
+        const query = encrypt(`update gcm_master_transaction set tgl_permintaan_kirim ='${this.state.updateTanggalPengirimanKirim}' 
+        where id=${this.state.id} returning *`)
+
+        const post_update_pengiriman = await this.props.postQuery({ query: query })
+        if (post_update_pengiriman) {
+            swal({
+                title: "Sukses!",
+                text: "Perubahan disimpan!",
+                icon: "success",
+                button: false,
+                timer: "2500"
+            }).then(() => {
+                this.loadDataTransactions("0")
+                window.location.reload()
+            });
+        } else {
+            swal({
+                title: "Gagal!",
+                text: "Tidak ada perubahan disimpan!",
+                icon: "error",
+                button: false,
+                timer: "2500"
+            }).then(() => {
+                window.location.reload()
+            });
+        }
+    }
+
     render() {
         let start = this.state.startDate.format('DD MMMM YYYY');
         let end = this.state.endDate.format('DD MMMM YYYY');
@@ -2285,6 +2329,28 @@ class ContentTransaksi extends Component {
                                                 <p className="mb-0"> {this.state.create_date}</p>
                                                 <p className="mb-0" style={{ fontWeight: 'bold' }}> Tanggal Permintaan Kirim  </p>
                                                 <p className="mb-0"> {(this.state.tgl_permintaan_kirim === null ? 'Tidak ditentukan' : this.state.tgl_permintaan_kirim)}</p>
+                                                {
+                                                    this.state.status === 'WAITING' &&
+                                                    <p
+                                                        onClick={this.handleModalUbahTanggalPengiriman}
+                                                        style={{ color: 'red', textDecoration: 'underline', cursor: 'pointer' }}
+                                                    >Ubah</p>
+                                                }
+                                                <Modal size="md" toggle={this.handleModalUbahTanggalPengiriman} isOpen={this.state.isOpenUbahTanggalPengirimanKirim} backdrop="static" keyboard={false}>
+                                                    <ModalHeader toggle={this.handleModalUbahTanggalPengiriman}>Ubah Tanggal Pengiriman</ModalHeader>
+                                                    <ModalBody>
+                                                        <div className="position-relative form-group" style={{ marginTop: '3%' }}>
+                                                            <FormGroup>
+                                                                <Input type="date" placeholder="Tanggal Perminataan Kirim" onChange={this.handleUbahPengirimanInput} />
+                                                                <p style={{ color: 'red', fontSize: '12px', marginLeft: '10px' }}>*Harap perhatikan format tanggal</p>
+                                                            </FormGroup>
+                                                        </div>
+                                                    </ModalBody>
+                                                    <ModalFooter>
+                                                        <Button color="primary" disabled={this.state.updateTanggalPengirimanKirim === null} onClick={this.updateTanggalPengirimanKirim}>Update</Button>
+                                                        <Button color="danger" onClick={this.handleModalUbahTanggalPengiriman}>Batal</Button>
+                                                    </ModalFooter>
+                                                </Modal>
                                                 <p className="mb-0" style={{ fontWeight: 'bold' }}> Alamat Pengiriman </p>
                                                 <p className="mb-0"> {this.state.alamat_shipto}</p>
                                                 <p className="mb-0"> {this.state.kelurahan_shipto}, {this.state.kecamatan_shipto}</p>
@@ -2794,6 +2860,7 @@ const reduxDispatch = (dispatch) => ({
     totalBeranda: (data) => dispatch(totalBeranda(data)),
     getDataLimitHariTransaksi: (data) => dispatch(getDataLimitHariTransaksi(data)),
     checkIdTransactionReceivedToFinished: (data) => dispatch(checkIdTransactionReceivedToFinished(data)),
+    postQuery: (data) => dispatch(postQuery(data)),
     logoutAPI: () => dispatch(logoutUserAPI())
 })
 

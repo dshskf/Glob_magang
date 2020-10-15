@@ -7,7 +7,7 @@ import swal from 'sweetalert';
 import {
     getDataBarangAPI, getDataDetailedBarangAPI, getKursAPI, getKursAPIManual, getKursActiveAPIManual, getDataCheckedBarang, getDataCategoryAPI, getDataSatuanAPI, insertMasterBarangFromSeller,
     getDivisi, uploadGambarBarang, updateBarangStatus, getDataBarangCanInsert, getDataCheckedNego, getDataCheckedKodeBarang,
-    getPPNBarang, insertListBarang, logoutUserAPI
+    getPPNBarang, insertListBarang, logoutUserAPI, postQuery
 } from '../../../config/redux/action';
 import BarangComponent from '../../../component/molecules/BarangComponent';
 import NumberFormat from 'react-number-format';
@@ -21,6 +21,10 @@ import ButtonCustom from '../../../component/atom/Button';
 import Resizer from './react-file-image-resizer';
 import Toast from 'light-toast';
 import axios from 'axios';
+
+import readXlsxFile from 'read-excel-file'
+import * as XLSX from 'xlsx'
+import * as FileSaver from 'file-saver'
 
 class ContentBarang extends Component {
     state = {
@@ -276,7 +280,11 @@ class ContentBarang extends Component {
         startDateRiwayatHarga: null,
         endDateRiwayatHarga: null,
         filterDataRiwayatHarga: null,
-        detailedEditOldFoto: null
+        detailedEditOldFoto: null,
+        updateHargaBarangData: null,
+        updateHargaBarangDataTemp: null,
+        updateHargaBarangExcel: null,
+        isOpenUpdateHargaBarang: false,
     }
 
     componentWillMount() {
@@ -4109,7 +4117,6 @@ class ContentBarang extends Component {
         const is_update = is_harga_terendah_change && is_harga_change ? true : false
 
         if (this.state.editGambarBarang) {
-            console.log("1")
             if (this.state.detailed_status_for_reject === 'R') {
                 console.log("1-1")
                 let status = 'C'
@@ -5382,6 +5389,141 @@ class ContentBarang extends Component {
         // this.state.filterDataRiwayatHarga
     }
 
+    excelReader = async (excel_data) => {
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+            /* Parse data */
+            const bstr = evt.target.result;
+            const wb = XLSX.read(bstr, { type: 'binary' });
+            /* Get first worksheet */
+            const wsname = wb.SheetNames[0];
+            const ws = wb.Sheets[wsname];
+            /* Convert array of arrays */
+            const data = XLSX.utils.sheet_to_json(ws, { header: 0 });
+            /* Update state */
+            this.setState({ updateHargaBarangExcel: data })
+        };
+        reader.readAsBinaryString(excel_data);
+    }
+
+
+    handleExcelInput = async (e) => {
+        const file = e.target.files[0]
+        await this.excelReader(file)
+    }
+
+    exportToCSV = (csvData) => {
+        const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+        const fileExtension = '.xlsx';
+
+        const ws = XLSX.utils.json_to_sheet(csvData);
+        const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+        const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+        const data = new Blob([excelBuffer], { type: fileType });
+        FileSaver.saveAs(data, "Template_Harga_Barang" + fileExtension);
+    }
+
+
+    handleDownloadUpdateHargaTemplate = async () => {
+        const excel_data = this.state.updateHargaBarangData.map(data => ({
+            "Id": data.id,
+            "Kode Barang": data.kode_barang,
+            "Nama Barang": data["Nama Barang"],
+            "Harga Tertinggi": data.price,
+            "Harga Terendah": data.price_terendah
+        }))
+        this.exportToCSV(excel_data)
+    }
+
+    handleCloseUpdateHargaBarang = async () => {
+        const query = encrypt(`
+                select a.*, b.nama as "Nama Barang"                
+                from gcm_list_barang a inner join gcm_master_barang b on a.barang_id = b.id 		
+                where company_id = ${this.state.company_id} order by "Nama Barang" asc
+        `)
+
+        const getDataBarang = await this.props.postQuery({ query: query }).catch(err => err)
+
+        this.setState({
+            isOpenUpdateHargaBarang: !this.state.isOpenUpdateHargaBarang,
+            updateHargaBarangData: getDataBarang, //Data storage            
+            updateHargaBarangExcel: null
+        })
+    }
+
+    updateHargaBarang = () => {
+        const { updateHargaBarangData, updateHargaBarangExcel } = this.state
+        let count_data = 0
+        let count_success = 0
+
+        updateHargaBarangExcel.filter(async (h, i) => {
+            const find_data = updateHargaBarangData.filter(d => h.Id === d.id)
+            const harga_terendah = h["Harga Terendah"]
+            const harga_tertinggi = h["Harga Tertinggi"]
+
+            if (find_data && (harga_terendah !== find_data[0].price_terendah || harga_tertinggi !== find_data[0].price)) {
+                const u = find_data[0]
+
+                const query = encrypt(`with new_insert as ( insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
+                    values (${u.barang_id},${this.state.company_id},${harga_tertinggi},${harga_terendah},${this.state.id_pengguna_login},${this.state.id_pengguna_login},
+                    to_timestamp(${Date.now()} / 1000.0),${null}) RETURNING *),                    
+
+                    update_barang as (update gcm_list_barang set price=${harga_tertinggi}, price_terendah=${harga_terendah} 
+                    where id=${u.id} and company_id=${this.state.company_id}  returning update_date),                    
+
+                    update_harga as(update gcm_listing_harga_barang set end_date=(select start_date from new_insert)
+                    where id=(select barang_id from new_insert) returning *)
+
+                    select * from gcm_list_barang where id=${u.id} and company_id=${this.state.company_id}
+                    `)
+
+                const post_update = await this.props.postQuery({ query: query }).catch(err => err)
+                if (post_update) {
+                    count_success += 1
+                }
+                count_data += 1
+            }
+
+            if (i < updateHargaBarangExcel.length) {
+                if (count_success > 0) {
+                    swal({
+                        title: "Sukses!",
+                        text: `Success: ${count_success} item, Failed: ${count_data - count_success}`,
+                        icon: "success",
+                        button: false,
+                        timer: "3000"
+                    }).then(() => {
+                        window.location.reload()
+                    });
+                } else if (count_success === 0) {
+                    swal({
+                        title: "Sukses!",
+                        text: `Perubahan disimpan!`,
+                        icon: "success",
+                        button: false,
+                        timer: "2500"
+                    }).then(() => {
+                        window.location.reload()
+                    });
+                } else if (count_data === 0) {
+                    swal({
+                        title: "Gagal!",
+                        text: "Tidak ada perubahan disimpan!",
+                        icon: "error",
+                        button: false,
+                        timer: "2500"
+                    }).then(() => {
+                        window.location.reload()
+                    });
+                }
+            }
+
+
+        })
+
+
+    }
+
     render() {
         const statusFilter = this.state.statusFilter
         const showAllDataBarang =
@@ -5500,9 +5642,44 @@ class ContentBarang extends Component {
                                         </div>
                                         <Input type="text" className="form-control" id="searchValue"
                                             placeholder="Cari Barang" aria-describedby="inputGroupPrepend" onKeyPress={this.handleWhiteSpaceSearchField} onChange={this.searchChange}></Input>
+                                        <button
+                                            className="sm-2 mr-2 btn btn-danger"
+                                            style={{ marginLeft: '10px' }}
+                                            onClick={this.handleCloseUpdateHargaBarang}
+                                        >
+                                            Update
+                                        </button>
+
+                                        <Modal size="md" toggle={this.handleCloseUpdateHargaBarang} isOpen={this.state.isOpenUpdateHargaBarang} backdrop="static" keyboard={false}>
+                                            <ModalHeader toggle={this.handleCloseUpdateHargaBarang}>Update Harga Barang</ModalHeader>
+                                            <ModalBody>
+                                                <div className="position-relative form-group" style={{ marginTop: '3%' }}>
+                                                    <div className="alert alert-danger fade show text-center" role="alert">
+                                                        <center>
+                                                            <p className="mb-0">Pastikan berkas yang diunggah sesuai dengan </p>
+                                                            <p className="mb-0">Format berkas harga barang yang ditentukan oleh GLOB.</p>
+                                                        </center>
+                                                    </div>
+                                                    <FormGroup>
+                                                        <p className="mb-0" style={{ fontWeight: 'bold' }}>Unggah Harga Barang (.xlsx)</p>
+                                                        <Input type="file" accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                                                            onChange={this.handleExcelInput} style={{ marginTop: '5%' }}></Input>
+                                                    </FormGroup>
+                                                </div>
+                                            </ModalBody>
+                                            <ModalFooter style={{ position: 'relative' }}>
+                                                <Button color="primary" style={{ position: 'absolute', left: '5%' }} onClick={this.handleDownloadUpdateHargaTemplate}>
+                                                    <i className="fa fa-download" aria-hidden="true" style={{ marginRight: '4px' }} />
+                                                    Unduh
+                                                </Button>
+                                                <Button color="primary" disabled={this.state.updateHargaBarangExcel === null} onClick={this.updateHargaBarang}>Perbarui</Button>
+                                                <Button color="danger" onClick={this.handleCloseUpdateHargaBarang}>Batal</Button>
+                                            </ModalFooter>
+                                        </Modal>
+
                                         {
                                             (this.state.sa_role === 'admin') ?
-                                                <button className="sm-2 mr-2 btn btn-primary" style={{ marginLeft: '2%' }} title="Tambah barang" onClick={this.handleModalInsert}>
+                                                <button className="sm-2 mr-2 btn btn-primary" style={{ marginLeft: '10px' }} title="Tambah barang" onClick={this.handleModalInsert}>
                                                     <i className="fa fa-plus" aria-hidden="true"></i>
                                                 </button>
                                                 : null
@@ -6660,6 +6837,7 @@ const reduxDispatch = (dispatch) => ({
     getKursAPI: () => dispatch(getKursAPI()),
     getDivisi: (data) => dispatch(getDivisi(data)),
     getPPNBarang: (data) => dispatch(getPPNBarang(data)),
+    postQuery: (data) => dispatch(postQuery(data)),
     logoutAPI: () => dispatch(logoutUserAPI())
 })
 

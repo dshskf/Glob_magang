@@ -16,6 +16,8 @@ import ContentProfilSuperAdmin from './../../pages/Profil/contentsuperadmin'
 import ContentPaymentSuperAdmin from './../../pages/Payment/contentsuperadmin'
 import ContentMasterKalenderLibur from './../../pages/MasterKalenderLibur/contentsuperadmin'
 import ContentMasterBanner from './../../pages/MasterBanner/contentsuperadmin'
+import ContentMasterBank from './../../pages/MasterBank/contentsuperadmin'
+
 import Footer from '../Footer';
 import HeaderSuperAdmin from '../Header';
 
@@ -325,6 +327,22 @@ class SidebarSuperAdmin extends Component {
                                                 </Link>
                                                     </li>
                                             }
+                                            {
+                                                page === 'masterbank' ? (
+                                                    <li>
+                                                        <Link to="/admin/masterbank" className="mm-active">
+                                                            <i className="metismenu-icon pe-7s-culture">
+                                                            </i>Manajemen Bank
+                                                </Link>
+                                                    </li>
+                                                ) :
+                                                    <li>
+                                                        <Link to="/admin/masterbank">
+                                                            <i className="metismenu-icon pe-7s-culture">
+                                                            </i>Manajemen Bank
+                                                </Link>
+                                                    </li>
+                                            }
                                         </React.Fragment>
                                     }
 
@@ -344,35 +362,37 @@ class SidebarSuperAdmin extends Component {
                     </div>
                     {
                         page === 'beranda' ? (
-                            <ContentBerandaSuperAdmin></ContentBerandaSuperAdmin>
+                            <ContentBerandaSuperAdmin />
                         ) : page === 'barang' ? (
-                            <ContentBarangSuperAdmin></ContentBarangSuperAdmin>
+                            <ContentBarangSuperAdmin />
                         ) : page === 'negosiasi' ? (
-                            <ContentNegosiasiSuperAdmin></ContentNegosiasiSuperAdmin>
+                            <ContentNegosiasiSuperAdmin />
                         ) : page === 'pengguna' ? (
-                            <ContentPenggunaSuperAdmin></ContentPenggunaSuperAdmin>
+                            <ContentPenggunaSuperAdmin />
                         ) : page === 'transaksi' ? (
-                            <ContentTransaksiSuperAdmin></ContentTransaksiSuperAdmin>
+                            <ContentTransaksiSuperAdmin />
                         ) : page === 'masterbarang' ? (
-                            <ContentMasterBarangSuperAdmin></ContentMasterBarangSuperAdmin>
+                            <ContentMasterBarangSuperAdmin />
                         ) : page === 'masterkategori' ? (
-                            <ContentMasterKategoriSuperAdmin></ContentMasterKategoriSuperAdmin>
+                            <ContentMasterKategoriSuperAdmin />
                         ) : page === 'masternonaktif' ? (
-                            <ContentMasterBlacklistSuperAdmin></ContentMasterBlacklistSuperAdmin>
+                            <ContentMasterBlacklistSuperAdmin />
                         ) : page === 'mastersatuan' ? (
-                            <ContentMasterSatuanSuperAdmin></ContentMasterSatuanSuperAdmin>
+                            <ContentMasterSatuanSuperAdmin />
                         ) : page === 'masterpayment' ? (
-                            <ContentMasterPaymentSuperAdmin></ContentMasterPaymentSuperAdmin>
+                            <ContentMasterPaymentSuperAdmin />
                         ) : page === 'masterreason' ? (
-                            <ContentMasterReasonSuperAdmin></ContentMasterReasonSuperAdmin>
+                            <ContentMasterReasonSuperAdmin />
                         ) : page === 'masterkalenderlibur' ? (
-                            <ContentMasterKalenderLibur></ContentMasterKalenderLibur>
+                            <ContentMasterKalenderLibur />
                         ) : page === 'masterbanner' ? (
-                            <ContentMasterBanner></ContentMasterBanner>
+                            <ContentMasterBanner />
+                        ) : page === 'masterbank' ? (
+                            <ContentMasterBank />
                         ) : page === 'profil' ? (
-                            <ContentProfilSuperAdmin></ContentProfilSuperAdmin>
+                            <ContentProfilSuperAdmin />
                         ) : page === 'payment' ? (
-                            <ContentPaymentSuperAdmin></ContentPaymentSuperAdmin>
+                            <ContentPaymentSuperAdmin />
                         ) : null
                     }
                 </div>
