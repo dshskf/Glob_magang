@@ -97,8 +97,7 @@ class Login extends Component {
         })
     }
 
-    insertFCMToken = async (user_id, company_id) => {
-
+    insertFCMToken = async (user_id, company_id) => {        
         const messaging = firebaseApp.messaging()
         return messaging.requestPermission()
             .then(() => {
@@ -109,8 +108,7 @@ class Login extends Component {
                     INSERT INTO gcm_notification_token(user_id, company_id,token)
                     values (${user_id}, ${company_id},'${token}') returning *;            
                 `)
-                await this.props.postData({ query: passquery }).catch(err => err)
-
+                await this.props.postData({ query: passquery }).catch(err => err)                
                 return token
             })
             .catch(err => {

@@ -221,7 +221,7 @@ class ContentMasterBank extends Component {
 
                     {/* DELETE */}
                     <Modal size="md" toggle={this.handleOpenDeletebank} isOpen={this.state.isDeleteOpen} backdrop="static" keyboard={false}>
-                        <ModalHeader toggle={this.handleOpenDeletebank}>Edit bank</ModalHeader>
+                        <ModalHeader toggle={this.handleOpenDeletebank}>Hapus bank</ModalHeader>
                         <ModalBody>
                             {
                                 this.state.imageShow && <img style={{ width: '100%' }} src={this.state.imageShow} alt="" />
@@ -231,7 +231,7 @@ class ContentMasterBank extends Component {
                             </div>
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="primary" onClick={() => this.confirmAction("D")}>Delete</Button>
+                            <Button color="primary" onClick={() => this.confirmAction("D")}>Hapus</Button>
                             <Button color="danger" onClick={this.handleOpenDeletebank}>Batal</Button>
                         </ModalFooter>
                     </Modal>

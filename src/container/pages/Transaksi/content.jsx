@@ -22,6 +22,7 @@ import 'moment/locale/id'
 import Toast from 'light-toast';
 
 import { socket_uri } from '../../../config/services/socket'
+import { enc } from 'crypto-js';
 
 class ContentTransaksi extends Component {
 
@@ -46,6 +47,10 @@ class ContentTransaksi extends Component {
         allDetailedOrderNonWaiting: [],
         allTransactionComplained: [],
         allSales: [],
+        detailStatusPembayaran: null,
+        id_transaction_ref: null,
+        foto_transaction_ref: null,
+        pemilik_rekening: null,
         statusFilter: 'Menunggu',
         statusFilterPayment: false,
         isOpenFilterPayment: false,
@@ -65,6 +70,7 @@ class ContentTransaksi extends Component {
         company_contact_transaction: '',
         company_type_bisnis_transaction: '',
         company_tipe_bisnis: '',
+        catatan_logistik: '',
         status: '',
         status_payment: '',
         payment_name: '',
@@ -148,6 +154,7 @@ class ContentTransaksi extends Component {
         isOpenLimitHariTransaksiForInsert: false,
         isOpenModalLimitHariTransaksiForInsert: false,
         isOpenConfirmLimitHariTransaksi: false,
+        isOpenDetailStatusPembayaran: false,
         countDataLimitHari: 0,
         isBtnUpdateLimitHariTransaksi: true,
         isBtnInsertLimitHariTransaksi: true,
@@ -172,16 +179,18 @@ class ContentTransaksi extends Component {
     }
 
     async componentDidMount() {
-        let socket = io(socket_uri)
+        // let socket = io(socket_uri)
 
-        socket.on('transaction_from_user', async (data) => {
-            if (data.type === 'admin') {
-                await this.loadData()
-            } else if (data.type === 'sales') {
-                await this.loadData()
-            }
+        // socket.on('transaction_from_user', async (data) => {
+        //     if (data.type === 'admin') {
+        //         await this.loadData()
+        //     } else if (data.type === 'sales') {
+        //         await this.loadData()
+        //     }
+        // })
+        navigator.serviceWorker.addEventListener("message", async (message) => {
+            await this.loadData()
         })
-
         await this.loadData()
     }
 
@@ -506,14 +515,14 @@ class ContentTransaksi extends Component {
     }
 
     handleDetailTransaction = async (e, id, status) => {
-
         this.handleModalDetail()
         e.stopPropagation();
         let passquerydetailtransaction = ""
         if (status === 'Menunggu' || status === 'Dibatalkan') {
-            passquerydetailtransaction = encrypt("select gcm_master_transaction.id, gcm_master_transaction.id_transaction, " +
-                "gcm_master_company.nama_perusahaan, gcm_master_company.email as company_email, gcm_master_company.no_telp, " +
-                "gcm_master_transaction.status, gcm_master_transaction.status_payment, " +
+            passquerydetailtransaction = encrypt("select gcm_master_transaction.id, gcm_master_transaction.id_transaction, gcm_master_transaction.bukti_bayar,gcm_master_transaction.tanggal_bayar," +
+                "gcm_master_transaction.pemilik_rekening, gcm_master_company.nama_perusahaan, gcm_master_company.email as company_email, gcm_master_company.no_telp, " +
+                "gcm_master_transaction.id_transaction_ref, gcm_master_transaction.foto_transaction_ref, gcm_master_transaction.status, case when gcm_master_transaction.status_payment = 'UNPAID' " +
+                "then case when gcm_master_transaction.id_list_bank is null then 'menunggu pembayaran' else 'menunggu verifikasi' end else 'pembayaran selesai' end as status_payment, " +
                 "to_char(gcm_master_transaction.create_date, 'DD/MM/YYYY HH24:MI:SS') create_date, to_char(gcm_master_transaction.update_date, 'DD/MM/YYYY HH24:MI:SS') update_date, " +
                 "gcm_master_user.nama, gcm_master_user.username, gcm_master_user.email, gcm_master_transaction.ongkos_kirim, " +
                 "gcm_master_user.no_hp, sum(gcm_transaction_detail.harga) as total, " +
@@ -548,11 +557,15 @@ class ContentTransaksi extends Component {
                 "gcm_master_user.no_hp, gcm_master_transaction.kurs_rate, gcm_master_category.nama, gcm_master_transaction.shipto_id, gcm_master_transaction.billto_id, " +
                 "gcm_master_transaction.date_ongoing, gcm_master_transaction.date_shipped, gcm_master_transaction.date_received, gcm_master_transaction.date_complained, " +
                 "gcm_master_transaction.date_finished, gcm_master_transaction.date_canceled, gcm_master_transaction.date_confirm_admin, gcm_master_transaction.ppn_seller, " +
-                "gcm_master_transaction.cancel_reason, gcm_master_payment.payment_name, gcm_master_transaction.approval_by_sales, gcm_master_transaction.approval_by_admin, gcm_master_transaction.id_sales;")
+                "gcm_master_transaction.cancel_reason, gcm_master_payment.payment_name, gcm_master_transaction.approval_by_sales, gcm_master_transaction.approval_by_admin, gcm_master_transaction.id_sales, gcm_master_transaction.id_list_bank," +
+                "gcm_master_transaction.bukti_bayar,gcm_master_transaction.tanggal_bayar,gcm_master_transaction.pemilik_rekening,gcm_master_transaction.id_transaction_ref,gcm_master_transaction.foto_transaction_ref;"
+            )
         } else {
-            passquerydetailtransaction = encrypt("select gcm_master_transaction.id, gcm_master_transaction.id_transaction, " +
+            passquerydetailtransaction = encrypt("select gcm_master_transaction.id, gcm_master_transaction.id_transaction, gcm_master_transaction.bukti_bayar,gcm_master_transaction.tanggal_bayar," +
+                "gcm_master_transaction.pemilik_rekening,gcm_master_transaction.id_transaction_ref,gcm_master_transaction.foto_transaction_ref," +
                 "gcm_master_company.nama_perusahaan, gcm_master_company.email as company_email, gcm_master_company.no_telp, " +
-                "gcm_master_transaction.status, gcm_master_transaction.status_payment, " +
+                "gcm_master_transaction.status, case when gcm_master_transaction.status_payment = 'UNPAID' then case when gcm_master_transaction.id_list_bank is null " +
+                "then 'menunggu pembayaran' else 'menunggu verifikasi' end else 'pembayaran selesai' end as status_payment, " +
                 "to_char(gcm_master_transaction.create_date, 'DD/MM/YYYY HH24:MI:SS') create_date, to_char(gcm_master_transaction.update_date, 'DD/MM/YYYY HH24:MI:SS') update_date, " +
                 "gcm_master_user.nama, gcm_master_user.username, gcm_master_user.email, " +
                 "to_char(gcm_master_transaction.tgl_permintaan_kirim, 'DD/MM/YYYY') tgl_permintaan_kirim," +
@@ -587,13 +600,21 @@ class ContentTransaksi extends Component {
                 "gcm_master_transaction.date_ongoing, gcm_master_transaction.date_shipped, gcm_master_transaction.date_received, gcm_master_transaction.date_complained, " +
                 "gcm_master_transaction.date_finished, gcm_master_transaction.date_canceled, gcm_master_transaction.date_confirm_admin, " +
                 "gcm_master_user.no_hp, gcm_master_transaction.kurs_rate, gcm_master_category.nama, gcm_master_transaction.shipto_id, gcm_master_transaction.billto_id, " +
-                "gcm_master_transaction.cancel_reason, gcm_master_payment.payment_name, gcm_master_transaction.approval_by_sales, gcm_master_transaction.approval_by_admin, gcm_master_transaction.id_sales;")
+                "gcm_master_transaction.cancel_reason, gcm_master_payment.payment_name, gcm_master_transaction.approval_by_sales, gcm_master_transaction.approval_by_admin, gcm_master_transaction.id_sales,gcm_master_transaction.id_list_bank," +
+                "gcm_master_transaction.bukti_bayar,gcm_master_transaction.tanggal_bayar,gcm_master_transaction.pemilik_rekening,gcm_master_transaction.id_transaction_ref,gcm_master_transaction.foto_transaction_ref;"
+
+            )
         }
+
         const resdetail = await this.props.getDataDetailedTransactionAPI({ query: passquerydetailtransaction }).catch(err => err)
+        console.log(decrypt(resdetail.id))
+        console.log(resdetail)
         if (resdetail) {
             await this.setState({
                 id: decrypt(resdetail.id),
                 id_transaction: resdetail.id_transaction,
+                id_transaction_ref: resdetail.id_transaction_ref,
+                foto_transaction_ref: resdetail.foto_transaction_ref,
                 company_name_transaction: resdetail.company_name_transaction,
                 company_email_transaction: resdetail.company_email_transaction,
                 company_contact_transaction: resdetail.company_contact_transaction,
@@ -630,7 +651,10 @@ class ContentTransaksi extends Component {
                 total_without_ongkir_onconfirm: resdetail.total,
                 ongkos_kirim_onconfirm: (resdetail.ongkos_kirim === null ? '' : resdetail.ongkos_kirim),
                 tgl_permintaan_kirim: resdetail.tgl_permintaan_kirim,
-                company_info_ppn: Number(resdetail.ppn_seller)
+                company_info_ppn: Number(resdetail.ppn_seller),
+                bukti_bayar: resdetail.bukti_bayar,
+                tanggal_bayar: resdetail.tanggal_bayar,
+                pemilik_rekening: resdetail.pemilik_rekening,
             })
         } else {
             swal({
@@ -643,8 +667,8 @@ class ContentTransaksi extends Component {
             }).then(() => {
                 const res = this.props.logoutAPI();
                 if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
+                    // this.props.history.push('/admin')
+                    // window.location.reload()
                 }
             });
         }
@@ -1011,8 +1035,10 @@ class ContentTransaksi extends Component {
         })
     }
 
+    
+
     confirmAction = async () => {
-        Toast.loading('Loading...');
+        // Toast.loading('Loading...');
         let waiting = "WAITING"
         let ongoing = "ONGOING"
         let shipped = "SHIPPED"
@@ -1020,20 +1046,28 @@ class ContentTransaksi extends Component {
         let canceled = "CANCELED"
         let complained = "COMPLAINED"
         let passqueryupdatestatustransaksi = ""
+
+        let status_payment = this.state.status_payment === 'menunggu pembayaran' ? 'UNPAID' : 'PAID'
+        let log_logistik = this.state.catatan_logistik ?
+            `'${this.state.catatan_logistik}'`
+            :
+            `NULL`
+
         if (this.state.status === waiting) {
+
             if (this.state.status_aksi_transaksi === 'Cancel') {
                 // passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='"+canceled+"', status_payment='"+this.state.status_payment+
                 //     "', update_by='"+this.state.id_pengguna_login+"', cancel_reason='"+this.state.notes_cancel_transaksi+"', update_date=now(), id_sales='"+this.state.id_pengguna_login+"', "+
                 //     "id_cancel_reason='"+this.state.id_cancel_reason+"' "+
                 //     "where id="+this.state.id+" returning status;")
                 if (this.state.approval_by_sales === null) {
-                    passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + canceled + "', status_payment='" + this.state.status_payment +
-                        "', update_by='" + this.state.id_pengguna_login + "', cancel_reason='" + this.state.notes_cancel_transaksi + "', date_canceled=now(), " +
+                    passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + canceled + "', status_payment='" + status_payment +
+                        "', update_by='" + this.state.id_pengguna_login + "', cancel_reason='" + this.state.notes_cancel_transaksi + "', date_canceled=now(), log_logistik=" + log_logistik + "," +
                         "date_confirm_admin=now(), update_date=now(), id_cancel_reason='" + this.state.id_cancel_reason + "' " +
                         "where id=" + this.state.id + " returning status;")
                 } else {
-                    passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + canceled + "', status_payment='" + this.state.status_payment +
-                        "', update_by='" + this.state.id_pengguna_login + "', cancel_reason='" + this.state.notes_cancel_transaksi + "', date_canceled=now(), " +
+                    passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + canceled + "', status_payment='" + status_payment +
+                        "', update_by='" + this.state.id_pengguna_login + "', cancel_reason='" + this.state.notes_cancel_transaksi + "', date_canceled=now(), log_logistik=" + log_logistik + "," +
                         "date_confirm_admin=now(), id_cancel_reason='" + this.state.id_cancel_reason + "' " +
                         "where id=" + this.state.id + " returning status;")
                 }
@@ -1042,48 +1076,48 @@ class ContentTransaksi extends Component {
                 if (this.state.sa_role === 'admin') {
                     if ((Number(this.state.ongkos_kirim) === 0 && this.state.ongkos_kirim !== null)) {
                         if (this.state.approval_by_sales === null) {
-                            passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + ongoing + "', status_payment='" + this.state.status_payment +
+                            passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + ongoing + "', status_payment='" + status_payment +
                                 "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), date_confirm_admin=now(), date_ongoing=now(), approval_by_admin='" + this.state.id_pengguna_login + "', id_sales='" + this.state.id_sales + "', " +
-                                "approval_by_sales='" + this.state.id_pengguna_login + "' " +
+                                "approval_by_sales='" + this.state.id_pengguna_login + "', log_logistik=" + log_logistik + " " +
                                 "where id=" + this.state.id + " returning status;")
                         } else {
-                            passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + ongoing + "', status_payment='" + this.state.status_payment +
+                            passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + ongoing + "', status_payment='" + status_payment +
                                 "', update_by='" + this.state.id_pengguna_login + "', date_confirm_admin=now(), date_ongoing=now(), approval_by_admin='" + this.state.id_pengguna_login + "', id_sales='" + this.state.id_sales + "', " +
-                                "approval_by_sales='" + this.state.id_sales + "' " +
+                                "approval_by_sales='" + this.state.id_sales + "', log_logistik=" + log_logistik + " " +
                                 "where id=" + this.state.id + " returning status;")
                         }
                     } else if (this.state.ongkos_kirim === null) {
                         if (this.state.approval_by_sales === null) {
-                            passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + ongoing + "', status_payment='" + this.state.status_payment +
+                            passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + ongoing + "', status_payment='" + status_payment +
                                 "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), date_confirm_admin=now(), date_ongoing=now(), approval_by_admin='" + this.state.id_pengguna_login + "', id_sales='" + this.state.id_sales + "', " +
                                 "ongkos_kirim='" + this.state.ongkos_kirim_onconfirm + "', " +
-                                "approval_by_sales='" + this.state.id_pengguna_login + "' " +
+                                "approval_by_sales='" + this.state.id_pengguna_login + "', log_logistik=" + log_logistik + " " +
                                 "where id=" + this.state.id + " returning status;")
                         } else {
-                            passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + ongoing + "', status_payment='" + this.state.status_payment +
+                            passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + ongoing + "', status_payment='" + status_payment +
                                 "', update_by='" + this.state.id_pengguna_login + "', date_confirm_admin=now(), date_ongoing=now(), approval_by_admin='" + this.state.id_pengguna_login + "', id_sales='" + this.state.id_sales + "', " +
                                 "ongkos_kirim='" + this.state.ongkos_kirim_onconfirm + "', " +
-                                "approval_by_sales='" + this.state.id_sales + "' " +
+                                "approval_by_sales='" + this.state.id_sales + "', log_logistik=" + log_logistik + " " +
                                 "where id=" + this.state.id + " returning status;")
                         }
                     } else {
                         if (this.state.approval_by_sales === null) {
-                            passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + ongoing + "', status_payment='" + this.state.status_payment +
+                            passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + ongoing + "', status_payment='" + status_payment +
                                 "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), date_confirm_admin=now(), date_ongoing=now(), approval_by_admin='" + this.state.id_pengguna_login + "', id_sales='" + this.state.id_sales + "', " +
                                 "ongkos_kirim='" + Number(Number(this.state.ongkos_kirim) / Number(this.state.total_berat_awal) * Number(this.state.total_berat_dipenuhi)) + "', " +
-                                "approval_by_sales='" + this.state.id_pengguna_login + "' " +
+                                "approval_by_sales='" + this.state.id_pengguna_login + "', log_logistik=" + log_logistik + " " +
                                 "where id=" + this.state.id + " returning status;")
                         } else {
-                            passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + ongoing + "', status_payment='" + this.state.status_payment +
+                            passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status='" + ongoing + "', status_payment='" + status_payment +
                                 "', update_by='" + this.state.id_pengguna_login + "', date_confirm_admin=now(), date_ongoing=now(), approval_by_admin='" + this.state.id_pengguna_login + "', id_sales='" + this.state.id_sales + "', " +
                                 "ongkos_kirim='" + Number(Number(this.state.ongkos_kirim) / Number(this.state.total_berat_awal) * Number(this.state.total_berat_dipenuhi)) + "', " +
-                                "approval_by_sales='" + this.state.id_sales + "' " +
+                                "approval_by_sales='" + this.state.id_sales + "', log_logistik=" + log_logistik + " " +
                                 "where id=" + this.state.id + " returning status;")
                         }
                     }
                     this.handleUpdateTransactionDetail()
                 } else {
-                    passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status_payment='" + this.state.status_payment +
+                    passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status_payment='" + status_payment +
                         "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), approval_by_sales='" + this.state.id_pengguna_login + "', id_sales='" + this.state.id_pengguna_login + "' where id=" + this.state.id + " returning status;")
                 }
                 // this.handleConfirmReceived()
@@ -1098,7 +1132,6 @@ class ContentTransaksi extends Component {
         } else if (this.state.status === complained) {
             passqueryupdatestatustransaksi = encrypt(`update gcm_master_transaction set status='FINISHED', date_finished=now() where id=${this.state.id} returning status`)
         }
-
         const resupdatestatustransaksi = await this.props.updateTransactionStatus({ query: passqueryupdatestatustransaksi }).catch(err => err)
         Toast.hide();
         if (resupdatestatustransaksi) {
@@ -1109,8 +1142,8 @@ class ContentTransaksi extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                this.loadDataTransactions("0")
-                window.location.reload()
+                // this.loadDataTransactions("0")
+                // window.location.reload()
             });
         } else {
             swal({
@@ -1120,7 +1153,7 @@ class ContentTransaksi extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                // window.location.reload()
             });
         }
     }
@@ -1652,6 +1685,77 @@ class ContentTransaksi extends Component {
         }
     }
 
+    handleDisabledKonfirmasiWaiting = () => {
+        return this.state.id_sales !== null ?
+            this.state.payment_name === 'Advance Payment' && this.state.status_payment === 'UNPAID' ?
+                true : false
+            : true
+    }
+
+
+    handleDetailsStatusPembayaranModal = async () => {
+        const query = encrypt(`select gmt.tanggal_bayar,gmt.bukti_bayar,gmt.pemilik_rekening as pemilik_rekening_pembeli,gmb.nama as nama_bank,glb.* 
+        from gcm_master_transaction gmt
+        inner join gcm_listing_bank glb on gmt.id_list_bank=glb.id
+        left join gcm_master_bank gmb on glb.id_bank = gmb.id
+        where gmt.id=${this.state.id}`)
+
+        const resdetail = await this.props.postQuery({ query: query }).catch(err => err)
+        if (resdetail) {
+            this.setState({ detailStatusPembayaran: resdetail[0] })
+        } else {
+            swal({
+                title: "Gagal!",
+                text: "Tidak ada perubahan disimpan!",
+                icon: "error",
+                button: false,
+                timer: "2500"
+            }).then(() => {
+                window.location.reload()
+            });
+        }
+
+
+        this.setState({
+            isOpenDetailStatusPembayaran: !this.state.isOpenDetailStatusPembayaran
+        })
+    }
+
+    updateDetailStatusPembayaran = async () => {
+        const query = encrypt(`
+            update gcm_master_transaction set status_payment = 'PAID', update_by=  '${this.state.id_pengguna_login}', update_date = now() where 
+            status = 'WAITING' and id_transaction = '${this.state.id_transaction}' returning *
+        `)
+        console.log(decrypt(query))
+        const postQuery = await this.props.postQuery({ query: query }).catch(err => err)
+
+        if (postQuery) {
+            swal({
+                title: "Sukses!",
+                text: "Perubahan disimpan!",
+                icon: "success",
+                button: false,
+                timer: "2500"
+            }).then(() => {
+                // window.location.reload()
+            });
+        } else {
+            swal({
+                title: "Gagal!",
+                text: "Tidak ada perubahan disimpan!",
+                icon: "error",
+                button: false,
+                timer: "2500"
+            }).then(() => {
+                window.location.reload()
+            });
+        }
+
+    }
+
+
+
+
     render() {
         let start = this.state.startDate.format('DD MMMM YYYY');
         let end = this.state.endDate.format('DD MMMM YYYY');
@@ -2146,7 +2250,7 @@ class ContentTransaksi extends Component {
                     </div>
                 </div>
                 <Modal size="xl" toggle={this.handleModalDetail} isOpen={this.state.isOpen} backdrop="static" keyboard={false}>
-                    <ModalHeader toggle={this.handleModalDetail}>Detail Transaksis #{this.state.id_transaction}</ModalHeader>
+                    <ModalHeader toggle={this.handleModalDetail}>Detail Transaksi #{this.state.id_transaction}</ModalHeader>
                     <ModalBody>
                         <div className="card-header card-header-tab-animation">
                             <ul className="nav nav-justified">
@@ -2387,6 +2491,47 @@ class ContentTransaksi extends Component {
                                                 <p className="mb-0"> <NumberFormat value={Number(this.state.kurs_rate)} displayType={'text'} thousandSeparator='.' decimalSeparator=',' prefix={'IDR '}></NumberFormat> </p>
                                                 <p className="mb-0" style={{ fontWeight: 'bold' }}> Metode Pembayaran  </p>
                                                 <p className="mb-0"> {this.state.payment_name}</p>
+                                                <p className="mb-0" style={{ fontWeight: 'bold' }}> Status Pembayaran  </p>
+                                                <p className="mb-0"> {this.state.status_payment}</p>
+                                                {
+                                                    (this.state.status === 'WAITING' && this.state.pemilik_rekening) && <p className="mb-0" style={{ color: 'red', textDecoration: 'underline', cursor: 'pointer' }} onClick={this.handleDetailsStatusPembayaranModal}> Lihat Detail</p>
+                                                }
+
+                                                {
+                                                    this.state.detailStatusPembayaran && <Modal size="md" toggle={this.handleDetailsStatusPembayaranModal} isOpen={this.state.isOpenDetailStatusPembayaran} backdrop="static" keyboard={false}>
+                                                        <ModalHeader toggle={this.handleDetailsStatusPembayaranModal}>Detail Status Pembayaran</ModalHeader>
+                                                        <ModalBody>
+                                                            <div className="position-relative form-group" style={{ marginTop: '3%' }}>
+                                                                <div>
+                                                                    <label style={{ margin: 0, fontWeight: 'bold' }}>Nama Pemilik Rekening</label>
+                                                                    <p>{this.state.detailStatusPembayaran.pemilik_rekening_pembeli}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <label style={{ margin: 0, fontWeight: 'bold' }}>Bank Tujuan</label>
+                                                                    <p>
+                                                                        {
+                                                                            this.state.detailStatusPembayaran.nama_bank + "-" +
+                                                                            this.state.detailStatusPembayaran.no_rekening + "-" +
+                                                                            this.state.detailStatusPembayaran.pemilik_rekening
+                                                                        }</p>
+                                                                </div>
+                                                                <div>
+                                                                    <label style={{ margin: 0, fontWeight: 'bold' }}>Tanggal Pembayaran</label>
+                                                                    <p>{this.state.detailStatusPembayaran.tanggal_bayar && this.state.detailStatusPembayaran.tanggal_bayar.split('T')[0]}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <label style={{ margin: 0, fontWeight: 'bold', width: '100%' }}>Bukti Pembayaran</label>
+                                                                    <img src={this.state.detailStatusPembayaran.bukti_bayar} style={{ width: '10rem' }} />
+                                                                </div>
+                                                            </div>
+                                                        </ModalBody>
+                                                        <ModalFooter style={{ position: 'relative' }}>
+                                                            <Button color="primary" onClick={this.updateDetailStatusPembayaran}>Perbarui</Button>
+                                                            <Button color="danger" onClick={this.handleDetailsStatusPembayaranModal}>Batal</Button>
+                                                        </ModalFooter>
+                                                    </Modal>
+                                                }
+
                                                 <p className="mb-0" style={{ fontWeight: 'bold' }}> Alamat Penagihan </p>
                                                 <p className="mb-0"> {this.state.alamat_billto}</p>
                                                 <p className="mb-0"> {this.state.kelurahan_billto}, {this.state.kecamatan_billto}</p>
@@ -2418,7 +2563,15 @@ class ContentTransaksi extends Component {
                                         </div>
                                     </div>
                                     <div className="row">
-                                        <div style={{ width: '70%', float: 'left', paddingLeft: '3%' }}></div>
+                                        <div style={{ width: '70%', float: 'left', paddingLeft: '3%' }}>
+                                            {
+                                                this.state.id_transaction_ref && <div>
+                                                    <label style={{ fontWeight: 'bold', width: '100%' }}>Nomor PO Pembeli</label>
+                                                    <a style={{ cursor: 'pointer', color: 'gray' }} href={this.state.foto_transaction_ref && this.state.foto_transaction_ref} target="_blank">{this.state.id_transaction_ref}</a>
+                                                </div>
+                                            }
+
+                                        </div>
                                         <div style={{ width: '30%', float: 'right', paddingLeft: '3%' }}>
                                             <div className="row">
                                                 <div className="col-6">
@@ -2514,7 +2667,11 @@ class ContentTransaksi extends Component {
                             (<ModalFooter>
                                 {/* <Button color="primary" onClick={this.handleModalBuktiTransfer}>Konfirmasi </Button> */}
                                 {/* <Button color="primary" onClick={this.handleModalConfirm}>Konfirmasi </Button> */}
-                                <Button color="primary" onClick={this.handleModalReceivedConfirm} disabled={this.state.id_sales !== null ? false : "disabled"}>Konfirmasi </Button>
+                                <Button color="primary"
+                                    onClick={this.handleModalReceivedConfirm}
+                                    disabled={this.handleDisabledKonfirmasiWaiting()}
+                                >Konfirmasi
+                                </Button>
                                 <Button color="danger" onClick={this.handleModalConfirmCancel}>Batalkan</Button>
                             </ModalFooter>)
                             // : this.state.status === 'ONGOING' ?
@@ -2661,7 +2818,15 @@ class ContentTransaksi extends Component {
                             <p className="mb-0"> {this.state.kelurahan_shipto}, {this.state.kecamatan_shipto}</p>
                             <p className="mb-0"> {this.state.kota_shipto}, {this.state.provinsi_shipto} {this.state.kodepos_shipto}</p>
                             <p className="mb-0"> {this.state.no_telp_shipto}</p>
-                            <p className="mb-0" style={{ fontWeight: 'bold' }}> Subtotal </p>
+                            <div className="position-relative form-group">
+                                <label style={{ fontWeight: 'bold', width: '100%' }}>Catatan Logistik</label>
+                                <textarea
+                                    maxLength='100'
+                                    style={{ resize: 'none', border: '1px solid gray', borderRadius: '4px', width: '100%', height: '6rem', padding: '8px 10px' }}
+                                    onChange={e => this.setState({ catatan_logistik: e.target.value })}
+                                >{this.state.catatan_logistik}</textarea>
+                            </div>
+                            <p className="mb-0" style={{ fontWeight: 'bold', borderTop: '2px solid gray', paddingTop: '10px' }}> Subtotal </p>
                             <p className="mb-0"> <NumberFormat value={Number(this.state.total)} displayType={'text'} thousandSeparator='.' decimalSeparator=',' prefix={'IDR '}></NumberFormat></p>
                             {this.state.company_info_ppn !== 0 ?
                                 <div>

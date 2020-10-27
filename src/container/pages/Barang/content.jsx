@@ -22,7 +22,7 @@ import Resizer from './react-file-image-resizer';
 import Toast from 'light-toast';
 import axios from 'axios';
 
-import readXlsxFile from 'read-excel-file'
+import CheckedSelect from 'react-select-checked';
 import * as XLSX from 'xlsx'
 import * as FileSaver from 'file-saver'
 
@@ -73,6 +73,8 @@ class ContentBarang extends Component {
         isOpenAttentionKodeBarang: false,
         isOpenSatuan: false,
         isOpenPictureInserted: false,
+        isOpenDepartemenList: false,
+        isShowDepartemenList: false,
         statusFilter: false,
         statusBarangFilter: false,
         insertGambarBarang: false,
@@ -113,6 +115,9 @@ class ContentBarang extends Component {
         detailed_minimum_pembelian: '',
         detailed_minimum_nego: '',
         detailed_kode_barang_distributor: '',
+        departmen_list: null,
+        selected_departmen: null,
+        selected_departmen_id: null,
         show_detailed_minimum_pembelian: '',
         show_detailed_minimum_nego: '',
         show_detailed_price_terendah: '',
@@ -2482,7 +2487,9 @@ class ContentBarang extends Component {
             this.setState({ empty_nama_barang_inserted: true, feedback_insert_master_nama_barang: 'Kolom ini wajib diisi', isBtnConfirmInsertMaster: true })
         } else {
             this.setState({ empty_nama_barang_inserted: false, feedback_insert_master_nama_barang: '' })
-            if (this.state.id_category_barang_inserted !== '0' &&
+            if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+                this.state.nama_barang_inserted !== '' &&
+                this.state.id_category_barang_inserted !== '0' &&
                 this.state.id_satuan_barang_inserted !== '0' &&
                 (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
                 (this.state.volume_barang_inserted !== '' && this.state.volume_barang_inserted !== '0') &&
@@ -2490,7 +2497,7 @@ class ContentBarang extends Component {
                 (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
                 (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
                 (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
-                this.state.insert_deskripsi_master_barang !== '' && this.state.ex_barang_inserted !== '' &&
+                this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
                 this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
                 this.setState({ isBtnConfirmInsertMaster: false })
             }
@@ -2594,13 +2601,17 @@ class ContentBarang extends Component {
                     }
                 }
                 // handlebutton
-                if (this.state.nama_barang_inserted !== '' &&
+                if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+                    this.state.nama_barang_inserted !== '' &&
                     this.state.id_category_barang_inserted !== '0' &&
                     this.state.id_satuan_barang_inserted !== '0' &&
+                    (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
+                    (this.state.volume_barang_inserted !== '' && this.state.volume_barang_inserted !== '0') &&
                     (this.state.insert_master_minimum_nego !== '' && this.state.insert_master_minimum_nego !== '0' && Number(this.state.insert_master_minimum_nego) % Number(this.state.berat_barang_inserted) === 0) &&
                     (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
+                    (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
                     (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
-                    this.state.insert_deskripsi_master_barang !== '' && this.state.ex_barang_inserted &&
+                    this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
                     this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
                     this.setState({ isBtnConfirmInsertMaster: false })
                 }
@@ -2730,13 +2741,17 @@ class ContentBarang extends Component {
                     }
                 }
                 // handle button
-                if (this.state.nama_barang_inserted !== '' &&
+                if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+                    this.state.nama_barang_inserted !== '' &&
                     this.state.id_category_barang_inserted !== '0' &&
                     this.state.id_satuan_barang_inserted !== '0' &&
+                    (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
+                    (this.state.volume_barang_inserted !== '' && this.state.volume_barang_inserted !== '0') &&
                     (this.state.insert_master_minimum_nego !== '' && this.state.insert_master_minimum_nego !== '0' && Number(this.state.insert_master_minimum_nego) % Number(this.state.berat_barang_inserted) === 0) &&
                     (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
-                    (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.flag_status_insert_master_price === true && this.flag_status_insert_master_price_tertinggi === true) &&
-                    this.state.insert_deskripsi_master_barang !== '' && this.state.ex_barang_inserted &&
+                    (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
+                    (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
+                    this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
                     this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
                     this.setState({ isBtnConfirmInsertMaster: false })
                 }
@@ -2828,14 +2843,17 @@ class ContentBarang extends Component {
                 }
 
                 // handlebutton
-                if (this.state.nama_barang_inserted !== '' &&
+                if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+                    this.state.nama_barang_inserted !== '' &&
                     this.state.id_category_barang_inserted !== '0' &&
                     this.state.id_satuan_barang_inserted !== '0' &&
-                    (this.state.insert_master_minimum_nego !== '' && this.state.insert_master_minimum_nego !== '0' && Number(this.state.insert_master_minimum_nego) % Number(e) === 0) &&
-                    (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(e) === 0) &&
+                    (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
+                    (this.state.volume_barang_inserted !== '' && this.state.volume_barang_inserted !== '0') &&
+                    (this.state.insert_master_minimum_nego !== '' && this.state.insert_master_minimum_nego !== '0' && Number(this.state.insert_master_minimum_nego) % Number(this.state.berat_barang_inserted) === 0) &&
+                    (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
                     (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
                     (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
-                    this.state.insert_deskripsi_master_barang !== '' && this.state.ex_barang_inserted &&
+                    this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
                     this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
                     this.setState({ isBtnConfirmInsertMaster: false })
                 }
@@ -2852,15 +2870,17 @@ class ContentBarang extends Component {
             } else {
                 this.setState({ empty_volume_barang_inserted: false, feedback_insert_master_volume: '' })
                 // handle button
-                if (this.state.nama_barang_inserted !== '' &&
+                if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+                    this.state.nama_barang_inserted !== '' &&
                     this.state.id_category_barang_inserted !== '0' &&
                     this.state.id_satuan_barang_inserted !== '0' &&
                     (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
+                    (this.state.volume_barang_inserted !== '' && this.state.volume_barang_inserted !== '0') &&
                     (this.state.insert_master_minimum_nego !== '' && this.state.insert_master_minimum_nego !== '0' && Number(this.state.insert_master_minimum_nego) % Number(this.state.berat_barang_inserted) === 0) &&
-                    (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % (this.state.berat_barang_inserted) === 0) &&
+                    (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
                     (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
                     (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
-                    this.state.insert_deskripsi_master_barang !== '' && this.state.ex_barang_inserted &&
+                    this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
                     this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
                     this.setState({ isBtnConfirmInsertMaster: false })
                 }
@@ -2874,7 +2894,8 @@ class ContentBarang extends Component {
         } else {
             this.setState({ empty_ex_barang_inserted: false })
             // handle button
-            if (this.state.nama_barang_inserted !== '' &&
+            if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+                this.state.nama_barang_inserted !== '' &&
                 this.state.id_category_barang_inserted !== '0' &&
                 this.state.id_satuan_barang_inserted !== '0' &&
                 (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
@@ -2883,7 +2904,8 @@ class ContentBarang extends Component {
                 (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
                 (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
                 (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
-                this.state.insert_deskripsi_master_barang !== '' && this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
+                this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
+                this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
                 this.setState({ isBtnConfirmInsertMaster: false })
             }
         }
@@ -2895,7 +2917,8 @@ class ContentBarang extends Component {
         } else {
             this.setState({ empty_deskripsi_master_barang: false })
             // handle button
-            if (this.state.nama_barang_inserted !== '' &&
+            if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+                this.state.nama_barang_inserted !== '' &&
                 this.state.id_category_barang_inserted !== '0' &&
                 this.state.id_satuan_barang_inserted !== '0' &&
                 (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
@@ -2904,7 +2927,8 @@ class ContentBarang extends Component {
                 (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
                 (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
                 (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
-                this.state.ex_barang_inserted !== '' && this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
+                this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
+                this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
                 this.setState({ isBtnConfirmInsertMaster: false })
             }
         }
@@ -2916,7 +2940,8 @@ class ContentBarang extends Component {
         } else {
             this.setState({ empty_insert_master_kode_barang_distributor: false, feedback_insert_master_kode_barang_distributor: '' })
             // handle button
-            if (this.state.nama_barang_inserted !== '' &&
+            if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+                this.state.nama_barang_inserted !== '' &&
                 this.state.id_category_barang_inserted !== '0' &&
                 this.state.id_satuan_barang_inserted !== '0' &&
                 (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
@@ -2925,7 +2950,8 @@ class ContentBarang extends Component {
                 (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
                 (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
                 (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
-                this.state.ex_barang_inserted !== '' && this.state.insert_foto_master !== '') {
+                this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
+                this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
                 this.setState({ isBtnConfirmInsertMaster: false })
             }
         }
@@ -2942,16 +2968,18 @@ class ContentBarang extends Component {
                     this.setState({ empty_insert_master_minimum_pembelian: true, feedback_insert_master_minimum_pembelian: 'Jumlah minimum pembelian harus lebih dari 0', isBtnConfirmInsertMaster: true })
                 } else if (Number(e) % Number(this.state.berat_barang_inserted) === 0) {
                     this.setState({ empty_insert_master_minimum_pembelian: false, feedback_insert_master_minimum_pembelian: '' })
-                    if (this.state.nama_barang_inserted !== '' &&
+                    if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+                        this.state.nama_barang_inserted !== '' &&
                         this.state.id_category_barang_inserted !== '0' &&
                         this.state.id_satuan_barang_inserted !== '0' &&
                         (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
                         (this.state.volume_barang_inserted !== '' && this.state.volume_barang_inserted !== '0') &&
                         (this.state.insert_master_minimum_nego !== '' && this.state.insert_master_minimum_nego !== '0' && Number(this.state.insert_master_minimum_nego) % Number(this.state.berat_barang_inserted) === 0) &&
+                        (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
                         (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
                         (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
-                        this.state.ex_barang_inserted !== '' && this.state.insert_master_kode_barang_distributor !== '' &&
-                        this.state.insert_deskripsi_master_barang !== '' && this.state.insert_foto_master !== '') {
+                        this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
+                        this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
                         this.setState({ isBtnConfirmInsertMaster: false })
                     }
                 } else {
@@ -2975,16 +3003,18 @@ class ContentBarang extends Component {
                     this.setState({ empty_insert_minimum_nego: true, feedback_insert_master_minimum_nego: 'Jumlah minimum nego harus lebih dari 0', isBtnConfirmInsertMaster: true })
                 } else if (Number(e) % Number(this.state.berat_barang_inserted) === 0) {
                     this.setState({ empty_insert_master_minimum_nego: false, feedback_insert_master_minimum_nego: '' })
-                    if (this.state.nama_barang_inserted !== '' &&
+                    if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+                        this.state.nama_barang_inserted !== '' &&
                         this.state.id_category_barang_inserted !== '0' &&
                         this.state.id_satuan_barang_inserted !== '0' &&
                         (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
                         (this.state.volume_barang_inserted !== '' && this.state.volume_barang_inserted !== '0') &&
+                        (this.state.insert_master_minimum_nego !== '' && this.state.insert_master_minimum_nego !== '0' && Number(this.state.insert_master_minimum_nego) % Number(this.state.berat_barang_inserted) === 0) &&
                         (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
                         (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
                         (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
-                        this.state.ex_barang_inserted !== '' && this.state.insert_master_kode_barang_distributor !== '' &&
-                        this.state.insert_deskripsi_master_barang !== '' && this.state.insert_foto_master !== '') {
+                        this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
+                        this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
                         this.setState({ isBtnConfirmInsertMaster: false })
                     }
                 } else {
@@ -3978,6 +4008,7 @@ class ContentBarang extends Component {
 
     insertMasterBarang = async () => {
         Toast.loading('Loading...');
+
         let passqueryinsertmasterbarang = ""
         passqueryinsertmasterbarang = encrypt("insert into gcm_master_barang (nama, category_id, berat, " +
             "volume, ex, create_by, create_date, update_by, update_date, status, satuan) values ('" + this.state.nama_barang_inserted + "', " +
@@ -4004,11 +4035,11 @@ class ContentBarang extends Component {
                 if (this.state.default_currency_master_barang_terendah === 'IDR') { // jika semua IDR
                     passqueryinsertlistbarang =
                         "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
+                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto,departmen_sales) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
                         harga + "', '" + this.state.company_id + "', '" + this.state.insert_foto_master_baru_url + "', '" +
                         this.state.insert_deskripsi_master_barang + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + harga_terendah + "', '" + this.state.insert_master_minimum_pembelian + "', '" + this.state.insert_master_minimum_nego + "', '" +
                         this.state.insert_master_nominal_persen_nego_pertama + "', '" + this.state.insert_master_nominal_persen_nego_kedua + "', '" + this.state.insert_master_nominal_persen_nego_ketiga + "', '" +
-                        this.state.insert_master_kode_barang_distributor + "', 'Y') returning id)"
+                        this.state.insert_master_kode_barang_distributor + "', 'Y'," + this.state.selected_departmen_id + ") returning id)"
                         +
                         `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                         values ((select id from new_insert),${this.state.company_id},${harga},
@@ -4019,11 +4050,11 @@ class ContentBarang extends Component {
                 } else { // jika default_currency_master_barang = IDR dan default_currency_master_barang_terendah = USD
                     passqueryinsertlistbarang =
                         "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
+                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto,departmen_sales) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
                         harga + "', '" + this.state.company_id + "', '" + this.state.insert_foto_master_baru_url + "', '" +
                         this.state.insert_deskripsi_master_barang + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + this.state.insert_price_master_barang_terendah.split(',').join('') + "', '" + this.state.insert_master_minimum_pembelian + "', '" + this.state.insert_master_minimum_nego + "', '" +
                         this.state.insert_master_nominal_persen_nego_pertama + "', '" + this.state.insert_master_nominal_persen_nego_kedua + "', '" + this.state.insert_master_nominal_persen_nego_ketiga + "', '" +
-                        this.state.insert_master_kode_barang_distributor + "', 'Y') returning id)"
+                        this.state.insert_master_kode_barang_distributor + "', 'Y'," + this.state.selected_departmen_id + ") returning id)"
                         +
                         `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                         values ((select id from new_insert),${this.state.company_id},${harga},
@@ -4039,11 +4070,11 @@ class ContentBarang extends Component {
                 if (this.state.default_currency_master_barang_terendah === 'USD') { // default_currency_master_barang_terendah = USD
                     passqueryinsertlistbarang =
                         "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
+                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto,departmen_sales) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
                         (this.state.insert_price_master_barang.split(',').join('')) + "', '" + this.state.company_id + "', '" + this.state.insert_foto_master_baru_url + "', '" +
                         this.state.insert_deskripsi_master_barang + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + (this.state.insert_price_master_barang_terendah.split(',').join('')) + "', '" + this.state.insert_master_minimum_pembelian + "', '" + this.state.insert_master_minimum_nego + "', '" +
                         this.state.insert_master_nominal_persen_nego_pertama + "', '" + this.state.insert_master_nominal_persen_nego_kedua + "', '" + this.state.insert_master_nominal_persen_nego_ketiga + "', '" +
-                        this.state.insert_master_kode_barang_distributor + "', 'Y') returning id)"
+                        this.state.insert_master_kode_barang_distributor + "', 'Y'," + this.state.selected_departmen_id + ") returning id)"
                         +
                         `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                         values ((select id from new_insert),${this.state.company_id},${(this.state.insert_price_master_barang.split(',').join(''))},
@@ -4054,11 +4085,11 @@ class ContentBarang extends Component {
                 } else { // default_currency_master_barang_terendah = IDR
                     passqueryinsertlistbarang =
                         "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
+                        "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto,departmen_sales) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
                         (this.state.insert_price_master_barang.split(',').join('')) + "', '" + this.state.company_id + "', '" + this.state.insert_foto_master_baru_url + "', '" +
                         this.state.insert_deskripsi_master_barang + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + harga_terendah + "', '" + this.state.insert_master_minimum_pembelian + "', '" + this.state.insert_master_minimum_nego + "', '" +
                         this.state.insert_master_nominal_persen_nego_pertama + "', '" + this.state.insert_master_nominal_persen_nego_kedua + "', '" + this.state.insert_master_nominal_persen_nego_ketiga + "', '" +
-                        this.state.insert_master_kode_barang_distributor + "', 'Y') returning id)"
+                        this.state.insert_master_kode_barang_distributor + "', 'Y'," + this.state.selected_departmen_id + ") returning id)"
                         +
                         `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                         values ((select id from new_insert),${this.state.company_id},${(this.state.insert_price_master_barang.split(',').join(''))},
@@ -4635,7 +4666,9 @@ class ContentBarang extends Component {
 
     resizeImage = (imgData, condition) => {
         const fileName = imgData.name
-        const fileExtension = fileName.split(".")[1]
+        let fileExtension = fileName.split(".")
+        fileExtension = fileExtension[fileExtension.length - 1]
+
         if (imgData) {
             Resizer.imageFileResizer(
                 imgData,
@@ -4720,6 +4753,7 @@ class ContentBarang extends Component {
         const isPNG = e.target.files[0].name.includes('.png')
         if (isPNG) {
             if (e.target.value !== '' &&
+                ((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
                 this.state.nama_barang_inserted !== '' &&
                 this.state.id_category_barang_inserted !== '0' &&
                 this.state.id_satuan_barang_inserted !== '0' &&
@@ -4891,10 +4925,34 @@ class ContentBarang extends Component {
         }
     }
 
-    handleModalInsertMasterBarang = () => {
+    handleModalInsertMasterBarang = async () => {
         this.handleModalInsert()
+
+        const query = encrypt(`select * from gcm_departemen_sales`)
+        let getDepartemenData = await this.props.postQuery({ query: query }).catch(err => err)
+
+        if (!getDepartemenData) {
+            swal({
+                title: "Kesalahan 503!",
+                text: "Harap periksa koneksi internet!",
+                icon: "error",
+                buttons: {
+                    confirm: "Oke"
+                }
+            }).then(() => {
+                window.location.reload()
+            });
+        }
+
+        getDepartemenData.map(dept => ({
+            label: dept.departemen,
+            value: dept.id
+        }))
+
+
         this.setState({
             isOpenModalInsertMasterBarang: !this.state.isOpenModalInsertMasterBarang,
+            departmen_list: getDepartemenData,
             empty_nama_barang_inserted: false,
             empty_berat_barang_inserted: false,
             empty_volume_barang_inserted: false,
@@ -4947,16 +5005,22 @@ class ContentBarang extends Component {
 
     handleDisposeModalInsertMasterBarang = () => {
         this.setState({
-            isOpenModalInsertMasterBarang: !this.state.isOpenModalInsertMasterBarang
+            isOpenModalInsertMasterBarang: !this.state.isOpenModalInsertMasterBarang,
+            isShowDepartemenList: false,
+            isOpenDepartemenList: false,
+            selected_departmen_id: null,
+            selected_departmen: null
         })
     }
 
-    changeCategoryInserted = async (id, kategori) => {
+    changeDepartemenInserted = async (id, departmen) => {
         await this.setState({
-            id_category_barang_inserted: id,
-            nama_category_barang_inserted: kategori
+            selected_departmen_id: id,
+            selected_departmen: departmen
         })
-        if (this.state.nama_barang_inserted !== '' &&
+
+        if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+            this.state.nama_barang_inserted !== '' &&
             this.state.id_category_barang_inserted !== '0' &&
             this.state.id_satuan_barang_inserted !== '0' &&
             (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
@@ -4971,9 +5035,44 @@ class ContentBarang extends Component {
         }
     }
 
+    changeCategoryInserted = async (id, kategori) => {
+        await this.setState({
+            id_category_barang_inserted: id,
+            nama_category_barang_inserted: kategori
+        })
+
+        if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+            this.state.nama_barang_inserted !== '' &&
+            this.state.id_category_barang_inserted !== '0' &&
+            this.state.id_satuan_barang_inserted !== '0' &&
+            (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
+            (this.state.volume_barang_inserted !== '' && this.state.volume_barang_inserted !== '0') &&
+            (this.state.insert_master_minimum_nego !== '' && this.state.insert_master_minimum_nego !== '0' && Number(this.state.insert_master_minimum_nego) % Number(this.state.berat_barang_inserted) === 0) &&
+            (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
+            (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
+            (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
+            this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
+            this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
+            this.setState({ isBtnConfirmInsertMaster: false })
+        }
+
+        if (kategori === 'Umum') {
+            this.setState({ isShowDepartemenList: true, isBtnConfirmInsertMaster: true })
+        } else {
+            this.setState({ isShowDepartemenList: false })
+        }
+
+    }
+
     handleKategoriBarang = () => {
         this.setState({
             isOpenKategori: !this.state.isOpenKategori
+        })
+    }
+
+    handleDepartemenSales = () => {
+        this.setState({
+            isOpenDepartemenList: !this.state.isOpenDepartemenList
         })
     }
 
@@ -4985,7 +5084,8 @@ class ContentBarang extends Component {
             disable_insert_master_price: false,
             disable_insert_master_price_terendah: false
         })
-        if (this.state.nama_barang_inserted !== '' &&
+        if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+            this.state.nama_barang_inserted !== '' &&
             this.state.id_category_barang_inserted !== '0' &&
             this.state.id_satuan_barang_inserted !== '0' &&
             (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
@@ -5018,7 +5118,8 @@ class ContentBarang extends Component {
             this.handleModalAttention()
         }
         // handle button
-        if (this.state.nama_barang_inserted !== '' &&
+        if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+            this.state.nama_barang_inserted !== '' &&
             this.state.id_category_barang_inserted !== '0' &&
             this.state.id_satuan_barang_inserted !== '0' &&
             (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
@@ -5027,7 +5128,8 @@ class ContentBarang extends Component {
             (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
             (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
             (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
-            this.state.insert_deskripsi_master_barang !== '' && this.state.ex_barang_inserted !== '' && this.state.insert_foto_master !== '') {
+            this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
+            this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
             this.setState({ isBtnConfirmInsertMaster: false })
         }
     }
@@ -5044,7 +5146,8 @@ class ContentBarang extends Component {
             this.handleModalAttention()
         }
         // handle button
-        if (this.state.nama_barang_inserted !== '' &&
+        if (((this.state.selected_departmen_id !== null && this.state.isShowDepartemenList) || !this.state.isShowDepartemenList) &&
+            this.state.nama_barang_inserted !== '' &&
             this.state.id_category_barang_inserted !== '0' &&
             this.state.id_satuan_barang_inserted !== '0' &&
             (this.state.berat_barang_inserted !== '' && this.state.berat_barang_inserted !== '0') &&
@@ -5053,7 +5156,8 @@ class ContentBarang extends Component {
             (this.state.insert_master_minimum_pembelian !== '' && this.state.insert_master_minimum_pembelian !== '0' && Number(this.state.insert_master_minimum_pembelian) % Number(this.state.berat_barang_inserted) === 0) &&
             (this.state.insert_price_master_barang !== '' && this.state.insert_price_master_barang !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
             (this.state.insert_price_master_barang_terendah !== '' && this.state.insert_price_master_barang_terendah !== '0' && this.state.flag_status_insert_master_price === true && this.state.flag_status_insert_master_price_tertinggi === true) &&
-            this.state.insert_deskripsi_master_barang !== '' && this.state.ex_barang_inserted !== '' && this.state.insert_foto_master !== '') {
+            this.state.ex_barang_inserted !== '' && this.state.insert_deskripsi_master_barang !== '' &&
+            this.state.insert_foto_master !== '' && this.state.insert_master_kode_barang_distributor !== '') {
             this.setState({ isBtnConfirmInsertMaster: false })
         }
     }
@@ -6450,7 +6554,7 @@ class ContentBarang extends Component {
                                 <FormFeedback>{this.state.feedback_insert_master_nama_barang}</FormFeedback>
                             </FormGroup>
                             <div className="form-row">
-                                <div className="col-md-6">
+                                <div className="col-md-6" style={{ display: 'flex' }}>
                                     <div className="position-relative form-group">
                                         <p className="mb-0" style={{ fontWeight: 'bold' }}>Kategori Barang</p>
                                         <ButtonDropdown isOpen={this.state.isOpenKategori} toggle={this.handleKategoriBarang}>
@@ -6492,6 +6596,27 @@ class ContentBarang extends Component {
                                             }
                                         </ButtonDropdown>
                                     </div>
+                                    {
+                                        this.state.isShowDepartemenList && <div className="position-relative form-group" style={{ marginLeft: '2rem' }}>
+                                            <p className="mb-0" style={{ fontWeight: 'bold' }}>Pilih Departmen</p>
+                                            <ButtonDropdown isOpen={this.state.isOpenDepartemenList} toggle={this.handleDepartemenSales}>
+                                                <DropdownToggle caret color="light">
+                                                    {this.state.selected_departmen ? this.state.selected_departmen : 'Pilih Departemen'}
+                                                </DropdownToggle>
+                                                <DropdownMenu>
+                                                    <DropdownItem disabled>Pilih Departemen</DropdownItem>
+                                                    {
+                                                        this.state.departmen_list.map(allDepartemen => {
+                                                            return <DropdownItem onClick={() => this.changeDepartemenInserted(allDepartemen.id, allDepartemen.departemen)} >{allDepartemen.departemen}</DropdownItem>
+                                                        })
+                                                    }
+                                                </DropdownMenu>
+                                            </ButtonDropdown>
+                                        </div>
+                                    }
+
+
+
                                 </div>
                                 <div className="col-md-6">
                                     <div className="position-relative form-group">

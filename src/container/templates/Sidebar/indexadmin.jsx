@@ -109,20 +109,20 @@ class SidebarAdmin extends Component {
                 console.log(token)
             })
 
-        if (!this.props.io) {
-            let socket = io(socket_uri)
-            socket.emit('admin_room', {
-                room_id: `${company_id}-${user_id}`
-            })
+        // if (!this.props.io) {
+        //     let socket = io(socket_uri)
+        //     socket.emit('admin_room', {
+        //         room_id: `${company_id}-${user_id}`
+        //     })
             
-            this.props.setSocketIOConnection(socket)
-        }
-        else {            
-            let socket = this.props.io
-            socket.on('transaction_from_user', (data) => {
-                console.log(data)
-            })
-        }
+        //     this.props.setSocketIOConnection(socket)
+        // }
+        // else {            
+        //     let socket = this.props.io
+        //     socket.on('transaction_from_user', (data) => {
+        //         console.log(data)
+        //     })
+        // }
     }
 
 

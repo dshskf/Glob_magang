@@ -777,8 +777,7 @@ class ContentNegosiasi extends Component {
         }
     }
 
-    sendNotificationFCM = async (token, stat) => {
-
+    sendNotificationFCM = async (token, stat) => {        
         const array_token = []
         for (var i = 0; i < token.length; i++) {
             array_token.push(token[i])
@@ -790,7 +789,8 @@ class ContentNegosiasi extends Component {
                 "key": stat === 'Nego' ? "nego" : "nego_approved",
                 "notification": {
                     "title": "GLOB",
-                    "body": "Balasan negosisasi dari penjual"
+                    "body": "Balasan negosisasi dari penjual",
+                    "sound" : "default"
                 },
             }
         }

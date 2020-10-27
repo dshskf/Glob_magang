@@ -18,7 +18,7 @@ firebase.initializeApp(config)
 
 const messaging = firebase.messaging()
 
-messaging.setBackgroundMessageHandler(payload => {
+messaging.setBackgroundMessageHandler(payload => {  
     self.clients.matchAll({
         includeUncontrolled: true
     }).then(function (clients) {
@@ -31,5 +31,5 @@ messaging.setBackgroundMessageHandler(payload => {
     //     body: "Ada negosiasi dari pembeli!",
     //     icon: payload.notification.icon
     // }
-    // return self.registration.showNotification(title, options);
+    return self.registration.showNotification(title, options);
 })

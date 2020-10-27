@@ -50,7 +50,15 @@ class Sidebar extends Component {
             this.props.checkRenderedSidebar(post[0].count)
         }
 
-
+        const messaging = firebaseApp.messaging()
+        messaging.requestPermission()
+            .then(() => {
+                return messaging.getToken()
+            })
+            .then(async token => {
+                console.log(token)
+            })
+            
         let user_id = parseInt(decrypt(userData.id))
         firebaseApp.database().ref().orderByChild('user_id_seller').equalTo(user_id).on("value", async snapshot => {
             if (!snapshot.val()) {

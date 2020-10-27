@@ -45,12 +45,15 @@ class ContentPayment extends Component {
         rekeningData: [],
         rekeningList: null,
         bankList: null,
+        selectedRekening: null,
         pembanding_status_payment: '',
         isOpenStatusPayment: false,
         isbtnupdatepayment: true,
         isOpenConfirmStatusPayment: false,
         isOpenRekeningBank: false,
-        isOpenRekeningBankEdit: false
+        isOpenRekeningBankEdit: false,
+        isOpenDeactivate: false,
+        isSubmitRekeningAction: false
     }
 
     componentWillMount() {
@@ -83,9 +86,16 @@ class ContentPayment extends Component {
         let queryRekening = encrypt(`
             select a.*,b.nama as nama_bank from gcm_listing_bank a
             inner join gcm_master_bank b on a.id_bank=b.id
-            where company_id=${this.state.company_id}
+            where company_id=${this.state.company_id} and a.status='A'
         `)
-        const getRekening = await this.props.postQuery({ query: queryRekening }).catch(err => err)
+        let getRekening = await this.props.postQuery({ query: queryRekening }).catch(err => err)
+
+        getRekening = getRekening.map(data => ({
+            ...data,
+            action: <center>
+                <button className="mb-2 mr-2 btn-transition btn btn-outline-danger" name={data.id} onClick={this.handleDeactivateRekeningBank} value="delete"> Delete</button>
+            </center>
+        }))
 
         queryRekening = encrypt(`select * from gcm_master_bank`)
         const getBank = await this.props.postQuery({ query: queryRekening }).catch(err => err)
@@ -115,7 +125,7 @@ class ContentPayment extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {                
+            }).then(() => {
                 const res = this.props.logoutAPI();
                 if (res) {
                     this.props.history.push('/admin')
@@ -359,8 +369,9 @@ class ContentPayment extends Component {
             passquerychangestatuspayment = `
                 with update_payment(update gcm_seller_payment_listing set status='C'
                 where id= ${this.state.id_payment} returning status)
-                insert into gcm_rekening_bank(company_id,nama_bank,no_rekening,pemilik_rekening,status)
-                values                 `
+                insert into gcm_listing_bank(company_id,id_bank,no_rekening,pemilik_rekening,status,create_by,create_date,update_by,update_date)
+                values                 
+            `
         } else {
             passquerychangestatuspayment = `
                 with new_order as (
@@ -368,18 +379,18 @@ class ContentPayment extends Component {
                 where id= ${this.state.id_payment} returning status),
                 update_listing as(update gcm_payment_listing set status='${this.state.status_payment}'
                 where payment_id= ${this.state.id_payment} and seller_id= ${this.state.company_id} returning status)
-                insert into gcm_rekening_bank(company_id,nama_bank,no_rekening,pemilik_rekening,status)
-                values 
+                insert into gcm_listing_bank(company_id,id_bank,no_rekening,pemilik_rekening,status,create_by,create_date,update_by,update_date)
+                values                 
                 `
         }
 
         this.state.rekeningData.map((data, i) => {
             if (i < this.state.rekeningData.length - 1) {
-                passquerychangestatuspayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A'), `
+                passquerychangestatuspayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.company_id},now(),${this.state.company_id},now()), `
 
                 return
             }
-            passquerychangestatuspayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A') returning * `
+            passquerychangestatuspayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.company_id},now(),${this.state.company_id},now()) returning * `
             return
         })
 
@@ -421,15 +432,56 @@ class ContentPayment extends Component {
         }
     }
 
-    handleModalRekeningBank = () => {
+    handleDeactivateRekeningBank = e => {
+        let filter_rekening = this.state.rekeningList.filter(d => d.id.toString() === e.target.name)
         this.setState({
-            isOpenRekeningBank: !this.state.isOpenRekeningBank,
+            isOpenDeactivate: !this.state.isOpenDeactivate,
+            selectedRekening: filter_rekening[0]
+        })
+    }
+
+    deactivateRekeningBank = async () => {
+        const query = encrypt(`update gcm_listing_bank set status='I' where id=${this.state.selectedRekening.id} returning *`)
+        const postUpdate = await this.props.postQuery({ query: query }).catch(err => err)
+
+        if (postUpdate) {
+            swal({
+                title: "Sukses!",
+                text: "Perubahan metode payment berhasil disimpan!",
+                icon: "success",
+                button: false,
+                timer: "2500"
+            }).then(() => {
+                window.location.reload()
+            });
+        } else {
+            swal({
+                title: "Gagal!",
+                text: "Tidak ada perubahan disimpan!",
+                icon: "error",
+                button: false,
+                timer: "2500"
+            }).then(() => {
+                window.location.reload()
+            });
+        }
+    }
+
+    handleModalRekeningBank = (method) => {
+        if (method === 'add') {
+            this.setState({ isOpenRekeningBank: !this.state.isOpenRekeningBank })
+        }
+        else {
+            this.setState({ isOpenRekeningBankEdit: !this.state.isOpenRekeningBankEdit })
+        }
+        this.setState({
             rekeningBank: '',
             rekeningBankNama: '',
             rekeningBankIdBank: '',
             rekeningData: []
         })
     }
+
 
     handleChangeInputRekening = e => {
         const { name, value } = e.target
@@ -439,6 +491,7 @@ class ContentPayment extends Component {
     handleAddInputRekeningRows = () => {
         const prevData = this.state.rekeningData
         const newData = {
+            id: prevData.id ? 0 : prevData + 1,
             rekeningBank: this.state.rekeningBank,
             rekeningBankNama: this.state.rekeningBankNama,
             rekeningBankIdBank: this.state.rekeningBankIdBank
@@ -453,39 +506,49 @@ class ContentPayment extends Component {
         })
     }
 
+    handleRemoveInputRekeningRows = e => {
+        let filtered = this.state.rekeningData.filter(d => d.id.toString() !== e.target.name)
+        this.setState({ rekeningData: filtered })
+        return
+    }
+
     handleSubmitRekeningData = () => {
         this.handleAddInputRekeningRows()
-        this.setState({ isOpenConfirmInsert: !this.state.isOpenConfirmInsert })
+        this.setState({
+            isOpenConfirmInsert: !this.state.isOpenConfirmInsert,
+            isSubmitRekeningAction: !this.state.isSubmitRekeningAction
+        })
     }
 
     handleSubmitEditRekeningData = () => {
         this.handleAddInputRekeningRows()
-        this.setState({ isOpenConfirmStatusPayment: !this.state.isOpenConfirmStatusPayment, })
+        this.setState({
+            isOpenConfirmStatusPayment: !this.state.isOpenConfirmStatusPayment,
+            isSubmitRekeningAction: !this.state.isSubmitRekeningAction
+        })
     }
 
     rekeningBankComponent = () => {
         let component = []
 
-        for (let i = 0; i <= this.state.rekeningData.length; i++) {
-            let valHandler = (name) => {
-                return this.state.rekeningData[i] ? this.state.rekeningData[i][name] : this.state[name]
-            }
-            component.push(
+        let temp = (isLast = false, val) => {
+            return (
                 <FormGroup style={{ display: 'flex', justifyContent: 'space-around', alignItems: 'flex-end' }}>
                     <div style={{ width: '25%' }}>
                         <label>Nama</label>
                         <Input
                             type="text"
                             name="rekeningBankNama"
-                            value={valHandler("rekeningBankNama")}
+                            value={val ? val["rekeningBankNama"] : this.state["rekeningBankNama"]}
                             onChange={this.handleChangeInputRekening}
+                            disabled={!isLast}
                         />
                     </div>
                     <div style={{ width: '25%' }}>
                         <label>Nama Bank</label>
                         <select
                             name="rekeningBankIdBank"
-                            value={valHandler("rekeningBankIdBank")}
+                            value={val ? val["rekeningBankIdBank"] : this.state["rekeningBankIdBank"]}
                             style={{
                                 border: '1px solid rgba(0,0,0,0.2)',
                                 borderRadius: '4px',
@@ -494,6 +557,7 @@ class ContentPayment extends Component {
                                 color: 'rgba(0,0,0,0.5)',
                             }}
                             onChange={this.handleChangeInputRekening}
+                            disabled={!isLast}
                         >
                             <option value="" selected={true} disabled={true} hidden={true}>Select Bank</option>
                             {
@@ -508,17 +572,32 @@ class ContentPayment extends Component {
                         <Input
                             type="text"
                             name="rekeningBank"
-                            value={valHandler("rekeningBank")}
+                            value={val ? val["rekeningBank"] : this.state["rekeningBank"]}
                             onChange={this.handleChangeInputRekening}
+                            disabled={!isLast}
                         />
                     </div>
+
                     <div style={{ width: '20%', marginBottom: '4px' }}>
                         {
-                            !this.state.rekeningData[i] && <button className="btn btn-primary" onClick={this.handleAddInputRekeningRows}>+</button>
+                            isLast ?
+                                <button className="btn btn-primary" onClick={this.handleAddInputRekeningRows}>+</button>
+                                :
+                                <button className="btn btn-danger" name={val.id} onClick={this.handleRemoveInputRekeningRows}>-</button>
                         }
+
                     </div>
+
                 </FormGroup>
             )
+        }
+
+        for (let i = 0; i < this.state.rekeningData.length; i++) {
+            component.push(temp(false, this.state.rekeningData[i]))
+        }
+
+        if (!this.state.isSubmitRekeningAction) {
+            component.push(temp(true, null))
         }
 
         return component
@@ -562,6 +641,11 @@ class ContentPayment extends Component {
                     field: 'no_rekening',
                     width: 100
                 },
+                {
+                    label: 'Action',
+                    field: 'action',
+                    width: 100
+                }
             ],
             rows: this.state.rekeningList
         }
@@ -643,8 +727,8 @@ class ContentPayment extends Component {
                 </Modal>
 
                 {/* Modal Insert Rekening */}
-                <Modal size="md" toggle={this.handleModalRekeningBank} isOpen={this.state.isOpenRekeningBank} backdrop="static" keyboard={false}>
-                    <ModalHeader toggle={this.handleModalRekeningBank}>Rekening Bank</ModalHeader>
+                <Modal size="md" toggle={() => this.handleModalRekeningBank('add')} isOpen={this.state.isOpenRekeningBank} backdrop="static" keyboard={false}>
+                    <ModalHeader toggle={() => this.handleModalRekeningBank('add')}>Rekening Bank</ModalHeader>
                     <ModalBody>
                         <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                             {
@@ -655,7 +739,7 @@ class ContentPayment extends Component {
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary" disabled={this.state.rekeningData.length === 0} onClick={this.handleSubmitRekeningData}>Tambah</Button>
-                        <Button color="danger" onClick={this.handleModalUbahTanggalPengiriman} onClick={this.handleModalRekeningBank}>Batal</Button>
+                        <Button color="danger" onClick={this.handleModalUbahTanggalPengiriman} onClick={() => this.handleModalRekeningBank('add')}>Batal</Button>
                     </ModalFooter>
                 </Modal>
 
@@ -719,7 +803,7 @@ class ContentPayment extends Component {
                                         paging={false}
                                         data={dataRekeningListing}
                                     />
-                                    <button className="btn btn-primary" style={{ width: '100%', margin: '1rem 0' }} onClick={this.handleModalRekeningBank}>+ Tambah Rekening</button>
+                                    <button className="btn btn-primary" style={{ width: '100%', margin: '1rem 0' }} onClick={() => this.handleModalRekeningBank('edit')}>+ Tambah Rekening</button>
                                 </React.Fragment>
                             )
                         }
@@ -741,8 +825,8 @@ class ContentPayment extends Component {
                 </Modal>
 
                 {/* Modal Edit Insert Rekening */}
-                <Modal size="md" toggle={this.handleModalRekeningBank} isOpen={this.state.isOpenRekeningBankEdit} backdrop="static" keyboard={false}>
-                    <ModalHeader toggle={this.handleModalRekeningBank}>Rekening Bank</ModalHeader>
+                <Modal size="md" toggle={() => this.handleModalRekeningBank('edit')} isOpen={this.state.isOpenRekeningBankEdit} backdrop="static" keyboard={false}>
+                    <ModalHeader toggle={() => this.handleModalRekeningBank('edit')}>Rekening Bank</ModalHeader>
                     <ModalBody>
                         <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                             {
@@ -753,7 +837,7 @@ class ContentPayment extends Component {
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary" disabled={this.state.rekeningData.length === 0} onClick={this.handleSubmitEditRekeningData}>Tambah</Button>
-                        <Button color="danger" onClick={this.handleModalUbahTanggalPengiriman} onClick={this.handleModalRekeningBank}>Batal</Button>
+                        <Button color="danger" onClick={this.handleModalUbahTanggalPengiriman} onClick={() => this.handleModalRekeningBank('edit')}>Batal</Button>
                     </ModalFooter>
                 </Modal>
 
@@ -770,6 +854,35 @@ class ContentPayment extends Component {
                     <ModalFooter>
                         <Button color="primary" onClick={this.confirmActionChangeStatusPayment}>Konfirmasi</Button>
                         <Button color="danger" onClick={this.handleModalConfirmStatusPayment}>Batal</Button>
+                    </ModalFooter>
+                </Modal>
+
+                {/* Modal Confirm Deactivate */}
+                <Modal size="sm" toggle={this.handleDeactivateRekeningBank} isOpen={this.state.isOpenDeactivate} backdrop="static" keyboard={false}>
+                    <ModalHeader toggle={this.handleDeactivateRekeningBank}>Konfirmasi Aksi</ModalHeader>
+                    {
+                        this.state.selectedRekening &&
+                        <ModalBody>
+                            <div className="position-relative form-group">
+                                <div>
+                                    <label style={{ margin: 0 }}><strong>Pemilik</strong></label>
+                                    <p>{this.state.selectedRekening.pemilik_rekening}</p>
+                                </div>
+                                <div>
+                                    <label style={{ margin: 0 }}><strong>Nama Bank</strong></label>
+                                    <p>{this.state.selectedRekening.nama_bank}</p>
+                                </div>
+                                <div>
+                                    <label style={{ margin: 0 }}><strong>No Rekening</strong></label>
+                                    <p>{this.state.selectedRekening.no_rekening}</p>
+                                </div>
+                                <label>Apakah yakin akan melakukan aksi ini?</label>
+                            </div>
+                        </ModalBody>
+                    }
+                    <ModalFooter>
+                        <Button color="primary" onClick={this.deactivateRekeningBank}>Hapus</Button>
+                        <Button color="danger" onClick={this.handleDeactivateRekeningBank}>Batal</Button>
                     </ModalFooter>
                 </Modal>
 

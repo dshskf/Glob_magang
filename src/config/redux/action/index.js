@@ -1121,11 +1121,17 @@ export const getDataDetailedTransactionAPI = (data) => (dispatch) => {
                 let dataDetailed = Object.create(null);
                 if (status === "success") {
                     dt = res.data.data;
+                    console.log(dt)
                     dt.map((user, index) => {
                         return (
                             dataDetailed = {
                                 id: encrypt(dt[index].id),
                                 id_transaction: dt[index].id_transaction,
+                                id_transaction_ref: dt[index].id_transaction_ref,
+                                foto_transaction_ref: dt[index].foto_transaction_ref,
+                                bukti_bayar: dt[index].bukti_bayar,
+                                tanggal_bayar: dt[index].tanggal_bayar,
+                                pemilik_rekening: dt[index].pemilik_rekening,
                                 company_name_transaction: dt[index].nama_perusahaan,
                                 company_email_transaction: dt[index].company_email,
                                 company_contact_transaction: dt[index].no_telp,

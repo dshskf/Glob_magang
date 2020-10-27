@@ -1,0 +1,12 @@
+Database PostgreSQL
+
+
+hostname: gcm.cpgemnla0ncf.ap-southeast-1.rds.amazonaws.com
+
+database: gcm
+
+port: 5432
+
+user: gcm
+
+password: Gcm46822422

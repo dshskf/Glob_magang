@@ -29,10 +29,9 @@ import Chats from './container/pages/Chats'
 
 import { NotificationContainer, NotificationManager } from 'react-notifications';
 import { Notifications } from 'react-push-notification';
-import addNotification from 'react-push-notification';
+
 
 function App() {
-
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
       .register('/firebase-messaging-sw.js')
@@ -44,14 +43,19 @@ function App() {
       });
   }
 
+
+
+
   useEffect(() => {
     navigator.serviceWorker.addEventListener("message", (message) => {
+      console.log(message)
       if (message.data.firebaseMessaging) {
         console.log(message.data.firebaseMessaging.payload.data)
       } else {
         console.log(message.data)
       }
 
+      const msg = JSON.parse(message.data.firebaseMessaging.payload.data.notification)
       // addNotification({
       //   title: 'Warning',
       //   subtitle: 'This is a subtitle',
@@ -60,10 +64,11 @@ function App() {
       //   native: true // when using native, your OS will handle theming.
       // });
 
-      NotificationManager.success('Ada negosiasi dari pembeli', 'Glob');
+      NotificationManager.success(msg.body, 'Glob');
       return message
     });
   }, [])
+
 
   const state = {
     isLogin: localStorage.getItem('userData')
