@@ -53,7 +53,9 @@ class ContentPayment extends Component {
         isOpenRekeningBank: false,
         isOpenRekeningBankEdit: false,
         isOpenDeactivate: false,
-        isSubmitRekeningAction: false
+        isSubmitRekeningAction: false,
+        isDisabledTambahRekening: true,
+        isOpenInsertRekeningBaru: false,
     }
 
     componentWillMount() {
@@ -221,7 +223,7 @@ class ContentPayment extends Component {
         let check_id_payment_registered = this.state.allPaymentChecked.filter(input_id => { return input_id.payment_id === this.state.id_payment_inserted });
         if (check_id_payment_registered !== '' && check_id_payment_registered.length === 0) {
             if (!this.state.isOpenConfirmInsert) {
-                this.handleModalRekeningBank()
+                this.handleModalRekeningBank('add')
             } else {
                 this.setState({ isOpenConfirmInsert: !this.state.isOpenConfirmInsert })
             }
@@ -365,37 +367,25 @@ class ContentPayment extends Component {
     confirmActionChangeStatusPayment = async () => {
         Toast.loading('Loading...');
         let passquerychangestatuspayment = ""
+
         if (this.state.status_payment === 'R') {
             passquerychangestatuspayment = `
-                with update_payment(update gcm_seller_payment_listing set status='C'
-                where id= ${this.state.id_payment} returning status)
-                insert into gcm_listing_bank(company_id,id_bank,no_rekening,pemilik_rekening,status,create_by,create_date,update_by,update_date)
-                values                 
+                update gcm_seller_payment_listing set status='C'
+                where id= ${this.state.id_payment} returning status                
             `
         } else {
             passquerychangestatuspayment = `
                 with new_order as (
                 update gcm_seller_payment_listing set status='${this.state.status_payment}'
-                where id= ${this.state.id_payment} returning status),
-                update_listing as(update gcm_payment_listing set status='${this.state.status_payment}'
-                where payment_id= ${this.state.id_payment} and seller_id= ${this.state.company_id} returning status)
-                insert into gcm_listing_bank(company_id,id_bank,no_rekening,pemilik_rekening,status,create_by,create_date,update_by,update_date)
-                values                 
+                where id= ${this.state.id_payment} returning status)
+                update gcm_payment_listing set status='${this.state.status_payment}'
+                where payment_id= ${this.state.id_payment} and seller_id= ${this.state.company_id} returning status                
                 `
         }
-
-        this.state.rekeningData.map((data, i) => {
-            if (i < this.state.rekeningData.length - 1) {
-                passquerychangestatuspayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.company_id},now(),${this.state.company_id},now()), `
-
-                return
-            }
-            passquerychangestatuspayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.company_id},now(),${this.state.company_id},now()) returning * `
-            return
-        })
-
         const resupdatestatuspayment = await this.props.updateStatusPayment({ query: encrypt(passquerychangestatuspayment) }).catch(err => err)
+        
         Toast.hide();
+        
         if (resupdatestatuspayment) {
             if (this.state.status_payment === 'R') {
                 swal({
@@ -483,9 +473,18 @@ class ContentPayment extends Component {
     }
 
 
-    handleChangeInputRekening = e => {
+    handleChangeInputRekening = async e => {
         const { name, value } = e.target
-        this.setState({ [name]: value })
+        await this.setState({ [name]: value })
+
+        if (this.state.rekeningBank !== '' &&
+            this.state.rekeningBankNama !== '' &&
+            this.state.rekeningBankIdBank !== ''
+        ) {
+            this.setState({ isDisabledTambahRekening: false })
+        } else {
+            this.setState({ isDisabledTambahRekening: true })
+        }
     }
 
     handleAddInputRekeningRows = () => {
@@ -508,7 +507,10 @@ class ContentPayment extends Component {
 
     handleRemoveInputRekeningRows = e => {
         let filtered = this.state.rekeningData.filter(d => d.id.toString() !== e.target.name)
-        this.setState({ rekeningData: filtered })
+        this.setState({
+            rekeningData: filtered,
+            isSubmitRekeningAction: this.state.rekeningData.length === 0 && !this.state.isSubmitRekeningAction
+        })
         return
     }
 
@@ -523,10 +525,54 @@ class ContentPayment extends Component {
     handleSubmitEditRekeningData = () => {
         this.handleAddInputRekeningRows()
         this.setState({
-            isOpenConfirmStatusPayment: !this.state.isOpenConfirmStatusPayment,
+            isOpenInsertRekeningBaru: !this.state.isOpenInsertRekeningBaru,
             isSubmitRekeningAction: !this.state.isSubmitRekeningAction
         })
     }
+
+    handleModalInsertRekeningBaru = () => {
+        this.setState({ isOpenInsertRekeningBaru: false })
+    }
+
+    insertRekeningBaru = () => {
+        if (this.state.rekeningData) {
+            let query = `insert into gcm_listing_bank(company_id,id_bank,no_rekening,pemilik_rekening,status,create_by,create_date,update_by,update_date) values `
+
+            this.state.rekeningData.map((data, i) => {
+                if (i < this.state.rekeningData.length - 1) {
+                    query += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.company_id},now(),${this.state.company_id},now()), `
+
+                    return
+                }
+                query += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.company_id},now(),${this.state.company_id},now()) returning * `
+                return
+            })
+
+            const passQuery = this.props.postQuery({ query: encrypt(query) }).catch(err => err)
+            if (passQuery) {
+                swal({
+                    title: "Sukses!",
+                    text: "Perubahan metode payment berhasil disimpan!",
+                    icon: "success",
+                    button: false,
+                    timer: "2500"
+                }).then(() => {
+                    window.location.reload()
+                });
+            } else {
+                swal({
+                    title: "Gagal!",
+                    text: "Tidak ada perubahan disimpan!",
+                    icon: "error",
+                    button: false,
+                    timer: "2500"
+                }).then(() => {
+                    window.location.reload()
+                });
+            }
+        }
+    }
+
 
     rekeningBankComponent = () => {
         let component = []
@@ -554,7 +600,8 @@ class ContentPayment extends Component {
                                 borderRadius: '4px',
                                 height: '2.4rem',
                                 width: '100%',
-                                color: 'rgba(0,0,0,0.5)',
+                                color: 'rgba(0,0,0,0.8)',
+                                outline: 'none',
                             }}
                             onChange={this.handleChangeInputRekening}
                             disabled={!isLast}
@@ -738,7 +785,7 @@ class ContentPayment extends Component {
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" disabled={this.state.rekeningData.length === 0} onClick={this.handleSubmitRekeningData}>Tambah</Button>
+                        <Button color="primary" disabled={this.state.isDisabledTambahRekening} onClick={this.handleSubmitRekeningData}>Tambah</Button>
                         <Button color="danger" onClick={this.handleModalUbahTanggalPengiriman} onClick={() => this.handleModalRekeningBank('add')}>Batal</Button>
                     </ModalFooter>
                 </Modal>
@@ -836,10 +883,27 @@ class ContentPayment extends Component {
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" disabled={this.state.rekeningData.length === 0} onClick={this.handleSubmitEditRekeningData}>Tambah</Button>
+                        <Button color="primary" disabled={this.state.isDisabledTambahRekening} onClick={this.handleSubmitEditRekeningData}>Tambah</Button>
                         <Button color="danger" onClick={this.handleModalUbahTanggalPengiriman} onClick={() => this.handleModalRekeningBank('edit')}>Batal</Button>
                     </ModalFooter>
                 </Modal>
+
+                {/* Modal Confirm Edit Insert Rekening*/}
+                <Modal size="sm" toggle={this.handleModalInsertRekeningBaru} isOpen={this.state.isOpenInsertRekeningBaru} backdrop="static" keyboard={false}>
+                    <ModalHeader toggle={this.handleModalInsertRekeningBaru}>Konfirmasi Aksi</ModalHeader>
+                    <ModalBody>
+                        <div className="position-relative form-group">
+                            <label>
+                                Apakah anda yakin akan melakukan aksi ini?
+                            </label>
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color="primary" onClick={this.insertRekeningBaru}>Konfirmasi</Button>
+                        <Button color="danger" onClick={this.handleModalInsertRekeningBaru}>Batal</Button>
+                    </ModalFooter>
+                </Modal>
+
 
                 {/* Modal Confirm Status Payment*/}
                 <Modal size="sm" toggle={this.handleModalConfirmStatusPayment} isOpen={this.state.isOpenConfirmStatusPayment} backdrop="static" keyboard={false}>
