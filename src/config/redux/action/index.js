@@ -1149,6 +1149,7 @@ export const getDataDetailedTransactionAPI = (data) => (dispatch) => {
                                 date_onfinished: dt[index].date_finished,
                                 date_oncanceled: dt[index].date_canceled,
                                 date_confirm_admin: dt[index].date_confirm_admin,
+                                log_logistik: dt[index].log_logistik,
                                 username: dt[index].username,
                                 nama: dt[index].nama,
                                 email: dt[index].email,

@@ -256,10 +256,10 @@ class ContentPayment extends Component {
 
         this.state.rekeningData.map((data, i) => {
             if (i < this.state.rekeningData.length - 1) {
-                passqueryinsertpayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.company_id},now(),${this.state.company_id},now()), `
+                passqueryinsertpayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.id_pengguna_login},now(),${this.state.id_pengguna_login},now()), `
                 return
             }
-            passqueryinsertpayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.company_id},now(),${this.state.company_id},now()) returning * `
+            passqueryinsertpayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.id_pengguna_login},now(),${this.state.id_pengguna_login},now()) returning * `
             return
         })
 
@@ -540,11 +540,11 @@ class ContentPayment extends Component {
 
             this.state.rekeningData.map((data, i) => {
                 if (i < this.state.rekeningData.length - 1) {
-                    query += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.company_id},now(),${this.state.company_id},now()), `
+                    query += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.id_pengguna_login},now(),${this.state.id_pengguna_login},now()), `
 
                     return
                 }
-                query += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.company_id},now(),${this.state.company_id},now()) returning * `
+                query += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.id_pengguna_login},now(),${this.state.id_pengguna_login},now()) returning * `
                 return
             })
 

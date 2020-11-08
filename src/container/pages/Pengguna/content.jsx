@@ -1967,14 +1967,14 @@ class ContentPengguna extends Component {
         if (res) {
             await this.setState({ getstragg: res.str_agg })
             if (this.state.getstragg !== null) {
-                passquerypaymentnotlisted = encrypt("select gcm_master_payment.payment_name, gcm_master_payment.deskripsi, " +
+                passquerypaymentnotlisted = encrypt("select DISTINCT gcm_master_payment.payment_name, gcm_master_payment.deskripsi, " +
                     "gcm_seller_payment_listing.status, gcm_seller_payment_listing.id from gcm_seller_payment_listing " +
                     "left join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id " +
                     "left join gcm_payment_listing on gcm_payment_listing.payment_id = gcm_seller_payment_listing.id " +
                     "where gcm_seller_payment_listing.status = 'A' and gcm_seller_payment_listing.seller_id = " + this.state.company_id +
                     " and gcm_seller_payment_listing.id not in (" + res.str_agg + ") ")
             } else {
-                passquerypaymentnotlisted = encrypt("select gcm_master_payment.payment_name, gcm_master_payment.deskripsi, " +
+                passquerypaymentnotlisted = encrypt("select DISTINCT gcm_master_payment.payment_name, gcm_master_payment.deskripsi, " +
                     "gcm_seller_payment_listing.status, gcm_seller_payment_listing.id " +
                     "from gcm_seller_payment_listing " +
                     "inner join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id " +

@@ -52,13 +52,12 @@ const MessageList = (props) => {
         return snapshot.val().message[key]
       });
       
-
       result = result.map((data, index) => ({
         id: data.id,
         author: data.sender,
         message: data.contain,
         barang_id: data.barang_id,
-        timestamp: snapshot.val().last_timestamp,
+        timestamp: data.timestamp.time,
         time_label: moment(data.timestamp.time).format("HH:mm"),
         status: data.read
       }))
@@ -73,7 +72,7 @@ const MessageList = (props) => {
     let tempMessages = [];
     let i = 0;
     let messageCount = messages.length;
-    
+
     while (i < messageCount) {
       let previous = messages[i - 1];
       let current = messages[i];
@@ -92,11 +91,11 @@ const MessageList = (props) => {
         let previousDuration = moment.duration(currentMoment.diff(previousMoment));
         prevBySameAuthor = previous.author === current.author;
 
-        if (prevBySameAuthor && previousDuration.as('hours') < 1) {
+        if (prevBySameAuthor && previousDuration.as('day') < 1) {
           startsSequence = false;
         }
 
-        if (previousDuration.as('hours') < 1) {
+        if (previousDuration.as('day') < 1) {
           showTimestamp = false;
         }
       }
@@ -112,7 +111,7 @@ const MessageList = (props) => {
       }
 
       lastMessage = i === messages.length - 1 ? lastMessageRef : null;
-
+      // console.log(current)
       tempMessages.push(
         messages[i].barang_id ?
           <MessageWithBarang

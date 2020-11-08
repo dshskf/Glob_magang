@@ -125,6 +125,7 @@ class ContentTransaksi extends Component {
         empty_notes_cancel_transaksi: false,
         isOpenDropdownSalesTransaction: false,
         isOpenDropdownTypeCancelTransaction: false,
+        isCheckedCatatanLogistic: false,
         id_cancel_reason: '0',
         nama_jenis_cancel_reason: '',
         alltypecancelreason: [],
@@ -524,7 +525,7 @@ class ContentTransaksi extends Component {
                 "gcm_master_transaction.id_transaction_ref, gcm_master_transaction.foto_transaction_ref, gcm_master_transaction.status, case when gcm_master_transaction.status_payment = 'UNPAID' " +
                 "then case when gcm_master_transaction.id_list_bank is null then 'menunggu pembayaran' else 'menunggu verifikasi' end else 'pembayaran selesai' end as status_payment, " +
                 "to_char(gcm_master_transaction.create_date, 'DD/MM/YYYY HH24:MI:SS') create_date, to_char(gcm_master_transaction.update_date, 'DD/MM/YYYY HH24:MI:SS') update_date, " +
-                "gcm_master_user.nama, gcm_master_user.username, gcm_master_user.email, gcm_master_transaction.ongkos_kirim, " +
+                "gcm_master_user.nama, gcm_master_user.username, gcm_master_user.email, gcm_master_transaction.ongkos_kirim, gcm_master_transaction.log_logistik, " +
                 "gcm_master_user.no_hp, sum(gcm_transaction_detail.harga) as total, " +
                 "to_char(gcm_master_transaction.tgl_permintaan_kirim, 'DD/MM/YYYY') tgl_permintaan_kirim," +
                 "(sum(gcm_transaction_detail.harga)+gcm_master_transaction.ongkos_kirim) as total_with_ongkir, " +
@@ -558,7 +559,7 @@ class ContentTransaksi extends Component {
                 "gcm_master_transaction.date_ongoing, gcm_master_transaction.date_shipped, gcm_master_transaction.date_received, gcm_master_transaction.date_complained, " +
                 "gcm_master_transaction.date_finished, gcm_master_transaction.date_canceled, gcm_master_transaction.date_confirm_admin, gcm_master_transaction.ppn_seller, " +
                 "gcm_master_transaction.cancel_reason, gcm_master_payment.payment_name, gcm_master_transaction.approval_by_sales, gcm_master_transaction.approval_by_admin, gcm_master_transaction.id_sales, gcm_master_transaction.id_list_bank," +
-                "gcm_master_transaction.bukti_bayar,gcm_master_transaction.tanggal_bayar,gcm_master_transaction.pemilik_rekening,gcm_master_transaction.id_transaction_ref,gcm_master_transaction.foto_transaction_ref;"
+                "gcm_master_transaction.bukti_bayar,gcm_master_transaction.tanggal_bayar,gcm_master_transaction.pemilik_rekening,gcm_master_transaction.id_transaction_ref,gcm_master_transaction.foto_transaction_ref, gcm_master_transaction.log_logistik;"
             )
         } else {
             passquerydetailtransaction = encrypt("select gcm_master_transaction.id, gcm_master_transaction.id_transaction, gcm_master_transaction.bukti_bayar,gcm_master_transaction.tanggal_bayar," +
@@ -572,7 +573,7 @@ class ContentTransaksi extends Component {
                 "(sum(gcm_transaction_detail.harga_final)+gcm_master_transaction.ongkos_kirim) as total_with_ongkir, " +
                 "gcm_master_user.no_hp, sum(gcm_transaction_detail.harga_final) as total, gcm_master_category.nama as company_type_bisnis_transaction, " +
                 "gcm_master_transaction.shipto_id, gcm_master_transaction.billto_id, gcm_master_company.tipe_bisnis, " +
-                "gcm_master_transaction.cancel_reason, gcm_master_payment.payment_name, gcm_master_transaction.ongkos_kirim, " +
+                "gcm_master_transaction.cancel_reason, gcm_master_payment.payment_name, gcm_master_transaction.ongkos_kirim, gcm_master_transaction.log_logistik, " +
                 "gcm_master_transaction.approval_by_sales, gcm_master_transaction.approval_by_admin, gcm_master_transaction.id_sales, " +
                 "to_char(gcm_master_transaction.date_ongoing, 'DD/MM/YYYY HH24:MI:SS') date_ongoing, " +
                 "to_char(gcm_master_transaction.date_shipped, 'DD/MM/YYYY HH24:MI:SS') date_shipped, " +
@@ -601,14 +602,13 @@ class ContentTransaksi extends Component {
                 "gcm_master_transaction.date_finished, gcm_master_transaction.date_canceled, gcm_master_transaction.date_confirm_admin, " +
                 "gcm_master_user.no_hp, gcm_master_transaction.kurs_rate, gcm_master_category.nama, gcm_master_transaction.shipto_id, gcm_master_transaction.billto_id, " +
                 "gcm_master_transaction.cancel_reason, gcm_master_payment.payment_name, gcm_master_transaction.approval_by_sales, gcm_master_transaction.approval_by_admin, gcm_master_transaction.id_sales,gcm_master_transaction.id_list_bank," +
-                "gcm_master_transaction.bukti_bayar,gcm_master_transaction.tanggal_bayar,gcm_master_transaction.pemilik_rekening,gcm_master_transaction.id_transaction_ref,gcm_master_transaction.foto_transaction_ref;"
+                "gcm_master_transaction.bukti_bayar,gcm_master_transaction.tanggal_bayar,gcm_master_transaction.pemilik_rekening,gcm_master_transaction.id_transaction_ref,gcm_master_transaction.foto_transaction_ref, gcm_master_transaction.log_logistik;"
 
             )
         }
 
         const resdetail = await this.props.getDataDetailedTransactionAPI({ query: passquerydetailtransaction }).catch(err => err)
-        console.log(decrypt(resdetail.id))
-        console.log(resdetail)
+
         if (resdetail) {
             await this.setState({
                 id: decrypt(resdetail.id),
@@ -655,6 +655,7 @@ class ContentTransaksi extends Component {
                 bukti_bayar: resdetail.bukti_bayar,
                 tanggal_bayar: resdetail.tanggal_bayar,
                 pemilik_rekening: resdetail.pemilik_rekening,
+                catatan_logistik: resdetail.log_logistik,
             })
         } else {
             swal({
@@ -1022,7 +1023,6 @@ class ContentTransaksi extends Component {
     }
 
     handleModalReceivedConfirm = () => {
-        console.log(this.state)
         this.setState({
             isOpenReceivedConfirm: !this.state.isOpenReceivedConfirm,
             ongkos_kirim_onconfirm: ''
@@ -1035,10 +1035,10 @@ class ContentTransaksi extends Component {
         })
     }
 
-    
+
 
     confirmAction = async () => {
-        // Toast.loading('Loading...');
+        Toast.loading('Loading...');
         let waiting = "WAITING"
         let ongoing = "ONGOING"
         let shipped = "SHIPPED"
@@ -1052,6 +1052,11 @@ class ContentTransaksi extends Component {
             `'${this.state.catatan_logistik}'`
             :
             `NULL`
+
+        const set_catatan_logistik = {
+            field: this.state.isCheckedCatatanLogistic ? ', log_logistik=' : '',
+            value: this.state.isCheckedCatatanLogistic ? this.state.catatan_logistik : ''
+        }
 
         if (this.state.status === waiting) {
 
@@ -1118,7 +1123,8 @@ class ContentTransaksi extends Component {
                     this.handleUpdateTransactionDetail()
                 } else {
                     passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status_payment='" + status_payment +
-                        "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), approval_by_sales='" + this.state.id_pengguna_login + "', id_sales='" + this.state.id_pengguna_login + "' where id=" + this.state.id + " returning status;")
+                        "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), approval_by_sales='" + this.state.id_pengguna_login + "', id_sales='" + this.state.id_pengguna_login + "' " + set_catatan_logistik.field + set_catatan_logistik.value +
+                        " where id=" + this.state.id + " returning status;")
                 }
                 // this.handleConfirmReceived()
             }
@@ -1142,8 +1148,8 @@ class ContentTransaksi extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                // this.loadDataTransactions("0")
-                // window.location.reload()
+                this.loadDataTransactions("0")
+                window.location.reload()
             });
         } else {
             swal({
@@ -1153,7 +1159,7 @@ class ContentTransaksi extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                // window.location.reload()
+                window.location.reload()
             });
         }
     }
@@ -1753,6 +1759,11 @@ class ContentTransaksi extends Component {
 
     }
 
+    toogleCheckedCatatanLogistik = () => {
+        this.setState({
+            isCheckedCatatanLogistic: !this.state.isCheckedCatatanLogistic
+        })
+    }
 
 
 
@@ -2710,9 +2721,26 @@ class ContentTransaksi extends Component {
                                             <label>Konfirmasi transaksi ini?</label>
                             }
                         </div>
+                        <div style={{ marginLeft: '1.2rem' }}>
+                            <Input type="checkbox"
+                                checked={this.state.isCheckedCatatanLogistic}
+                                onChange={this.toogleCheckedCatatanLogistik}
+                            />Tambahkan catatan logistik
+                        </div>
+                        {
+                            this.state.isCheckedCatatanLogistic && <Input
+                                name="catatan_logistik"
+                                value={this.state.catatan_logistik}
+                                onChange={this.handleChange}
+                                style={{ marginTop: '1rem', resize: 'none' }}
+                                type="textarea"
+                                rows="4"
+                                maxLength="100"
+                            />
+                        }
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={this.confirmAction}>Konfirmasi</Button>
+                        <Button color="primary" onClick={this.confirmAction}>Konfirmasix</Button>
                         <Button color="danger" onClick={this.handleModalConfirm}>Batal</Button>
                     </ModalFooter>
                 </Modal>
@@ -2820,11 +2848,13 @@ class ContentTransaksi extends Component {
                             <p className="mb-0"> {this.state.no_telp_shipto}</p>
                             <div className="position-relative form-group">
                                 <label style={{ fontWeight: 'bold', width: '100%' }}>Catatan Logistik</label>
-                                <textarea
+                                <Input type="textarea"
                                     maxLength='100'
                                     style={{ resize: 'none', border: '1px solid gray', borderRadius: '4px', width: '100%', height: '6rem', padding: '8px 10px' }}
-                                    onChange={e => this.setState({ catatan_logistik: e.target.value })}
-                                >{this.state.catatan_logistik}</textarea>
+                                    name="catatan_logistik"
+                                    value={this.state.catatan_logistik}
+                                    onChange={this.handleChange}
+                                />
                             </div>
                             <p className="mb-0" style={{ fontWeight: 'bold', borderTop: '2px solid gray', paddingTop: '10px' }}> Subtotal </p>
                             <p className="mb-0"> <NumberFormat value={Number(this.state.total)} displayType={'text'} thousandSeparator='.' decimalSeparator=',' prefix={'IDR '}></NumberFormat></p>
