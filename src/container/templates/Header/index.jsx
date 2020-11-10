@@ -19,7 +19,7 @@ class Header extends Component {
     }
 
     async componentDidMount() {
-        const userData = JSON.parse(localStorage.getItem('userData'));       
+        const userData = JSON.parse(localStorage.getItem('userData'));
 
         this.setState({
             username: decrypt(userData.username),

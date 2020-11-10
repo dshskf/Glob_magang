@@ -29,6 +29,7 @@ class SidebarAdmin extends Component {
     }
 
     async componentDidMount() {
+        console.log("lol")
         const userData = JSON.parse(localStorage.getItem('userData'))
         let user_id = parseInt(decrypt(userData.id))
         let company_id = parseInt(decrypt(userData.company_id))

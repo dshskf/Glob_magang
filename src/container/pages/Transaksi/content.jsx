@@ -2740,7 +2740,7 @@ class ContentTransaksi extends Component {
                         }
                     </ModalBody>
                     <ModalFooter>
-                        <Button color="primary" onClick={this.confirmAction}>Konfirmasix</Button>
+                        <Button color="primary" onClick={this.confirmAction}>Konfirmasi</Button>
                         <Button color="danger" onClick={this.handleModalConfirm}>Batal</Button>
                     </ModalFooter>
                 </Modal>

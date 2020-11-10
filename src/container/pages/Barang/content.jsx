@@ -482,6 +482,7 @@ class ContentBarang extends Component {
     }
 
     loadRegisteredBarang = async () => {
+        Toast.loading('Loading...');
         let passqueryregisteredbarang = ""
         if (this.state.tipe_bisnis === '1' && this.state.sa_divisi === '1') {
             passqueryregisteredbarang = encrypt("select gcm_master_barang.id, gcm_master_barang.nama, gcm_master_barang.berat, " +
@@ -509,9 +510,9 @@ class ContentBarang extends Component {
                 "where (gcm_master_barang.category_id=" + this.state.tipe_bisnis + " or gcm_master_barang.category_id=5) " +
                 "and not exists (select * from gcm_list_barang " +
                 "where gcm_master_barang.id = gcm_list_barang.barang_id and gcm_list_barang.company_id="
-                + this.state.company_id + ") and gcm_master_barang.status='A' and gcm_master_barang.category_id=5")
+                + this.state.company_id + ") and gcm_master_barang.status='A'")
         }
-        Toast.loading('Loading...');
+
         const resregisteredbarang = await this.props.getDataBarangCanInsert({ query: passqueryregisteredbarang }).catch(err => err)
         Toast.hide();
 
@@ -634,6 +635,7 @@ class ContentBarang extends Component {
 
     loadDataBarang = async () => {
         let passquery = ""
+
         if (this.state.sa_divisi !== '1') {
             passquery = encrypt("select	gcm_list_barang.id, gcm_list_barang.status, gcm_master_barang.status as status_master, gcm_list_barang.barang_id, gcm_list_barang.price, " +
                 "gcm_list_barang.company_id, " +
@@ -691,6 +693,13 @@ class ContentBarang extends Component {
     }
 
     changeBarangDropdown = (val) => {
+        if (val.nama_kategori === 'Umum') {
+            this.loadOnKategoriUmum(val.value)
+            this.setState({
+                insertGambarBarang: true
+            })
+        }
+
         const select_department = val.nama_kategori === 'Umum'
         const isEnabled = val.nama_kategori === 'Umum'
 
@@ -3080,7 +3089,13 @@ class ContentBarang extends Component {
     }
 
     check_insert_master_persen_nego_pertama = (x) => {
-        this.updateLastFormUpdateDepartmentNego()
+        let is_nego_valid = true
+        if (this.state.isShowDepartemenList) {
+            this.updateLastFormUpdateDepartmentNego()
+            is_nego_valid = this.checkDepartmentNegoForm()
+            console.log(is_nego_valid)
+        }
+
         if (x === '') {
             this.setState({
                 empty_insert_master_nominal_persen_nego_pertama: true,
@@ -3132,7 +3147,7 @@ class ContentBarang extends Component {
                         })
                     }
                 }
-                if ((Number(x) >= Number(this.state.insert_master_nominal_persen_nego_kedua)) &&
+                if (is_nego_valid && (Number(x) >= Number(this.state.insert_master_nominal_persen_nego_kedua)) &&
                     (Number(x) >= Number(this.state.insert_master_nominal_persen_nego_ketiga)) &&
                     (Number(this.state.insert_master_nominal_persen_nego_kedua) >= Number(this.state.insert_master_nominal_persen_nego_ketiga)) &&
                     Number(x) <= 100 && this.state.insert_master_nominal_persen_nego_kedua !== '' && this.state.insert_master_nominal_persen_nego_ketiga !== '') {
@@ -3153,7 +3168,7 @@ class ContentBarang extends Component {
                 })
             }
             // handle button
-            if (Number(x) >= Number(this.state.insert_master_nominal_persen_nego_kedua) &&
+            if (is_nego_valid && Number(x) >= Number(this.state.insert_master_nominal_persen_nego_kedua) &&
                 Number(x) >= Number(this.state.insert_master_nominal_persen_nego_ketiga) &&
                 Number(this.state.insert_master_nominal_persen_nego_kedua) >= Number(this.state.insert_master_nominal_persen_nego_ketiga) &&
                 this.state.insert_master_nominal_persen_nego_kedua !== '' && this.state.insert_master_nominal_persen_nego_ketiga !== '') {
@@ -3163,7 +3178,12 @@ class ContentBarang extends Component {
     }
 
     check_insert_master_persen_nego_kedua = (x) => {
-        this.updateLastFormUpdateDepartmentNego()
+        let is_nego_valid = true
+        if (this.state.isShowDepartemenList) {
+            this.updateLastFormUpdateDepartmentNego()
+            is_nego_valid = this.checkDepartmentNegoForm()
+            console.log(is_nego_valid)
+        }
         if (x === '') {
             this.setState({
                 empty_insert_master_nominal_persen_nego_kedua: true,
@@ -3197,7 +3217,7 @@ class ContentBarang extends Component {
                         feedback_insert_master_nominal_persen_nego_kedua: 'Nominal persen nego 2 harus lebih rendah dari nominal persen nego 1', isbtnConfirmInsertMasterKedua: true
                     })
                 }
-                if ((Number(x) <= Number(this.state.insert_master_nominal_persen_nego_pertama)) &&
+                if (is_nego_valid && (Number(x) <= Number(this.state.insert_master_nominal_persen_nego_pertama)) &&
                     (Number(x) >= Number(this.state.insert_master_nominal_persen_nego_ketiga)) &&
                     Number(this.state.insert_master_nominal_persen_nego_pertama) <= 100 &&
                     this.state.insert_master_nominal_persen_nego_pertama !== '' && this.state.insert_master_nominal_persen_nego_ketiga !== '') {
@@ -3218,7 +3238,7 @@ class ContentBarang extends Component {
                 })
             }
             // handle button
-            if (Number(x) <= Number(this.state.insert_master_nominal_persen_nego_pertama) &&
+            if (is_nego_valid && Number(x) <= Number(this.state.insert_master_nominal_persen_nego_pertama) &&
                 Number(x) >= Number(this.state.insert_master_nominal_persen_nego_ketiga) &&
                 Number(this.state.insert_master_nominal_persen_nego_pertama) >= Number(this.state.insert_master_nominal_persen_nego_ketiga) &&
                 this.state.insert_master_nominal_persen_nego_ketiga !== '') {
@@ -3228,7 +3248,13 @@ class ContentBarang extends Component {
     }
 
     check_insert_master_persen_nego_ketiga = (x) => {
-        this.updateLastFormUpdateDepartmentNego()
+        let is_nego_valid = true
+        if (this.state.isShowDepartemenList) {
+            this.updateLastFormUpdateDepartmentNego()
+            is_nego_valid = this.checkDepartmentNegoForm()
+            console.log(is_nego_valid)
+        }
+
         if (x === '') {
             this.setState({
                 empty_insert_master_nominal_persen_nego_ketiga: true,
@@ -3264,7 +3290,7 @@ class ContentBarang extends Component {
                         })
                     }
                 }
-                if ((Number(x) <= Number(this.state.insert_master_nominal_persen_nego_pertama)) &&
+                if (is_nego_valid && (Number(x) <= Number(this.state.insert_master_nominal_persen_nego_pertama)) &&
                     (Number(x) <= Number(this.state.insert_master_nominal_persen_nego_kedua)) &&
                     Number(this.state.insert_master_nominal_persen_nego_kedua) <= Number(this.state.insert_master_nominal_persen_nego_pertama) &&
                     Number(this.state.insert_master_nominal_persen_nego_pertama) <= 100 &&
@@ -3286,7 +3312,7 @@ class ContentBarang extends Component {
                 })
             }
             // handle button
-            if (Number(x) <= Number(this.state.insert_master_nominal_persen_nego_pertama) &&
+            if (is_nego_valid && Number(x) <= Number(this.state.insert_master_nominal_persen_nego_pertama) &&
                 Number(x) <= Number(this.state.insert_master_nominal_persen_nego_kedua) &&
                 Number(this.state.insert_master_nominal_persen_nego_pertama) >= Number(this.state.insert_master_nominal_persen_nego_kedua)) {
                 this.setState({ isbtnConfirmInsertMasterKedua: false })
@@ -3922,6 +3948,10 @@ class ContentBarang extends Component {
                 });
             }
         } else if (this.state.insertGambarBarang) {
+            if (this.state.kategori_barang_registered_insert === 'Umum') {
+                this.insertBarang()
+                return
+            }
             const ext = this.state.insert_foto_baru.name.split('.')[1]
             const imgName = this.state.insert_kode_barang_distributor + "." + ext
 
@@ -3977,8 +4007,8 @@ class ContentBarang extends Component {
         Toast.loading('Loading...');
 
         let passqueryinsertlistbarang = ""
-        const isAddDepartment = this.state.isShowDepartmentSales ? "departmen_sales" : ""
-        const addDepartmentValue = isAddDepartment ? this.state.selected_department_sales : ""
+        const isAddDepartment = this.state.isShowDepartmentSales ? ", departmen_sales" : ""
+        const addDepartmentValue = isAddDepartment ? `, ${this.state.selected_department_sales.value}` : ""
 
         if (this.state.default_currency === 'IDR') {
             let x = this.state.insert_price.split('.').join('')
@@ -3993,10 +4023,10 @@ class ContentBarang extends Component {
             let harga_terendah = (b / this.state.kurs_now_manual).toFixed(2)
             if (this.state.default_currency_terendah === 'IDR') { // default_currency_terendah = IDR
                 passqueryinsertlistbarang = "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto,${isAddDepartment}) values ('` + this.state.id_barang_registered_insert + "', '" +
+                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto ${isAddDepartment}) values ('` + this.state.id_barang_registered_insert + "', '" +
                     harga + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
                     this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + harga_terendah + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
-                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y',${addDepartmentValue}) returning id)`
+                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y' ${addDepartmentValue}) returning id)`
                     +
                     `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                     values ((select id from new insert),${this.state.company_id},${harga},
@@ -4007,10 +4037,10 @@ class ContentBarang extends Component {
             } else { // default_currency_terendah = USD
                 passqueryinsertlistbarang =
                     "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto,${isAddDepartment}) values ('` + this.state.id_barang_registered_insert + "', '" +
+                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto ${isAddDepartment}) values ('` + this.state.id_barang_registered_insert + "', '" +
                     harga + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
                     this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + this.state.insert_price_terendah.split(',').join('') + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
-                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y',${addDepartmentValue}) returning id)`
+                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y' ${addDepartmentValue}) returning id)`
                     +
                     `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                     values ((select id from new insert),${this.state.company_id},${harga},
@@ -4028,10 +4058,10 @@ class ContentBarang extends Component {
             if (this.state.default_currency_terendah === 'USD') { // default_currency_terendah = USD
                 passqueryinsertlistbarang =
                     "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto,${isAddDepartment}) values ('` + this.state.id_barang_registered_insert + "', '" +
+                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto ${isAddDepartment}) values ('` + this.state.id_barang_registered_insert + "', '" +
                     (this.state.insert_price.split(',').join('')) + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
                     this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + (this.state.insert_price_terendah.split(',').join('')) + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
-                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y',${addDepartmentValue}) returning id)`
+                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y' ${addDepartmentValue}) returning id)`
                     +
                     `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                     values ((select id from new_insert),${this.state.company_id},${(this.state.insert_price.split(',').join(''))},
@@ -4042,10 +4072,10 @@ class ContentBarang extends Component {
             } else { // default_currency_terendah = IDR
                 passqueryinsertlistbarang =
                     "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto,${isAddDepartment}) values ('` + this.state.id_barang_registered_insert + "', '" +
+                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto ${isAddDepartment}) values ('` + this.state.id_barang_registered_insert + "', '" +
                     (this.state.insert_price.split(',').join('')) + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
                     this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + harga_terendah + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
-                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y',${addDepartmentValue}) returning id)`
+                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y' ${addDepartmentValue}) returning id)`
                     +
                     `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
                     values ((select id from new_insert),${this.state.company_id},${(this.state.insert_price.split(',').join(''))},
@@ -4054,10 +4084,9 @@ class ContentBarang extends Component {
                     `
             }
         }
-
+        console.log(passqueryinsertlistbarang)
         //komentar
-        console.log(decrypt(passqueryinsertlistbarang))
-        const resinsertlistbarang = await this.props.insertListBarang({ query: encrypt(passqueryinsertlistbarang) }).catch(err => err)
+        const resinsertlistbarang = await this.props.postQuery({ query: encrypt(passqueryinsertlistbarang) }).catch(err => err)
         Toast.hide();
         if (resinsertlistbarang) {
             swal({
@@ -4763,6 +4792,31 @@ class ContentBarang extends Component {
         })
     }
 
+    loadOnKategoriUmum = async (barang_id) => {
+        const query = encrypt(`select * from gcm_list_barang where barang_id=${barang_id} limit 1`)
+        let getBarangData = await this.props.postQuery({ query: query }).catch(err => err)
+        getBarangData = getBarangData[0]
+
+        if (getBarangData) {
+            await this.setState({
+                insert_kode_barang_distributor: getBarangData.kode_barang,
+                insert_deskripsi: getBarangData.deskripsi,
+                insert_foto: getBarangData.foto,
+                insert_foto_baru_url: getBarangData.foto,
+            })
+        } else {
+            swal({
+                title: "Gagal!",
+                text: "Tidak ada perubahan disimpan!",
+                icon: "error",
+                button: false,
+                timer: "2500"
+            }).then(() => {
+                window.location.reload()
+            });
+        }
+    }
+
     handleModalInsert = async () => {
         await this.loadRegisteredBarang()
         let department = await this.getDepartemenSalesData()
@@ -5249,13 +5303,13 @@ class ContentBarang extends Component {
     }
 
     changeDepartmentOnNego = e => {
-        const { value } = e.target        
+        const { value } = e.target
         let form_data
         form_data = this.state.selected_department_master_data_nego.filter(form => form.value === value)
         form_data = form_data[0]
 
         this.setState({
-            selected_department_master_nego: value,            
+            selected_department_master_nego: value,
             insert_master_nominal_persen_nego_pertama: form_data.nego_1,
             insert_master_nominal_persen_nego_kedua: form_data.nego_2,
             insert_master_nominal_persen_nego_ketiga: form_data.nego_3,
@@ -5607,8 +5661,9 @@ class ContentBarang extends Component {
                 disable_btnconfirminsertkeduamasterbarang: false
             })
         }
-
-        this.updateLastFormUpdateHargaBarang()
+        if (this.state.isShowDepartemenList) {
+            this.updateLastFormUpdateHargaBarang()
+        }
     }
 
 
@@ -5656,6 +5711,20 @@ class ContentBarang extends Component {
         await this.setState({
             selected_department_master_data_nego: new_data
         })
+    }
+
+    checkDepartmentNegoForm = () => {
+        let is_valid = false
+
+        this.state.selected_department_master_data_nego.map(data => {
+            if (data.nego_1 === '' || data.nego_2 === '' || data.nego_3 === '') {
+                is_valid = false
+            } else {
+                is_valid = true
+            }
+            return data
+        })
+        return is_valid
     }
 
     confirmActionInsertMaster = () => {
@@ -5877,12 +5946,13 @@ class ContentBarang extends Component {
         let count_data = 0
         let count_success = 0
 
-        updateHargaBarangExcel.filter(async (h, i) => {
-            const find_data = updateHargaBarangData.filter(d => h.Id === d.id)
-            const harga_terendah = h["Harga Terendah"]
-            const harga_tertinggi = h["Harga Tertinggi"]
+        updateHargaBarangExcel.filter(async (harga, i) => {
+            const find_data = updateHargaBarangData.filter(d => harga.Id === d.id)
+            const harga_terendah = harga["Harga Terendah"]
+            const harga_tertinggi = harga["Harga Tertinggi"]
 
-            if (find_data && (harga_terendah !== find_data[0].price_terendah || harga_tertinggi !== find_data[0].price)) {
+
+            if (find_data && (find_data[0] && (harga_terendah !== find_data[0].price_terendah || harga_tertinggi !== find_data[0].price) && i > 2)) {
                 const u = find_data[0]
 
                 const query = encrypt(`with new_insert as ( insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
@@ -5938,8 +6008,6 @@ class ContentBarang extends Component {
                     });
                 }
             }
-
-
         })
 
 
@@ -5963,11 +6031,11 @@ class ContentBarang extends Component {
             right: { style: 'thin', color: '000000' }
         }
 
-        const defaultColumnStyle = { fill: { patternType: "solid", fgColor: { rgb: "FF00FF00" } }, border: updateHargaBorderStyleColumn }
+        const defaultColumnStyle = { fill: { patternType: "solid", fgColor: { rgb: "FFFF00" } }, border: updateHargaBorderStyleColumn }
         const defaultRowStyle = { font: { sz: "12", }, border: updateHargaBorderStyleRow }
 
         const updateHargaColums = [
-            { title: "Id", width: { wch: 10 }, style: defaultColumnStyle },
+            { title: "Id", width: { wch: 20 }, style: defaultColumnStyle },
             { title: "Kode Barang", width: { wch: 30 }, style: defaultColumnStyle },
             { title: "Nama Barang", width: { wch: 50 }, style: defaultColumnStyle },
             { title: "Harga Tertinggi", width: { wch: 20 }, style: defaultColumnStyle },
@@ -5985,9 +6053,24 @@ class ContentBarang extends Component {
             ]
         ))
         if (this.state.updateHargaBarangData) {
-            updateHargaCell.push([])
-            updateHargaCell.push([
-                { value: '*Mohon untuk tidak merubah data dari column "Department Sales"', style: { font: { sz: '16', color: { rgb: "FF0000" } } } }
+            updateHargaCell.unshift([
+                { value: '00', style: defaultColumnStyle },
+                { value: '0000', style: defaultColumnStyle },
+                { value: 'Ascorbic Acid', style: defaultColumnStyle },
+                { value: '10.00', style: defaultColumnStyle },
+                { value: '20.00', style: defaultColumnStyle },
+                { value: 'Pharmaceutical', style: defaultColumnStyle },
+            ])
+            updateHargaCell.unshift([
+                { value: '*Baris ke-4 adalah contoh data dan tidak boleh diubah, Kolom yang dapat diubah adalah kolom Harga Terendah dan kolom Harga Tertinggi', style: { font: { sz: '12', color: { rgb: "0000FF" } } } },
+            ])
+            updateHargaCell.unshift([
+                { value: 'TIDAK BOLEH DIUBAH', style: { font: { sz: '12', color: { rgb: "FF0000" } } } },
+                { value: 'TIDAK BOLEH DIUBAH', style: { font: { sz: '12', color: { rgb: "FF0000" } } } },
+                { value: 'TIDAK BOLEH DIUBAH', style: { font: { sz: '12', color: { rgb: "FF0000" } } } },
+                { value: 'BISA DIUBAH', style: { font: { sz: '12', color: { rgb: "008000" } } } },
+                { value: 'BISA DIUBAH', style: { font: { sz: '12', color: { rgb: "008000" } } } },
+                { value: 'TIDAK BOLEH DIUBAH', style: { font: { sz: '12', color: { rgb: "FF0000" } } } },
             ])
         }
 
@@ -6666,7 +6749,8 @@ class ContentBarang extends Component {
                                         invalid={this.state.empty_insert_deskripsi} rows="4"
                                         maxLength="100"
                                         onChange={this.handleChange} onKeyPress={this.handleWhiteSpace} required
-                                        disabled={this.state.disable_insert_deskripsi} />
+                                        disabled={this.state.disable_insert_deskripsi}
+                                        value={this.state.insert_deskripsi} />
                                     <FormFeedback>{this.state.feedback_insert_deskripsi}</FormFeedback>
                                 </div>
                                 <div style={{ width: '50%', float: 'right', paddingRight: '3%' }}>
@@ -6691,15 +6775,15 @@ class ContentBarang extends Component {
                                         options={this.state.allRegisteredBarang}
                                         onChange={this.changeBarangDropdown}
                                     />
-
-                                    <React.Fragment>
-                                        <p className="mb-0" style={{ fontWeight: 'bold' }}> Department Sales</p>
-                                        <Select
-                                            options={this.state.department_list}
-                                            onChange={this.changeDepartmentSalesDropdown}
-                                        />
-                                    </React.Fragment>
-
+                                    {
+                                        this.state.kategori_barang_registered_insert === 'Umum' && <React.Fragment>
+                                            <p className="mb-0" style={{ fontWeight: 'bold' }}> Department Sales</p>
+                                            <Select
+                                                options={this.state.department_list}
+                                                onChange={this.changeDepartmentSalesDropdown}
+                                            />
+                                        </React.Fragment>
+                                    }
 
                                     <p className="mb-0" style={{ fontWeight: 'bold' }}> Kategori Barang</p>
                                     <p className="mb-0">{(this.state.kategori_barang_registered_insert === '') ? '-' : this.state.kategori_barang_registered_insert} </p>
@@ -7181,8 +7265,7 @@ class ContentBarang extends Component {
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        {/* <Button color="primary" onClick={this.handleModalConfirmInsertMasterBarang} disabled={this.state.isBtnConfirmInsertMaster}>Tambah</Button> */}
-                        <Button color="primary" onClick={this.handleModalConfirmInsertMasterBarang}>Tambah</Button>
+                        <Button color="primary" onClick={this.handleModalConfirmInsertMasterBarang} disabled={this.state.isBtnConfirmInsertMaster}>Tambah</Button>
                         <Button color="danger" onClick={this.handleDisposeModalInsertMasterBarang}>Batal</Button>
                     </ModalFooter>
                 </Modal>
@@ -7212,11 +7295,11 @@ class ContentBarang extends Component {
                             </Label>
                         </FormGroup>
                         {
-                            (this.state.isCheckedInsertMasterNominalPersen && this.state.isShowDepartemenList) && <select onChange={this.changeDepartmentOnNego} style={{ width: '100%', background: 'white', border: '1px solid silver', borderRadius: 4, marginTop: '1.5rem', height: '2.3rem', outline: 'none', color: 'grey' }}>
+                            (this.state.isCheckedInsertMasterNominalPersen && this.state.isShowDepartemenList) && <select onChange={this.changeDepartmentOnNego} style={{ width: '100%', background: 'white', border: '1px solid silver', borderRadius: 4, marginTop: '1.5rem', height: '2.3rem', outline: 'none' }}>
                                 {
                                     this.state.selected_department_master && this.state.selected_department_master.map(department => {
                                         if (department.value === this.state.selected_department_master_form.value) {
-                                            return <option value={department.value}>{department.label}</option>
+                                            return <option value={department.value} selected>{department.label}</option>
                                         }
                                         return <option value={department.value}>{department.label}</option>
                                     })
