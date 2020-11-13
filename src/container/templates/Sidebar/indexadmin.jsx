@@ -28,8 +28,7 @@ class SidebarAdmin extends Component {
         totalUnreadMessages: 0
     }
 
-    async componentDidMount() {
-        console.log("lol")
+    async componentDidMount() {        
         const userData = JSON.parse(localStorage.getItem('userData'))
         let user_id = parseInt(decrypt(userData.id))
         let company_id = parseInt(decrypt(userData.company_id))
@@ -56,7 +55,7 @@ class SidebarAdmin extends Component {
         }
 
         if (!this.props.sidebarStatus) {
-            const post = await this.props.getNumber({ query: query }).catch(err => err)
+            const post = await this.props.getNumber({ query: query }).catch(err => err)            
             this.setState({ totalNotification: post[0].count })
             this.props.checkRenderedSidebar(post[0].count)
         }

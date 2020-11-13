@@ -293,6 +293,7 @@ class ContentBarangSuperAdmin extends Component {
             "where (gcm_list_barang.status = 'C' or gcm_list_barang.status = 'R') and now() between gcm_listing_kurs.tgl_start and gcm_listing_kurs.tgl_end " +
             "order by gcm_list_barang.update_date desc, gcm_master_barang.category_id asc, gcm_master_barang.nama asc")
         const resonconfirmwithoutid = await this.props.getDataBarangSellerAPI({ query: passquerybarangselleronconfirmwithoutid }).catch(err => err)
+        
         if (resonconfirmwithoutid) {
             this.setState({
                 allDataBarangOnConfirmWithoutId: resonconfirmwithoutid,

@@ -97,7 +97,7 @@ class Login extends Component {
         })
     }
 
-    insertFCMToken = async (user_id, company_id) => {        
+    insertFCMToken = async (user_id, company_id) => {
         const messaging = firebaseApp.messaging()
         return messaging.requestPermission()
             .then(() => {
@@ -108,7 +108,7 @@ class Login extends Component {
                     INSERT INTO gcm_notification_token(user_id, company_id,token)
                     values (${user_id}, ${company_id},'${token}') returning *;            
                 `)
-                await this.props.postData({ query: passquery }).catch(err => err)                
+                await this.props.postData({ query: passquery }).catch(err => err)
                 return token
             })
             .catch(err => {
@@ -555,57 +555,43 @@ class Login extends Component {
             key: 'z25k4at3jzob718iqceofgor6a1tbm'
         }
         Toast.loading('Loading...');
-        const resgetotp = await this.props.getOtp(dataCheckGetOtp).catch(err => err)
-        if (resgetotp) {
-            if (this.state.valueOTP === this.state.sendValueOTP) {
-                let passqueryupdatestatususer = encrypt("update gcm_master_user set status='A', update_by=" + decrypt(this.state.dataLogin.id) +
-                    ", update_date=now(), no_hp='" + this.state.nomor_hp + "', no_hp_verif=true" +
-                    " where id=" + decrypt(this.state.dataLogin.id) + " returning update_date;")
 
-                const resupdatestatususer = await this.props.updateUserStatus({ query: passqueryupdatestatususer }).catch(err => err)
-                Toast.hide();
-                if (resupdatestatususer) {
-                    // pengecekan kode sales di sini
-                    if (this.state.id_sales_registered === '') {
-                        this.handleCheckingKodeSales()
-                    } else {
-                        const token = await this.insertFCMToken(decrypt(this.state.dataLogin.id), decrypt(this.state.dataLogin.company_id))
-                        if (token !== undefined) {
-                            localStorage.setItem('user_token', JSON.stringify(token))
-                        }
-                        localStorage.setItem('userData', JSON.stringify(this.state.dataLogin));
-                        const userData = JSON.parse(localStorage.getItem('userData'))
-                        this.setState({
-                            isOpenWaitingOtp: !this.state.isOpenWaitingOtp
-                        })
-                        swal({
-                            title: "Sukses!",
-                            text: "Selamat datang, " + decrypt(userData.username),
-                            icon: "success",
-                            button: false,
-                            timer: "2500"
-                        }).then(() => {
-                            this.props.history.push('/admin/beranda')
-                        });
+        if (this.state.valueOTP === this.state.sendValueOTP) {
+            let passqueryupdatestatususer = encrypt("update gcm_master_user set status='A', update_by=" + decrypt(this.state.dataLogin.id) +
+                ", update_date=now(), no_hp='" + this.state.nomor_hp + "', no_hp_verif=true" +
+                " where id=" + decrypt(this.state.dataLogin.id) + " returning update_date;")
+
+            const resupdatestatususer = await this.props.updateUserStatus({ query: passqueryupdatestatususer }).catch(err => err)
+            Toast.hide();
+            if (resupdatestatususer) {
+                // pengecekan kode sales di sini
+                if (this.state.id_sales_registered === '') {
+                    this.handleCheckingKodeSales()
+                } else {
+                    const token = await this.insertFCMToken(decrypt(this.state.dataLogin.id), decrypt(this.state.dataLogin.company_id))
+                    if (token !== undefined) {
+                        localStorage.setItem('user_token', JSON.stringify(token))
                     }
+                    localStorage.setItem('userData', JSON.stringify(this.state.dataLogin));
+                    const userData = JSON.parse(localStorage.getItem('userData'))
+                    this.setState({
+                        isOpenWaitingOtp: !this.state.isOpenWaitingOtp
+                    })
+                    swal({
+                        title: "Sukses!",
+                        text: "Selamat datang, " + decrypt(userData.username),
+                        icon: "success",
+                        button: false,
+                        timer: "2500"
+                    }).then(() => {
+                        this.props.history.push('/admin/beranda')
+                    });
                 }
-            } else {
-                swal({
-                    title: "Kesalahan!",
-                    text: "Kode OTP tidak sesuai! Ulangi proses masuk akun!",
-                    icon: "error",
-                    buttons: {
-                        confirm: "Oke"
-                    }
-                }).then(() => {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                });
             }
         } else {
             swal({
-                title: "Kesalahan 503!",
-                text: "Harap periksa koneksi internet!",
+                title: "Kesalahan!",
+                text: "Kode OTP tidak sesuai! Ulangi proses masuk akun!",
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
@@ -615,6 +601,7 @@ class Login extends Component {
                 window.location.reload()
             });
         }
+
     }
 
     printCountDown = () => {

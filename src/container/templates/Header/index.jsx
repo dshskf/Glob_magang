@@ -15,7 +15,8 @@ class Header extends Component {
         username: '',
         role: '',
         user_id: '',
-        company_id: ''
+        company_id: '',
+        is_open_logout: false,
     }
 
     async componentDidMount() {
@@ -63,6 +64,10 @@ class Header extends Component {
         this.props.clickChanger(this.props.isShown === "hiding" ? "showing" : "hiding")
     }
 
+    handleLogoutMenu = () => {
+        this.setState({ is_open_logout: !this.state.is_open_logout })
+    }
+
     render() {
         return (
             <div>
@@ -92,14 +97,18 @@ class Header extends Component {
                     </div>
                     <div className="app-header__menu">
                         <span>
-                            <button type="button" className="btn-icon btn-icon-only btn btn-primary btn-sm mobile-toggle-header-nav">
+                            <button
+                                type="button"
+                                className={`btn-icon btn-icon-only btn btn-primary btn-sm mobile-toggle-header-nav ${this.state.is_open_logout ? 'active' : ''}`}
+                                onClick={this.handleLogoutMenu}
+                            >
                                 <span className="btn-icon-wrapper">
                                     <i className="fa fa-ellipsis-v fa-w-6"></i>
                                 </span>
                             </button>
                         </span>
                     </div>
-                    <div className="app-header__content">
+                    <div className={`app-header__content ${this.state.is_open_logout ? 'header-mobile-open' : ''}`}>
                         <div className="app-header-right">
                             <div className="header-btn-lg pr-0">
                                 <div className="widget-content p-0">

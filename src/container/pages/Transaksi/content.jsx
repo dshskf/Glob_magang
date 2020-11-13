@@ -2575,12 +2575,22 @@ class ContentTransaksi extends Component {
                                     </div>
                                     <div className="row">
                                         <div style={{ width: '70%', float: 'left', paddingLeft: '3%' }}>
-                                            {
-                                                this.state.id_transaction_ref && <div>
-                                                    <label style={{ fontWeight: 'bold', width: '100%' }}>Nomor PO Pembeli</label>
-                                                    <a style={{ cursor: 'pointer', color: 'gray' }} href={this.state.foto_transaction_ref && this.state.foto_transaction_ref} target="_blank">{this.state.id_transaction_ref}</a>
-                                                </div>
-                                            }
+
+                                            <div>
+                                                <label style={{ fontWeight: 'bold', width: '100%' }}>Nomor PO Pembeli</label>
+                                                {
+                                                    this.state.id_transaction_ref ?
+                                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                            <a style={{ cursor: 'pointer', color: 'gray', marginRight: '4px' }} href={this.state.foto_transaction_ref && this.state.foto_transaction_ref} target="_blank">{this.state.id_transaction_ref}</a>
+                                                            <i class="fa fa-download" aria-hidden="true"></i>
+                                                        </div>
+                                                        :
+                                                        <p style={{ cursor: 'pointer', color: 'gray' }}>-</p>
+
+                                                }
+
+                                            </div>
+
 
                                         </div>
                                         <div style={{ width: '30%', float: 'right', paddingLeft: '3%' }}>

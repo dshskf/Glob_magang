@@ -1563,6 +1563,7 @@ export const getDataDetailedBarangAPI = (data) => (dispatch) => {
                                 price_terendah: dt[index].price_terendah,
                                 foto: dt[index].foto,
                                 deskripsi: dt[index].deskripsi,
+                                departemen: dt[index].departemen,
                                 update_by: dt[index].update_by,
                                 update_date: dt[index].update_date,
                                 nama: dt[index].nama,

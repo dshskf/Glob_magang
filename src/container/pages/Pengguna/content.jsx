@@ -8,13 +8,15 @@ import {
     getDataPaymentListingAPI, getDataPaymentAPI, getDataCheckedIdPayment, getDataDetailedPaymentAPI, updateStatusPayment, insertPaymentListingSeller,
     getDataDetailedUserRegisteredAPI, updateUserStatus, getstragg, getDataCategoryAPI, getDataCheckedKodeCust, getDataKodeCustAPI, getDataDetailedSalesHandlerAPI,
     getDataDetailedKodeCustomerAPI, getDataDetailedMappingAPI, getDataDetailedAlamatMappingAPI, getDataKodeMappingAlamatAPI, updateKodeMappingAlamat,
-    getDataCheckedKodeAlamatMapping, totalBeranda, logoutUserAPI, sendEmailAktivasi
+    getDataCheckedKodeAlamatMapping, totalBeranda, logoutUserAPI, sendEmailAktivasi, postQuery,
 } from '../../../config/redux/action';
 import { MDBDataTable } from 'mdbreact';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import './Pengguna.css'
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, FormGroup, ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle, Input, FormFeedback } from 'reactstrap'
 import Toast from 'light-toast';
+import Axios from 'axios';
+import { firebaseApp } from '../../../config/firebase/index'
 
 class ContentPengguna extends Component {
     state = {
@@ -144,19 +146,16 @@ class ContentPengguna extends Component {
         provinsi: '',
         kodepos: '',
         no_telp: '',
-
         kode_shipto_mapping: '',
         insert_kode_shipto_ok: false,
         pembanding_kode_shipto_mapping: '',
         validation_kode_shipto_mapping: false,
         empty_kode_shipto_mapping: false,
-
         kode_billto_mapping: '',
         insert_kode_billto_ok: false,
         pembanding_kode_billto_mapping: '',
         validation_kode_billto_mapping: false,
         empty_kode_billto_mapping: false,
-
         isOpenConfirmMappingAlamat: false,
         allCheckedKodeAlamat: [],
         allCheckedMapAlamat: 0,
@@ -164,7 +163,9 @@ class ContentPengguna extends Component {
         feedback_kode_billto_mapping_penagihan: '',
         checkCountPaymentBuyer: 0,
         checkCountAlamatMapped: 0,
-        isBtnAktifkan: true
+        isBtnAktifkan: true,
+        isOpenModalDokumen: false,
+        is_listing_dokumen: false
     }
 
     componentWillMount() {
@@ -355,7 +356,7 @@ class ContentPengguna extends Component {
         }
     }
 
-    handleDetailUser = async (e, id) => {        
+    handleDetailUser = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation();
         let passquerydetail = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan, " +
@@ -374,7 +375,41 @@ class ContentPengguna extends Component {
             "gcm_master_company.create_date, gcm_master_company.update_date, gcm_company_listing.is_blacklist, gcm_company_listing.buyer_number_mapping, " +
             "gcm_company_listing.id_blacklist, gcm_company_listing.blacklist_by, gcm_company_listing.notes_blacklist, gcm_master_company.tipe_bisnis")
         const resdetail = await this.props.getDataDetailedUserAPI({ query: passquerydetail }).catch(err => err)
+
         if (resdetail) {
+            let dokumen = decrypt(resdetail.dokumen)
+            let is_listing = false
+
+            if (dokumen === 'listing') {
+                passquerydetail = encrypt("select url_file,tipe from gcm_listing_dokumen where company_id=" + id)
+                const getDokumen = await this.props.postQuery({ query: passquerydetail }).catch(err => err)
+
+                if (getDokumen) {
+                    dokumen = getDokumen.map(dok => ({
+                        tipe: dok.tipe,
+                        aksi: <center>
+                            <a href={dok.url_file} target="_blank"> Unduh</a>
+                        </center>
+                    }))
+                    is_listing = true
+                } else {
+                    swal({
+                        title: "Kesalahan 503!",
+                        text: "Harap periksa koneksi internet!",
+                        icon: "error",
+                        buttons: {
+                            confirm: "Oke"
+                        }
+                    }).then(() => {
+                        const res = this.props.logoutAPI();
+                        if (res) {
+                            this.props.history.push('/admin')
+                            window.location.reload()
+                        }
+                    });
+                }
+            }
+
             await this.setState({
                 company_register_id: resdetail.id,
                 company_register_name: resdetail.company_name,
@@ -387,13 +422,14 @@ class ContentPengguna extends Component {
                 company_register_email: resdetail.email,
                 company_register_npwp: decrypt(resdetail.npwp),
                 company_register_siup: decrypt(resdetail.siup),
-                company_register_dokumen: decrypt(resdetail.dokumen),
+                company_register_dokumen: dokumen,
                 company_register_jml_akun: decrypt(resdetail.jml_akun),
                 company_register_is_blacklist: resdetail.is_blacklist,
                 company_register_id_jenis_blacklist: resdetail.id_blacklist,
                 company_register_blacklist_by: resdetail.blacklist_by,
                 company_register_notes_blacklist_company: resdetail.notes_blacklist,
-                kode_customer_selected: resdetail.buyer_number_mapping
+                kode_customer_selected: resdetail.buyer_number_mapping,
+                is_listing_dokumen: is_listing,
             })
             if (this.state.company_register_is_blacklist === true) {
                 this.showBlacklistBy(this.state.company_register_blacklist_by)
@@ -630,10 +666,10 @@ class ContentPengguna extends Component {
             provinsi: '',
             kodepos: '',
             no_telp: '',
-            kode_shipto_mapping: '',            
+            kode_shipto_mapping: '',
             validation_kode_shipto_mapping: false,
             empty_kode_shipto_mapping: false,
-            kode_billto_mapping: '',            
+            kode_billto_mapping: '',
             validation_kode_billto_mapping: false,
             empty_kode_billto_mapping: false
         })
@@ -999,7 +1035,7 @@ class ContentPengguna extends Component {
         })
     }
 
-    confirmAction = async () => {        
+    confirmAction = async () => {
         Toast.loading('Loading...');
         let activate = "A"
         let reject = "R"
@@ -1117,7 +1153,7 @@ class ContentPengguna extends Component {
                         company_reg_id + "', '" + this.state.company_id + "', '" + this.state.kode_sales + "', 'A') returning status;"
                     )
                 }
-                
+
                 const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
                 Toast.hide();
                 if (resupdatestatus) {
@@ -1323,14 +1359,14 @@ class ContentPengguna extends Component {
             }
         }
 
-        if(document.getElementById("kode_shipto_mapping").value !== "" && document.getElementById("kode_billto_mapping").value !== ""){
+        if (document.getElementById("kode_shipto_mapping").value !== "" && document.getElementById("kode_billto_mapping").value !== "") {
             this.setState({ validation_kode_shipto_mapping: true, feedback_kode_shipto_mapping: '', empty_kode_shipto_mapping: false })
-            this.setState({ insert_kode_shipto_ok: true,  isbtnupdatekodemappingalamat: false })
+            this.setState({ insert_kode_shipto_ok: true, isbtnupdatekodemappingalamat: false })
         }
     }
 
     check_kode_billto_mapping = (e) => {
-        if(this.state.kode_shipto_mapping !== ""){
+        if (this.state.kode_shipto_mapping !== "") {
             if (e === '') {
                 this.setState({
                     isbtnupdatekodemappingalamat: true, feedback_kode_billto_mapping: 'Kolom ini wajib diisi',
@@ -1342,7 +1378,7 @@ class ContentPengguna extends Component {
                 this.setState({ isbtnupdatekodemappingalamat: false, insert_kode_billto_ok: true })
             }
         }
-        else if (this.state.kode_shipto_mapping === ""){
+        else if (this.state.kode_shipto_mapping === "") {
             if (e === '') {
                 console.log('billto kosong')
                 this.setState({
@@ -1367,9 +1403,9 @@ class ContentPengguna extends Component {
             }
         }
 
-        if(document.getElementById("kode_shipto_mapping").value !== "" && document.getElementById("kode_billto_mapping").value !== ""){
+        if (document.getElementById("kode_shipto_mapping").value !== "" && document.getElementById("kode_billto_mapping").value !== "") {
             this.setState({ validation_kode_billto_mapping: true, feedback_kode_billto_mapping: '', empty_kode_billto_mapping: false })
-            this.setState({ insert_kode_billto_ok: true,  isbtnupdatekodemappingalamat: false })
+            this.setState({ insert_kode_billto_ok: true, isbtnupdatekodemappingalamat: false })
         }
 
     }
@@ -1613,11 +1649,11 @@ class ContentPengguna extends Component {
         //         empty_kode_shipto_mapping: true, isbtnupdatekodemappingalamat: true, isConfirmAlamatValid: false
         //     })
         // }
-        
+
     }
 
-    handleCloseModal=()=>{
-        this.setState({            
+    handleCloseModal = () => {
+        this.setState({
             isConfirmAlamatValid: false
         })
     }
@@ -2152,7 +2188,22 @@ class ContentPengguna extends Component {
         this.setState({ isOpenAttentionStatusInactive: !this.state.isOpenAttentionStatusInactive })
     }
 
+    handleOpenModalDokumen = () => {
+        if (!this.state.is_listing_dokumen) {
+            window.open(this.state.company_register_dokumen, '_blank');
+        } else {
+            this.setState({
+                isOpenModalDokumen: !this.state.isOpenModalDokumen
+            })
+        }
+    }
+
+    downloadDokumen = async (e) => {
+        window.open(e.target.value, '_blank');
+    }
+
     render() {
+
         const statusFilter = this.state.statusFilter
         const data = {
             columns: [
@@ -2324,6 +2375,21 @@ class ContentPengguna extends Component {
                 }],
             rows: this.state.allPaymentListing
         }
+
+        const dataDokumen = {
+            columns: [
+                {
+                    label: 'Tipe Dokumen',
+                    field: 'tipe',
+                },
+                {
+                    label: 'Aksi',
+                    field: 'aksi',
+                }
+            ],
+            rows: this.state.company_register_dokumen
+        }
+
         return (
             <div className="app-main__outer">
                 <div className="app-main__inner">
@@ -2426,8 +2492,22 @@ class ContentPengguna extends Component {
                                             <p className="mb-0" style={{ fontWeight: 'bold' }}> Jumlah Akun Terdaftar</p>
                                             <p className="mb-0"> {this.state.company_register_jml_akun} akun</p>
                                             <p className="mb-0" style={{ fontWeight: 'bold' }}> Dokumen Pelengkap</p>
-                                            <p className="mb-0"> <a href={this.state.company_register_dokumen}><i className="pe-7s-download"></i> Unduh </a></p>
+                                            <p className="mb-0" style={{ cursor: 'pointer' }} onClick={this.handleOpenModalDokumen}><i className="pe-7s-download"></i> Unduh</p>
                                         </div>
+
+                                        {/* Modal Dokumen Pelengkap */}
+                                        <Modal size="md" toggle={this.handleOpenModalDokumen} isOpen={this.state.isOpenModalDokumen} backdrop="static" keyboard={false}>
+                                            <ModalHeader toggle={this.handleOpenModalDokumen}>Dokumen Pelengkap</ModalHeader>
+                                            <ModalBody>
+                                                <MDBDataTable
+                                                    bordered
+                                                    striped
+                                                    responsive
+                                                    hover
+                                                    data={dataDokumen}
+                                                />
+                                            </ModalBody>
+                                        </Modal>
                                     </div>
                                     <div style={{ marginTop: '3%' }} className="row">
                                         <div style={{ width: '100%', paddingLeft: '3%' }}>
@@ -3090,7 +3170,8 @@ const reduxDispatch = (dispatch) => ({
     getDataCheckedKodeAlamatMapping: (data) => dispatch(getDataCheckedKodeAlamatMapping(data)),
     totalBeranda: (data) => dispatch(totalBeranda(data)),
     logoutAPI: () => dispatch(logoutUserAPI()),
-    sendEmailToUser: (data) => dispatch(sendEmailAktivasi(data))
+    sendEmailToUser: (data) => dispatch(sendEmailAktivasi(data)),
+    postQuery: (data) => dispatch(postQuery(data))
 })
 
 export default withRouter(connect(reduxState, reduxDispatch)(ContentPengguna));
