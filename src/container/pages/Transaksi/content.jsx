@@ -20,9 +20,10 @@ import io from 'socket.io-client'
 import moment from 'moment';
 import 'moment/locale/id'
 import Toast from 'light-toast';
+import { firebaseApp } from '../../../config/firebase/index'
 
-import { socket_uri } from '../../../config/services/socket'
-import { enc } from 'crypto-js';
+// import { socket_uri } from '../../../config/services/socket'
+// import { enc } from 'crypto-js';
 
 class ContentTransaksi extends Component {
 
@@ -163,6 +164,12 @@ class ContentTransaksi extends Component {
         empty_limit_hari_transaksi: false,
         flag_limit_transaksi: '',
         allTransactionToFinished: [],
+        buktiPembayaran: null,
+        isOpenUnggahBuktiPembayaran: false,
+        errUnggahBuktiPembayaran: false,
+        isOpenConfirmBuktiPembayaran: false,
+        disableBuktiPembayaran: true,
+        isOpenZoomBuktiPembayaran: false
     }
 
     componentWillMount() {
@@ -198,9 +205,9 @@ class ContentTransaksi extends Component {
 
     loadData = async () => {
         await this.loadDataTransactions("0")
-        await this.checkDataCanceledTransactions()
+        // await this.checkDataCanceledTransactions()
         if (this.state.allTransactionToCanceled.length > 0) {
-            await this.updateTransactionToCanceled()
+            // await this.updateTransactionToCanceled()
         }
         await this.checkDataLimitHari()
         if (this.state.countDataLimitHari > 0) {
@@ -229,11 +236,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1370,9 +1377,9 @@ class ContentTransaksi extends Component {
 
     handleRefreshTransaction = async () => {
         await this.setState({ isBtnRefreshTransaction: true })
-        await this.checkDataCanceledTransactions()
+        // await this.checkDataCanceledTransactions()
         if (this.state.allTransactionToCanceled.length > 0) {
-            await this.updateTransactionToCanceled()
+            // await this.updateTransactionToCanceled()
         }
         await this.checkDataLimitHari()
         if (this.state.countDataLimitHari > 0) {
@@ -1481,36 +1488,36 @@ class ContentTransaksi extends Component {
         }
     }
 
-    updateTransactionToCanceled = async () => {
-        let rowFailed = ""
-        for (let i = 0; i < this.state.allTransactionToCanceled.length; i++) {
-            let passqueryupdatestatustransaksi = encrypt("select func_change_to_canceled('" +
-                this.state.allTransactionToCanceled[i].id_transaction + "');")
-            const resupdatestatustransaksi = await this.props.updateTransactionStatus({ query: passqueryupdatestatustransaksi }).catch(err => err)
-            if (resupdatestatustransaksi) {
+    // updateTransactionToCanceled = async () => {
+    //     let rowFailed = ""
+    //     for (let i = 0; i < this.state.allTransactionToCanceled.length; i++) {
+    //         let passqueryupdatestatustransaksi = encrypt("select func_change_to_canceled('" +
+    //             this.state.allTransactionToCanceled[i].id_transaction + "');")
+    //         const resupdatestatustransaksi = await this.props.updateTransactionStatus({ query: passqueryupdatestatustransaksi }).catch(err => err)
+    //         if (resupdatestatustransaksi) {
 
-            } else {
-                rowFailed = rowFailed.concat(i + 1)
-                if (i < this.state.allTransactionToCanceled.length - 1) {
-                    rowFailed = rowFailed.concat(', ')
-                }
-            }
-        }
-        if (rowFailed === "") {
-            await this.loadDataTransactions("1")
-        } else {
-            swal({
-                title: "Kesalahan!",
-                text: "Data transaksi gagal diperbarui!",
-                icon: "error",
-                buttons: {
-                    confirm: "Oke"
-                }
-            }).then(() => {
-                window.location.reload()
-            });
-        }
-    }
+    //         } else {
+    //             rowFailed = rowFailed.concat(i + 1)
+    //             if (i < this.state.allTransactionToCanceled.length - 1) {
+    //                 rowFailed = rowFailed.concat(', ')
+    //             }
+    //         }
+    //     }
+    //     if (rowFailed === "") {
+    //         await this.loadDataTransactions("1")
+    //     } else {
+    //         swal({
+    //             title: "Kesalahan!",
+    //             text: "Data transaksi gagal diperbarui!",
+    //             icon: "error",
+    //             buttons: {
+    //                 confirm: "Oke"
+    //             }
+    //         }).then(() => {
+    //             window.location.reload()
+    //         });
+    //     }
+    // }
 
     handleModalAttentionJumlahOrderKosong = () => {
         this.setState({ isOpenAttentionJumlahOrderKosong: !this.state.isOpenAttentionJumlahOrderKosong })
@@ -1702,10 +1709,10 @@ class ContentTransaksi extends Component {
     handleDetailsStatusPembayaranModal = async () => {
         const query = encrypt(`select gmt.tanggal_bayar,gmt.bukti_bayar,gmt.pemilik_rekening as pemilik_rekening_pembeli,gmb.nama as nama_bank,glb.* 
         from gcm_master_transaction gmt
-        inner join gcm_listing_bank glb on gmt.id_list_bank=glb.id
+        left join gcm_listing_bank glb on gmt.id_list_bank=glb.id
         left join gcm_master_bank gmb on glb.id_bank = gmb.id
-        where gmt.id=${this.state.id}`)
-
+        where gmt.status='WAITING' and gmt.id_transaction='${this.state.id_transaction}'`)
+        console.log(decrypt(query))
         const resdetail = await this.props.postQuery({ query: query }).catch(err => err)
         if (resdetail) {
             this.setState({ detailStatusPembayaran: resdetail[0] })
@@ -1717,7 +1724,7 @@ class ContentTransaksi extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                // window.location.reload()
             });
         }
 
@@ -1765,6 +1772,108 @@ class ContentTransaksi extends Component {
         })
     }
 
+    handleModalBuktiPembayaran = () => {
+        this.setState({
+            isOpenUnggahBuktiPembayaran: !this.state.isOpenUnggahBuktiPembayaran,
+            disableBuktiPembayaran: true,
+            buktiPembayaran: null
+        })
+    }
+
+    handleChangeUnggahBuktiPembayaran = (e) => {
+        const image = e.target.files[0]
+        if (image.size < 1000000) {
+            this.setState({
+                errUnggahBuktiPembayaran: false,
+                disableBuktiPembayaran: false
+            })
+        } else {
+            this.setState({
+                errUnggahBuktiPembayaran: true,
+                disableBuktiPembayaran: true,
+                buktiPembayaran: null
+            })
+            return
+        }
+
+        const _this = this
+        var fr = new FileReader();
+        fr.onload = function () {
+            _this.setState({ buktiPembayaran: { file: image, show: fr.result } });
+        }
+        fr.readAsDataURL(image);
+    }
+
+    handleConfirmBuktiPembayaran = () => {
+        this.setState({
+            isOpenConfirmBuktiPembayaran: !this.state.isOpenConfirmBuktiPembayaran
+        })
+    }
+
+
+    uploadBuktiPembayaran = () => {
+        Toast.loading('Loading...');
+        const fileName = Date.now() + "-" + this.state.buktiPembayaran.file.name
+        const _this = this
+        firebaseApp.storage().ref().child('bukti_bayar/' + fileName).put(this.state.buktiPembayaran.file).then(async (snapshot) => {
+            const url = await snapshot.ref.getDownloadURL()
+            const query = encrypt(`
+            update gcm_master_transaction set status = 'WAITING', bukti_bayar = '${url}', status_payment = 'PAID', update_by = ${this.state.id_pengguna_login}, update_date = now(), 
+            date_canceled = null, cancel_reason = null
+            where status = 'CANCELED' and id_transaction = '${this.state.id_transaction}'
+            `)
+            const postQuery = await this.props.postQuery({ query: query }).catch(err => err)
+
+            Toast.hide()
+            if (postQuery) {
+                swal({
+                    title: "Sukses!",
+                    text: "Data transaksi berhasil diperbarui!",
+                    icon: "success",
+                    button: false,
+                    timer: "2500"
+                }).then(async () => {
+                    await _this.setState({
+                        isOpenConfirmBuktiPembayaran: false,
+                        isOpenUnggahBuktiPembayaran: false
+                    })
+                    await this.loadData()
+                })
+            } else {
+                swal({
+                    title: "Kesalahan 503!",
+                    text: "Harap periksa koneksi internet!",
+                    icon: "error",
+                    button: false,
+                    timer: "2500"
+                }).then(() => {
+                    _this.setState({
+                        isOpenConfirmBuktiPembayaran: !_this.state.isOpenConfirmBuktiPembayaran
+                    })
+                })
+            }
+
+        }).catch(err => {
+            Toast.hide()
+            swal({
+                title: "Kesalahan 503!",
+                text: "Harap periksa koneksi internet!",
+                icon: "error",
+                button: false,
+                timer: "2500"
+            }).then(() => {
+                _this.setState({
+                    isOpenConfirmBuktiPembayaran: !_this.state.isOpenConfirmBuktiPembayaran
+                })
+            })
+        });
+    }
+
+    handleZoomBuktiPembayaran = () => {
+        this.setState({
+            isOpenZoomBuktiPembayaran: !this.state.isOpenZoomBuktiPembayaran
+        })
+    }
 
 
     render() {
@@ -2502,12 +2611,52 @@ class ContentTransaksi extends Component {
                                                 <p className="mb-0"> <NumberFormat value={Number(this.state.kurs_rate)} displayType={'text'} thousandSeparator='.' decimalSeparator=',' prefix={'IDR '}></NumberFormat> </p>
                                                 <p className="mb-0" style={{ fontWeight: 'bold' }}> Metode Pembayaran  </p>
                                                 <p className="mb-0"> {this.state.payment_name}</p>
-                                                <p className="mb-0" style={{ fontWeight: 'bold' }}> Status Pembayaran  </p>
+                                                <p className="mb-0" style={{ fontWeight: 'bold' }}> Status Pembayaranx  </p>
                                                 <p className="mb-0"> {this.state.status_payment}</p>
                                                 {
-                                                    (this.state.status === 'WAITING' && this.state.pemilik_rekening) && <p className="mb-0" style={{ color: 'red', textDecoration: 'underline', cursor: 'pointer' }} onClick={this.handleDetailsStatusPembayaranModal}> Lihat Detail</p>
+                                                    (this.state.status === 'WAITING' && this.state.bukti_bayar) && <p className="mb-0" style={{ color: 'red', textDecoration: 'underline', cursor: 'pointer' }} onClick={this.handleDetailsStatusPembayaranModal}>Lihat Detail</p>
+                                                }
+                                                {
+                                                    (this.state.status === 'CANCELED' && this.state.payment_name === 'Advance Payment') && <a style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }} onClick={this.handleModalBuktiPembayaran}> Unggah Bukti Pembayaran</a>
                                                 }
 
+
+                                                {/* MODAL UNGGAH BUKTI PEMBAYARAN */}
+                                                <Modal size="md" toggle={this.handleModalBuktiPembayaran} isOpen={this.state.isOpenUnggahBuktiPembayaran} backdrop="static" keyboard={false}>
+                                                    <ModalHeader toggle={this.handleModalBuktiPembayaran}>Unggah bukti pembayaran</ModalHeader>
+                                                    <ModalBody>
+                                                        <div className="position-relative form-group" style={{ marginTop: '3%' }}>
+                                                            <img src={this.state.buktiPembayaran && this.state.buktiPembayaran.show} style={{ width: '100%', marginBottom: '1rem' }} />
+                                                            <FormGroup>
+                                                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Unggah Bukti Pembayaran (1MB)</p>
+                                                                <Input type="file" accept="image/*" onChange={this.handleChangeUnggahBuktiPembayaran} style={{ marginTop: '5%' }} style={{ color: 'transparent', marginTop: '1rem' }} />
+                                                            </FormGroup>
+                                                        </div>
+                                                    </ModalBody>
+                                                    <ModalFooter style={{ position: 'relative' }}>
+                                                        {
+                                                            this.state.errUnggahBuktiPembayaran && <p style={{ color: 'red', position: 'absolute', left: '1rem', top: '35%' }}>* Size maksimal 1MB</p>
+                                                        }
+                                                        <Button color="primary" disabled={this.state.disableBuktiPembayaran} onClick={this.handleConfirmBuktiPembayaran}>Unggah</Button>
+                                                        <Button color="danger" onClick={this.handleModalBuktiPembayaran}>Batal</Button>
+                                                    </ModalFooter>
+                                                </Modal>
+
+                                                {/* Modal Confirm Bukti Pembayaran*/}
+                                                <Modal size="sm" toggle={this.handleConfirmBuktiPembayaran} isOpen={this.state.isOpenConfirmBuktiPembayaran} backdrop="static" keyboard={false}>
+                                                    <ModalHeader toggle={this.handleConfirmBuktiPembayaran}>Konfirmasi Aksi</ModalHeader>
+                                                    <ModalBody>
+                                                        <div className="position-relative form-group">
+                                                            <label>Mengunggah bukti pembayaran customer, otomatis akan mengubah status transaksi menjadi MENUNGGU. Lanjutkan ?</label>
+                                                        </div>
+                                                    </ModalBody>
+                                                    <ModalFooter>
+                                                        <Button color="primary" onClick={this.uploadBuktiPembayaran}>Perbarui</Button>
+                                                        <Button color="danger" onClick={this.handleConfirmBuktiPembayaran}>Batal</Button>
+                                                    </ModalFooter>
+                                                </Modal>
+
+                                                {/* Modal Detail status pembayaran */}
                                                 {
                                                     this.state.detailStatusPembayaran && <Modal size="md" toggle={this.handleDetailsStatusPembayaranModal} isOpen={this.state.isOpenDetailStatusPembayaran} backdrop="static" keyboard={false}>
                                                         <ModalHeader toggle={this.handleDetailsStatusPembayaranModal}>Detail Status Pembayaran</ModalHeader>
@@ -2515,29 +2664,38 @@ class ContentTransaksi extends Component {
                                                             <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                                                                 <div>
                                                                     <label style={{ margin: 0, fontWeight: 'bold' }}>Nama Pemilik Rekening</label>
-                                                                    <p>{this.state.detailStatusPembayaran.pemilik_rekening_pembeli}</p>
+                                                                    <p>{this.state.detailStatusPembayaran.pemilik_rekening_pembeli ? this.state.detailStatusPembayaran.pemilik_rekening_pembeli : '-'}</p>
                                                                 </div>
                                                                 <div>
                                                                     <label style={{ margin: 0, fontWeight: 'bold' }}>Bank Tujuan</label>
                                                                     <p>
                                                                         {
-                                                                            this.state.detailStatusPembayaran.nama_bank + "-" +
-                                                                            this.state.detailStatusPembayaran.no_rekening + "-" +
-                                                                            this.state.detailStatusPembayaran.pemilik_rekening
+                                                                            this.state.detailStatusPembayaran.nama_bank ?
+                                                                                this.state.detailStatusPembayaran.nama_bank + " ~ " +
+                                                                                this.state.detailStatusPembayaran.no_rekening + " ~ " +
+                                                                                this.state.detailStatusPembayaran.pemilik_rekening
+                                                                                :
+                                                                                '-'
                                                                         }</p>
                                                                 </div>
                                                                 <div>
                                                                     <label style={{ margin: 0, fontWeight: 'bold' }}>Tanggal Pembayaran</label>
-                                                                    <p>{this.state.detailStatusPembayaran.tanggal_bayar && this.state.detailStatusPembayaran.tanggal_bayar.split('T')[0]}</p>
+                                                                    <p>{this.state.detailStatusPembayaran.tanggal_bayar ? this.state.detailStatusPembayaran.tanggal_bayar.split('T')[0] : '-'}</p>
                                                                 </div>
                                                                 <div>
-                                                                    <label style={{ margin: 0, fontWeight: 'bold', width: '100%' }}>Bukti Pembayaran</label>
-                                                                    <img src={this.state.detailStatusPembayaran.bukti_bayar} style={{ width: '10rem' }} />
+                                                                    <label style={{ margin: 0, fontWeight: 'bold', width: '100%' }}>Buktix Pembayaran</label>
+                                                                    <img src={this.state.detailStatusPembayaran.bukti_bayar} style={{ width: '10rem' }} onClick={this.handleZoomBuktiPembayaran} />
                                                                 </div>
+                                                                {
+                                                                    this.state.isOpenZoomBuktiPembayaran && <div style={{ position: 'fixed', top: 0, left: 0, background: 'rgba(0,0,0,0.7)', width: '100vw', height: '100vh', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+                                                                        <p style={{ color: 'white', fontSize: '2rem', position: 'absolute', top: '1rem', right: '1rem', cursor: 'pointer' }} onClick={this.handleZoomBuktiPembayaran}>X</p>
+                                                                        <img src={this.state.detailStatusPembayaran.bukti_bayar} />
+                                                                    </div>
+                                                                }
                                                             </div>
                                                         </ModalBody>
                                                         <ModalFooter style={{ position: 'relative' }}>
-                                                            <Button color="primary" onClick={this.updateDetailStatusPembayaran}>Perbarui</Button>
+                                                            <Button color="primary" onClick={this.updateDetailStatusPembayaran}>Konfirmasi Pembayaran</Button>
                                                             <Button color="danger" onClick={this.handleDetailsStatusPembayaranModal}>Batal</Button>
                                                         </ModalFooter>
                                                     </Modal>

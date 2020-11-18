@@ -587,8 +587,7 @@ export const getDataDetailedUserRegisteredAPI = (data) => (dispatch) => {
             })
             .catch(function (error) {
                 var errorCode = error.code;
-                var errorMessage = error.message;
-                console.log(errorCode, errorMessage)
+                var errorMessage = error.message;                
                 dispatch({ type: "CHANGE_LOADING", value: false })
                 dispatch({ type: "CHANGE_IS_LOGIN", value: false })
                 reject(false)

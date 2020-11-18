@@ -894,10 +894,10 @@ class ContentBarang extends Component {
         Toast.loading('Loading...');
 
         const resdetail = await this.props.getDataDetailedBarangAPI({ query: passquerydetail }).catch(err => err)
-        console.log(decrypt(resdetail.id))
+
         let riwayatHargaQuery = encrypt(`select * from gcm_listing_harga_barang where barang_id='${decrypt(resdetail.id)}' order by id asc`)
         const reqRiwayatHarga = await this.props.getDataBarangAPI({ query: riwayatHargaQuery }).catch(err => err)
-        console.log(reqRiwayatHarga)
+
         Toast.hide();
         const riwayatHargaRow = reqRiwayatHarga.map((data, index) => {
             return {
@@ -4370,7 +4370,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update)
                     }
@@ -4391,7 +4391,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4419,7 +4419,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4441,7 +4441,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4472,7 +4472,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4493,7 +4493,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4518,7 +4518,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4539,7 +4539,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4598,7 +4598,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`,
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`,
                             is_update
                         )
                     }
@@ -4618,7 +4618,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4643,7 +4643,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4664,7 +4664,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4694,7 +4694,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4715,7 +4715,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4741,7 +4741,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -4762,7 +4762,7 @@ class ContentBarang extends Component {
                             " where id=" + this.state.detailed_id_list_barang + " returning update_date"
                             ,
                             `update gcm_listing_harga_barang set end_date=now() 
-                            where id=${this.state.riwayatHargaBarang[this.state.riwayatHargaBarang.length - 1].id} returning end_date`
+                            where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning end_date`
                             ,
                             is_update
                         )
@@ -5755,15 +5755,24 @@ class ContentBarang extends Component {
 
     checkDepartmentNegoForm = () => {
         let is_valid = false
+        const { selected_department_master_data_nego, selected_department_master } = this.state
 
-        this.state.selected_department_master_data_nego.map(data => {
-            if (data.nego_1 === '' || data.nego_2 === '' || data.nego_3 === '') {
-                is_valid = false
-            } else {
-                is_valid = true
+        selected_department_master_data_nego.map(nego => {
+            for (let i = 0; i < selected_department_master.length; i++) {
+                if (selected_department_master[i].value === nego.value) {
+                    if (nego.nego_1 === '' || nego.nego_2 === '' || nego.nego_3 === '') {
+                        is_valid = false
+                        break
+                    } else {
+                        is_valid = true
+                    }
+                }
             }
-            return data
+
+            return nego
         })
+
+
         return is_valid
     }
 
@@ -5969,7 +5978,7 @@ class ContentBarang extends Component {
                 select a.*, b.nama as "Nama Barang", c.departemen as "department"                
                 from gcm_list_barang a 
                 inner join gcm_master_barang b on a.barang_id = b.id 
-                inner join gcm_departemen_sales c on c.id=a.departmen_sales
+                inner join gcm_departemen_sales c on c.id=a.departmen_sales                
                 where company_id = ${this.state.company_id} order by "Nama Barang" asc
         `)
 
@@ -5997,14 +6006,14 @@ class ContentBarang extends Component {
                 const u = find_data[0]
 
                 const query = encrypt(`with new_insert as ( insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
-                    values (${u.barang_id},${this.state.company_id},${harga_tertinggi},${harga_terendah},${this.state.id_pengguna_login},${this.state.id_pengguna_login},
+                    values (${u.id},${this.state.company_id},${harga_tertinggi},${harga_terendah},${this.state.id_pengguna_login},${this.state.id_pengguna_login},
                     to_timestamp(${Date.now()} / 1000.0),${null}) RETURNING *),                    
 
                     update_barang as (update gcm_list_barang set price=${harga_tertinggi}, price_terendah=${harga_terendah} 
                     where company_id=${this.state.company_id} and id=${u.id} returning update_date),                    
 
                     update_harga as(update gcm_listing_harga_barang set end_date=(select start_date from new_insert)
-                    where id=(select barang_id from new_insert) returning *)
+                    where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning *)
 
                     select * from gcm_list_barang where id=${u.id} and company_id=${this.state.company_id}
                     `)
@@ -6022,20 +6031,22 @@ class ContentBarang extends Component {
                         title: "Sukses!",
                         text: `Success: ${count_success} item, Failed: ${count_data - count_success}`,
                         icon: "success",
-                        button: false,
-                        timer: "3000"
+                        buttons: {
+                            confirm: "Oke"
+                        }
                     }).then(() => {
-                        window.location.reload()
+                        // window.location.reload()
                     });
                 } else if (count_success === 0) {
                     swal({
                         title: "Sukses!",
                         text: `Perubahan disimpan!`,
                         icon: "success",
-                        button: false,
-                        timer: "2500"
+                        buttons: {
+                            confirm: "Oke"
+                        }
                     }).then(() => {
-                        window.location.reload()
+                        // window.location.reload()
                     });
                 } else if (count_data === 0) {
                     swal({
@@ -6045,7 +6056,7 @@ class ContentBarang extends Component {
                         button: false,
                         timer: "2500"
                     }).then(() => {
-                        window.location.reload()
+                        // window.location.reload()
                     });
                 }
             }
@@ -6680,6 +6691,7 @@ class ContentBarang extends Component {
                                                     </div>
                                                     <Button color="primary" onClick={this.dateFilterSubmit}>Filter</Button>
                                                 </FormGroup>
+                                                <p>* Filter berdasarkan tanggal berakhir</p>
                                                 <MDBDataTable
                                                     bordered
                                                     striped
@@ -7186,7 +7198,7 @@ class ContentBarang extends Component {
                                                     }
                                                 </div>
                                                 :
-                                                <Input disabled={true} />
+                                                <Input disabled={true} value={this.state.nama_category_barang_inserted !== 'Umum' ? this.state.nama_category_barang_inserted : ''} />
                                         }
                                     </div>
                                     <div style={{ margin: '8px 0' }}>

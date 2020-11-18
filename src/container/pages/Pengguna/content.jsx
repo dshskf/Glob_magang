@@ -217,7 +217,7 @@ class ContentPengguna extends Component {
                 "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
                 "where gcm_company_listing.seller_id=" + this.state.company_id + " and gcm_company_listing_sales.seller_id=" + this.state.company_id +
                 " and gcm_master_company.type='B' and gcm_company_listing_sales.id_sales=" + this.state.id_pengguna_login +
-                " order by gcm_master_company.nama_perusahaan asc, gcm_company_listing.update_date desc;")
+                " order by gcm_master_company.create_date desc, gcm_master_company.nama_perusahaan asc, gcm_company_listing.update_date desc;")
         } else {
             passquery = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan, " +
                 "gcm_master_category.nama as tipe_bisnis, gcm_company_listing.status as company_status, to_char(gcm_master_company.create_date, 'DD/MM/YYYY') create_date " +
@@ -226,7 +226,7 @@ class ContentPengguna extends Component {
                 "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
                 "where gcm_company_listing.seller_id=" + this.state.company_id +
                 " and gcm_master_company.type='B'" +
-                " order by gcm_master_company.nama_perusahaan asc, gcm_company_listing.update_date desc;")
+                " order by gcm_master_company.create_date desc, gcm_master_company.nama_perusahaan asc, gcm_company_listing.update_date desc;")
         }
         const res = await this.props.getDataUsersAPI({ query: passquery }).catch(err => err)
         if (res) {
