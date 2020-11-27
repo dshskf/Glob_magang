@@ -21,11 +21,9 @@ class HeaderSuperAdmin extends Component {
         const messaging = firebaseApp.messaging()
         messaging.requestPermission()
             .then(() => {
-                console.log('Approved')
                 return messaging.getToken()
             })
             .then(async token => {
-                console.log(token)
                 const passquery = encrypt(`
                     INSERT INTO gcm_notification_token
                         (user_id, company_id,token)
@@ -37,10 +35,8 @@ class HeaderSuperAdmin extends Component {
                 `)
                 const post = await this.props.postData({ query: passquery }).catch(err => err)
             })
-            .catch(err => {
-                console.log(err)
-            })
-        navigator.serviceWorker.addEventListener("message", (message) => console.log(message));
+            .catch(err => err)
+        navigator.serviceWorker.addEventListener("message", (message) => message);
 
         this.setState({
             username: decrypt(userData.username),

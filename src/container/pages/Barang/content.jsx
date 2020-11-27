@@ -350,11 +350,11 @@ class ContentBarang extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -425,11 +425,11 @@ class ContentBarang extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -450,11 +450,11 @@ class ContentBarang extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -475,11 +475,11 @@ class ContentBarang extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -551,11 +551,11 @@ class ContentBarang extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -575,11 +575,11 @@ class ContentBarang extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -603,11 +603,11 @@ class ContentBarang extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -628,11 +628,11 @@ class ContentBarang extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -654,7 +654,7 @@ class ContentBarang extends Component {
                 "inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
                 "left join gcm_master_user on gcm_list_barang.update_by = gcm_master_user.id " +
                 "where gcm_list_barang.company_id = " + this.state.company_id + " " +
-                "and gcm_master_barang.category_id = " + this.state.sa_divisi + " or gcm_master_barang.category_id = 5 " +
+                "and (gcm_master_barang.category_id = " + this.state.sa_divisi + " or gcm_master_barang.category_id = 5) " +
                 "order by gcm_list_barang.update_date desc, gcm_master_barang.category_id asc, gcm_master_barang.nama asc")
         } else {
             passquery = encrypt("select	gcm_list_barang.id, gcm_list_barang.status, gcm_master_barang.status as status_master, gcm_list_barang.barang_id, gcm_list_barang.price, " +
@@ -972,11 +972,11 @@ class ContentBarang extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -3106,7 +3106,7 @@ class ContentBarang extends Component {
         if (this.state.isShowDepartemenList) {
             this.updateLastFormUpdateDepartmentNego()
             is_nego_valid = this.checkDepartmentNegoForm()
-            console.log(is_nego_valid)
+
         }
 
         if (x === '') {
@@ -3195,7 +3195,7 @@ class ContentBarang extends Component {
         if (this.state.isShowDepartemenList) {
             this.updateLastFormUpdateDepartmentNego()
             is_nego_valid = this.checkDepartmentNegoForm()
-            console.log(is_nego_valid)
+
         }
         if (x === '') {
             this.setState({
@@ -3265,7 +3265,7 @@ class ContentBarang extends Component {
         if (this.state.isShowDepartemenList) {
             this.updateLastFormUpdateDepartmentNego()
             is_nego_valid = this.checkDepartmentNegoForm()
-            console.log(is_nego_valid)
+
         }
 
         if (x === '') {
@@ -3458,9 +3458,9 @@ class ContentBarang extends Component {
             }
         } else { // harga_terendah USD            
             let hargaterendah = this.state.detailed_price_terendah.toString().split(',').join('')
-            console.log(hargaterendah)
+
             if (this.state.default_currency_update === 'USD') {
-                console.log("in here usd 1")
+
                 let hargatertinggi = this.state.detailed_price.toString().split(',').join('')
                 this.setState({
                     warningharga: '',
@@ -3567,11 +3567,11 @@ class ContentBarang extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -3597,11 +3597,11 @@ class ContentBarang extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -3829,11 +3829,11 @@ class ContentBarang extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -3856,7 +3856,6 @@ class ContentBarang extends Component {
     }
 
     handleModalConfirmInsertKeduaMasterBarang = async () => {
-
         await this.loadCheckingKodeBarang(this.state.insert_master_kode_barang_distributor)
         if (Number(this.state.allCheckedKodeBarang) > 0) {
             this.handleModalAttentionKodeBarangConfirmKedua()
@@ -4028,10 +4027,8 @@ class ContentBarang extends Component {
     insertBarang = async () => {
         Toast.loading('Loading...');
 
-        let passqueryinsertlistbarang = ""
-        const isAddDepartment = this.state.isShowDepartmentSales ? ", departmen_sales" : ""
-        const addDepartmentValue = isAddDepartment ? `, ${this.state.selected_department_sales.value}` : ""
-
+        let passqueryinsertlistbarang = ""        
+        const addDepartmentValue = this.state.isShowDepartmentSales ? `, ${this.state.selected_department_sales.value}` : `, ${this.state.id_kategori_barang_registered_insert}`      
         if (this.state.default_currency === 'IDR') {
             let x = this.state.insert_price.split('.').join('')
             let y = Math.round(x.split(',').join('.'))
@@ -4045,7 +4042,7 @@ class ContentBarang extends Component {
             let harga_terendah = (b / this.state.kurs_now_manual).toFixed(2)
             if (this.state.default_currency_terendah === 'IDR') { // default_currency_terendah = IDR
                 passqueryinsertlistbarang = "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto ${isAddDepartment}) values ('` + this.state.id_barang_registered_insert + "', '" +
+                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto , departmen_sales) values ('` + this.state.id_barang_registered_insert + "', '" +
                     harga + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
                     this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + harga_terendah + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
                     this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y' ${addDepartmentValue}) returning id)`
@@ -4059,7 +4056,7 @@ class ContentBarang extends Component {
             } else { // default_currency_terendah = USD
                 passqueryinsertlistbarang =
                     "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto ${isAddDepartment}) values ('` + this.state.id_barang_registered_insert + "', '" +
+                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto , departmen_sales) values ('` + this.state.id_barang_registered_insert + "', '" +
                     harga + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
                     this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + this.state.insert_price_terendah.split(',').join('') + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
                     this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y' ${addDepartmentValue}) returning id)`
@@ -4080,7 +4077,7 @@ class ContentBarang extends Component {
             if (this.state.default_currency_terendah === 'USD') { // default_currency_terendah = USD
                 passqueryinsertlistbarang =
                     "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto ${isAddDepartment}) values ('` + this.state.id_barang_registered_insert + "', '" +
+                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto , departmen_sales) values ('` + this.state.id_barang_registered_insert + "', '" +
                     (this.state.insert_price.split(',').join('')) + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
                     this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + (this.state.insert_price_terendah.split(',').join('')) + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
                     this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y' ${addDepartmentValue}) returning id)`
@@ -4094,7 +4091,7 @@ class ContentBarang extends Component {
             } else { // default_currency_terendah = IDR
                 passqueryinsertlistbarang =
                     "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto ${isAddDepartment}) values ('` + this.state.id_barang_registered_insert + "', '" +
+                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto , departmen_sales) values ('` + this.state.id_barang_registered_insert + "', '" +
                     (this.state.insert_price.split(',').join('')) + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
                     this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + harga_terendah + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
                     this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y' ${addDepartmentValue}) returning id)`
@@ -4116,9 +4113,8 @@ class ContentBarang extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(() => {
-                this.loadDataBarang()
-                window.location.reload()
+            }).then(async () => {
+                await this.clearAfterPost()
             });
         } else {
             swal({
@@ -4310,9 +4306,8 @@ class ContentBarang extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(() => {
-                this.loadDataBarang()
-                window.location.reload()
+            }).then(async () => {
+                await this.clearAfterPost()
             });
         } else {
             swal({
@@ -4322,10 +4317,42 @@ class ContentBarang extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                // window.location.reload()
+                window.location.reload()
             });
         }
+    }
 
+
+    clearAfterPost = async () => {
+        await this.setState({
+            isOpenModalInsertMasterBarang: false,
+            isOpenConfirmInsertKeduaMaster: false,
+            isOpenConfirmInsertMaster: false,
+            isOpen: false,
+            isOpenConfirm: false,
+            isOpenInsert: false,
+            isOpenConfirmInsert: false,
+            isOpenConfirmInsertKedua: false,
+            isOpenConfirmInsertKeduaMaster: false,
+            empty_insert_master_nominal_persen_nego_pertama: false,
+            empty_insert_master_nominal_persen_nego_kedua: false,
+            empty_insert_master_nominal_persen_nego_ketiga: false,
+            feedback_insert_master_nominal_persen_nego_pertama: '',
+            feedback_insert_master_nominal_persen_nego_kedua: '',
+            feedback_insert_master_nominal_persen_nego_ketiga: '',
+            insert_master_nominal_persen_nego_pertama: '0',
+            insert_master_nominal_persen_nego_kedua: '0',
+            insert_master_nominal_persen_nego_ketiga: '0',
+            isCheckedInsertMasterNominalPersen: false,
+            isbtnConfirmInsertMasterKedua: false,
+            disable_btnconfirminsertkeduamasterbarang: false
+        })
+        await this.loadKursManual()
+        await this.loadDivisi()
+        await this.loadCategoryKhusus()
+        await this.loadRegisteredBarang()
+        await this.loadDataBarang()
+        await this.loadPPNBarang()
     }
 
     updateBarang = async () => {
@@ -4339,7 +4366,7 @@ class ContentBarang extends Component {
 
         if (this.state.editGambarBarang) {
             if (this.state.detailed_status_for_reject === 'R') {
-                console.log("1-1")
+
                 let status = 'C'
                 if (this.state.default_currency_update === 'IDR') {
                     let x = this.state.detailed_price_in_rupiah.toString().split('.').join('')
@@ -4556,9 +4583,8 @@ class ContentBarang extends Component {
                     icon: "success",
                     button: false,
                     timer: "2500"
-                }).then(() => {
-                    this.loadDataBarang()
-                    window.location.reload()
+                }).then(async () => {
+                    await this.clearAfterPost()
                 });
 
             } else {
@@ -4722,7 +4748,7 @@ class ContentBarang extends Component {
                     }
                 } else {
                     if (this.state.default_currency_update_terendah === 'IDR') {
-                        console.log("in 2-2-2-1")
+
                         let a = this.state.detailed_price_in_rupiah_terendah.toString().split('.').join('')
                         let b = Math.round(a.split(',').join('.'))
                         let harga_terendah = (b / this.state.kurs_now_manual).toFixed(2)
@@ -4782,9 +4808,8 @@ class ContentBarang extends Component {
                     icon: "success",
                     button: false,
                     timer: "2500"
-                }).then(() => {
-                    this.loadDataBarang()
-                    window.location.reload()
+                }).then(async () => {
+                    await this.clearAfterPost()
                 });
             } else {
                 swal({
@@ -6813,7 +6838,7 @@ class ContentBarang extends Component {
                                     <FormFeedback>{this.state.feedback_insert_deskripsi}</FormFeedback>
                                 </div>
                                 <div style={{ width: '50%', float: 'right', paddingRight: '3%' }}>
-                                    <p className="mb-0" style={{ fontWeight: 'bold' }}> Nama Barangx</p>
+                                    <p className="mb-0" style={{ fontWeight: 'bold' }}> Nama Barang</p>
                                     {/* <ButtonDropdown isOpen={this.state.isOpenBarang} toggle={this.handleDropDownBarang} style={{width:'100%'}}>
                                         <DropdownToggle caret color="light" title="Daftar barang yang tersedia">
                                             {(this.state.nama_barang_registered_insert === '') ? 'Pilih Barang' : this.state.nama_barang_registered_insert}

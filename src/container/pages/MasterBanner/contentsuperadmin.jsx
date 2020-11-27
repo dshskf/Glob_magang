@@ -21,6 +21,10 @@ class ContentMasterBanner extends Component {
     }
 
     async componentDidMount() {
+        this.loadMasterBannerData()
+    }
+
+    loadMasterBannerData = async () => {
         const passquery = encrypt(`select * from gcm_master_banner`)
         const banner = await this.props.postData({ query: passquery }).catch(err => err)
 
@@ -74,7 +78,7 @@ class ContentMasterBanner extends Component {
 
     handleOpenTambahBanner = () => {
         const { isInsertOpen } = this.state
-        this.setState({ isInsertOpen: isInsertOpen ? false : true, imageData: null, imageShow: null })
+        this.setState({ isInsertOpen: !isInsertOpen, imageData: null, imageShow: null })
     }
 
     handleOpenUpdateBanner = (e) => {
@@ -138,7 +142,14 @@ class ContentMasterBanner extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    window.location.reload()
+                    if (method === 'C') {
+                        this.handleOpenTambahBanner()
+                    } else if (method === 'U') {
+                        this.handleOpenUpdateBanner()
+                    } else {
+                        this.handleOpenDeleteBanner()
+                    }
+                    this.loadMasterBannerData()
                 });
             } else {
                 swal({

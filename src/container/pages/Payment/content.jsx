@@ -31,6 +31,7 @@ class ContentPayment extends Component {
         allPaymentChecked: [],
         deskripsi_payment_inserted: 'Tidak ada deskripsi payment',
         id_payment_inserted: '',
+        payment_inserted_name: '',
         isOpen: false,
         isOpenInsert: false,
         isBtnInsert: true,
@@ -56,6 +57,7 @@ class ContentPayment extends Component {
         isSubmitRekeningAction: false,
         isDisabledTambahRekening: true,
         isOpenInsertRekeningBaru: false,
+        isDisableAddRowRekeningButton: true
     }
 
     componentWillMount() {
@@ -127,12 +129,6 @@ class ContentPayment extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
             });
         }
     }
@@ -158,11 +154,7 @@ class ContentPayment extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+
             });
         }
     }
@@ -183,11 +175,7 @@ class ContentPayment extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+
             });
         }
     }
@@ -203,14 +191,16 @@ class ContentPayment extends Component {
 
     handleChange = async (event) => {
         if (event.target.name === 'id_payment_inserted') {
-            // this.setState({
-            //     deskripsi_payment_inserted: this.state.allPaymentFromMaster[event.target.value].deskripsi
-            // })
-            this.setState({ id_payment_inserted: event.target.value })
-            let arr = this.state.allPaymentFromMaster.filter
-                (arr_id => { return arr_id.id === event.target.value });
-            this.setState({ deskripsi_payment_inserted: arr[0].deskripsi })
-            await this.setState({ id_payment_inserted: event.target.value })
+            const id = event.target.value.split('-')[0]
+            const value = event.target.value.split('-')[1]
+            let arr = this.state.allPaymentFromMaster.filter(arr_id => { return arr_id.id === id });
+
+            await this.setState({
+                id_payment_inserted: id,
+                payment_inserted_name: value,
+                deskripsi_payment_inserted: arr[0].deskripsi
+            })
+
             if (this.state.id_payment_inserted !== '') {
                 this.setState({ isBtnInsert: false })
             }
@@ -222,7 +212,7 @@ class ContentPayment extends Component {
         await this.loadCheckingPayment()
         let check_id_payment_registered = this.state.allPaymentChecked.filter(input_id => { return input_id.payment_id === this.state.id_payment_inserted });
         if (check_id_payment_registered !== '' && check_id_payment_registered.length === 0) {
-            if (!this.state.isOpenConfirmInsert) {
+            if (!this.state.isOpenConfirmInsert && this.state.payment_inserted_name === 'Advance Payment') {
                 this.handleModalRekeningBank('add')
             } else {
                 this.setState({ isOpenConfirmInsert: !this.state.isOpenConfirmInsert })
@@ -237,7 +227,7 @@ class ContentPayment extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                window.location.reload()
+                // window.location.reload()
             });
         }
     }
@@ -247,21 +237,26 @@ class ContentPayment extends Component {
     confirmActionInsertPayment = async () => {
         Toast.loading('Loading...');
 
-        let passqueryinsertpayment = `
-            with new_payment as(insert into gcm_seller_payment_listing (seller_id, payment_id, status)
-            values ('${this.state.company_id}', '${this.state.id_payment_inserted}', 'A') returning status)
-            insert into gcm_listing_bank(company_id,id_bank,no_rekening,pemilik_rekening,status,create_by,create_date,update_by,update_date)
-            values 
+        let passqueryinsertpayment = `insert into gcm_seller_payment_listing (seller_id, payment_id, status)
+            values ('${this.state.company_id}', '${this.state.id_payment_inserted}', 'A') returning status           
             `
 
-        this.state.rekeningData.map((data, i) => {
-            if (i < this.state.rekeningData.length - 1) {
-                passqueryinsertpayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.id_pengguna_login},now(),${this.state.id_pengguna_login},now()), `
+        if (this.state.payment_inserted_name === 'Advance Payment') {
+            passqueryinsertpayment = `
+                with new_payment as(insert into gcm_seller_payment_listing (seller_id, payment_id, status)
+                values ('${this.state.company_id}', '${this.state.id_payment_inserted}', 'A') returning status)
+                insert into gcm_listing_bank(company_id,id_bank,no_rekening,pemilik_rekening,status,create_by,create_date,update_by,update_date)
+                values 
+            `
+            this.state.rekeningData.map((data, i) => {
+                if (i < this.state.rekeningData.length - 1) {
+                    passqueryinsertpayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.id_pengguna_login},now(),${this.state.id_pengguna_login},now()), `
+                    return
+                }
+                passqueryinsertpayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.id_pengguna_login},now(),${this.state.id_pengguna_login},now()) returning * `
                 return
-            }
-            passqueryinsertpayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.id_pengguna_login},now(),${this.state.id_pengguna_login},now()) returning * `
-            return
-        })
+            })
+        }
 
 
         const resinsertpayment = await this.props.insertPaymentListingSeller({ query: encrypt(passqueryinsertpayment) }).catch(err => err)
@@ -274,7 +269,13 @@ class ContentPayment extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                if (this.state.payment_inserted_name === 'Advance Payment') {
+                    this.handleModalRekeningBank('add')
+                }
+                this.handleModalInsert()
+                this.handleModalConfirmInsert()
+                this.loadPaymentListing()
+                this.loadPaymentFromMaster()
             });
         } else {
             swal({
@@ -285,11 +286,7 @@ class ContentPayment extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+
             });
         }
     }
@@ -320,11 +317,7 @@ class ContentPayment extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+
             });
         }
 
@@ -365,7 +358,6 @@ class ContentPayment extends Component {
     }
 
     confirmActionChangeStatusPayment = async () => {
-        Toast.loading('Loading...');
         let passquerychangestatuspayment = ""
 
         if (this.state.status_payment === 'R') {
@@ -381,11 +373,9 @@ class ContentPayment extends Component {
                 update gcm_payment_listing set status='${this.state.status_payment}'
                 where payment_id= ${this.state.id_payment} and seller_id= ${this.state.company_id} returning status                
                 `
-        }
-        const resupdatestatuspayment = await this.props.updateStatusPayment({ query: encrypt(passquerychangestatuspayment) }).catch(err => err)
-        
-        Toast.hide();
-        
+        }        
+        const resupdatestatuspayment = await this.props.updateStatusPayment({ query: encrypt(passquerychangestatuspayment) }).catch(err => err)        
+
         if (resupdatestatuspayment) {
             if (this.state.status_payment === 'R') {
                 swal({
@@ -395,7 +385,10 @@ class ContentPayment extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    window.location.reload()
+                    this.handleModalConfirmStatusPayment()
+                    this.handleModalDetailPayment()
+                    this.loadPaymentListing()
+                    this.loadPaymentFromMaster()
                 });
             } else {
                 swal({
@@ -405,7 +398,10 @@ class ContentPayment extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    window.location.reload()
+                    this.handleModalConfirmStatusPayment()
+                    this.handleModalDetailPayment()
+                    this.loadPaymentListing()
+                    this.loadPaymentFromMaster()
                 });
             }
         }
@@ -417,7 +413,7 @@ class ContentPayment extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                // window.location.reload()
             });
         }
     }
@@ -442,7 +438,12 @@ class ContentPayment extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                this.setState({
+                    isOpenDeactivate: false
+                })
+                this.handleModalDetailPayment()
+                this.loadPaymentListing()
+                this.loadPaymentFromMaster()
             });
         } else {
             swal({
@@ -452,7 +453,7 @@ class ContentPayment extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                // window.location.reload()
             });
         }
     }
@@ -465,10 +466,13 @@ class ContentPayment extends Component {
             this.setState({ isOpenRekeningBankEdit: !this.state.isOpenRekeningBankEdit })
         }
         this.setState({
+            isSubmitRekeningAction: false,
+            isDisabledTambahRekening: true,
+            isDisableAddRowRekeningButton: true,
             rekeningBank: '',
             rekeningBankNama: '',
             rekeningBankIdBank: '',
-            rekeningData: []
+            rekeningData: [],
         })
     }
 
@@ -481,42 +485,55 @@ class ContentPayment extends Component {
             this.state.rekeningBankNama !== '' &&
             this.state.rekeningBankIdBank !== ''
         ) {
-            this.setState({ isDisabledTambahRekening: false })
+            this.setState({
+                isDisabledTambahRekening: false,
+                isDisableAddRowRekeningButton: false
+            })
         } else {
-            this.setState({ isDisabledTambahRekening: true })
+            this.setState({
+                isDisabledTambahRekening: true,
+                isDisableAddRowRekeningButton: true
+            })
         }
     }
 
-    handleAddInputRekeningRows = () => {
-        const prevData = this.state.rekeningData
-        const newData = {
-            id: prevData.id ? 0 : prevData + 1,
-            rekeningBank: this.state.rekeningBank,
-            rekeningBankNama: this.state.rekeningBankNama,
-            rekeningBankIdBank: this.state.rekeningBankIdBank
+    handleAddInputRekeningRows = async () => {
+        const { rekeningBank, rekeningBankNama, rekeningBankIdBank, rekeningData, isDisableAddRowRekeningButton } = this.state
+        const prevData = rekeningData
+
+        if (!isDisableAddRowRekeningButton) {
+            const newData = {
+                id: prevData.id ? 0 : prevData + 1,
+                rekeningBank: rekeningBank,
+                rekeningBankNama: rekeningBankNama,
+                rekeningBankIdBank: rekeningBankIdBank,
+            }
+
+            prevData.push(newData)
+            await this.setState({
+                rekeningData: prevData,
+                rekeningBank: '',
+                rekeningBankNama: '',
+                rekeningBankIdBank: '',
+                isDisableAddRowRekeningButton: true,
+                isDisabledTambahRekening: true,
+            })
         }
 
-        prevData.push(newData)
-        this.setState({
-            rekeningData: prevData,
-            rekeningBank: '',
-            rekeningBankNama: '',
-            rekeningBankIdBank: ''
-        })
     }
 
     handleRemoveInputRekeningRows = e => {
         let filtered = this.state.rekeningData.filter(d => d.id.toString() !== e.target.name)
         this.setState({
             rekeningData: filtered,
-            isSubmitRekeningAction: this.state.rekeningData.length === 0 && !this.state.isSubmitRekeningAction
+            isSubmitRekeningAction: this.state.rekeningData.length === 0
         })
         return
     }
 
-    handleSubmitRekeningData = () => {
+    handleSubmitRekeningData = async () => {
         this.handleAddInputRekeningRows()
-        this.setState({
+        await this.setState({
             isOpenConfirmInsert: !this.state.isOpenConfirmInsert,
             isSubmitRekeningAction: !this.state.isSubmitRekeningAction
         })
@@ -557,7 +574,11 @@ class ContentPayment extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    window.location.reload()
+                    this.handleModalDetailPayment()
+                    this.handleModalInsertRekeningBaru()
+                    this.handleModalRekeningBank('edit')
+                    this.loadPaymentListing()
+                    this.loadPaymentFromMaster()
                 });
             } else {
                 swal({
@@ -567,7 +588,7 @@ class ContentPayment extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    window.location.reload()
+                    // window.location.reload()
                 });
             }
         }
@@ -628,9 +649,9 @@ class ContentPayment extends Component {
                     <div style={{ width: '20%', marginBottom: '4px' }}>
                         {
                             isLast ?
-                                <button className="btn btn-primary" onClick={this.handleAddInputRekeningRows}>+</button>
+                                <button className="btn btn-primary" onClick={this.handleAddInputRekeningRows} disabled={this.state.isDisableAddRowRekeningButton}>+</button>
                                 :
-                                <button className="btn btn-danger" name={val.id} onClick={this.handleRemoveInputRekeningRows}>-</button>
+                                <button className="btn btn-danger" name={val && val.id} onClick={this.handleRemoveInputRekeningRows}>-</button>
                         }
 
                     </div>
@@ -639,11 +660,13 @@ class ContentPayment extends Component {
             )
         }
 
+        // let rekeningData = this.state.rekeningData.length === 0 ? 1 : this.state.rekeningData.length 
+
         for (let i = 0; i < this.state.rekeningData.length; i++) {
             component.push(temp(false, this.state.rekeningData[i]))
         }
 
-        if (!this.state.isSubmitRekeningAction) {
+        if (!this.state.isSubmitRekeningAction || this.state.rekeningData.length === 0) {
             component.push(temp(true, null))
         }
 
@@ -757,7 +780,7 @@ class ContentPayment extends Component {
                                     //     return <option value={index}>{allPaymentFromMaster.payment_name}</option>
                                     // })
                                     this.state.allPaymentFromMaster.map((allPaymentFromMaster) => {
-                                        return <option value={allPaymentFromMaster.id}>{allPaymentFromMaster.payment_name}</option>
+                                        return <option value={`${allPaymentFromMaster.id}-${allPaymentFromMaster.payment_name}`}>{allPaymentFromMaster.payment_name}</option>
                                     })
                                 }
                             </Input>

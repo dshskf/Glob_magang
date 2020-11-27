@@ -143,11 +143,11 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -181,11 +181,11 @@ class ContentPenggunaSuperAdmin extends Component {
                         confirm: "Oke"
                     }
                 }).then(() => {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
             }
         } else {
@@ -243,11 +243,11 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -276,11 +276,11 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -347,11 +347,11 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
         this.loadRegisteredAccount(id)
@@ -383,11 +383,11 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -458,11 +458,11 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -529,11 +529,11 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -555,11 +555,11 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -573,10 +573,10 @@ class ContentPenggunaSuperAdmin extends Component {
             receiver: this.state.company_register_name,
             email_receiver: this.state.company_register_email,
             receiver_type: 'seller'
-        }        
+        }
 
         let company_reg_id = decrypt(this.state.company_register_id)
-        if (this.state.company_register_status === activate) {            
+        if (this.state.company_register_status === activate) {
             let passqueryupdatestatus = encrypt("update gcm_master_company set seller_status='" + reject +
                 "', is_blacklist=true, id_blacklist=" + this.state.id_blacklist_company +
                 ", notes_blacklist='" + this.state.notes_blacklist_company + "', blacklist_by=" + this.state.company_id +
@@ -591,8 +591,10 @@ class ContentPenggunaSuperAdmin extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
+                    this.handleModalBlacklist()
+                    this.handleModalConfirm()
+                    this.handleModalDetail()
                     this.loadDataUsers()
-                    window.location.reload()
                 });
             } else {
                 swal({
@@ -630,9 +632,10 @@ class ContentPenggunaSuperAdmin extends Component {
                         icon: "success",
                         button: false,
                         timer: "2500"
-                    }).then(() => {
+                    }).then(() => {                        
+                        this.handleModalConfirm()
+                        this.handleModalDetail()
                         this.loadDataUsers()
-                        // window.location.reload()
                     });
                 } else {
                     swal({
@@ -676,9 +679,10 @@ class ContentPenggunaSuperAdmin extends Component {
                         icon: "success",
                         button: false,
                         timer: "2500"
-                    }).then(() => {
+                    }).then(() => {                        
+                        this.handleModalConfirm()
+                        this.handleModalDetail()
                         this.loadDataUsers()
-                        // window.location.reload()
                     });
                 } else {
                     swal({
@@ -777,11 +781,11 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -809,11 +813,11 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -954,11 +958,11 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -977,11 +981,11 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1027,8 +1031,8 @@ class ContentPenggunaSuperAdmin extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
+                this.handleModalConfirmMapping()
                 this.loadDataUsers()
-                window.location.reload()
             });
         } else {
             swal({

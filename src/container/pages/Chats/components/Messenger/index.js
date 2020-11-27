@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+import { decrypt } from '../../../../../config/lib';
 
 import { changeChatScreen } from '../../../../../config/redux/action/index'
 

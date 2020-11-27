@@ -49,12 +49,13 @@ const ConversationList = props => {
   }
 
   const getUserList = () => {
-    let user_id = parseInt(decrypt(JSON.parse(localStorage.getItem('userData')).id))    
+    let user_id = parseInt(decrypt(JSON.parse(localStorage.getItem('userData')).id))
+
     firebaseApp.database().ref().orderByChild('user_id_seller').equalTo(user_id).on("value", async snapshot => {
       if (!snapshot.val()) {
         alert('Belum ada chat !')
         return
-      }      
+      }
 
       // Get Room Id
       let keyCollection = []
@@ -90,7 +91,7 @@ const ConversationList = props => {
           total_message_unread: total_message_unread
         })
       })
-      
+
       // Sort user list by last_timestamp
       chatDataArr = await sortArray(chatDataArr, {
         by: 'time',
@@ -98,21 +99,22 @@ const ConversationList = props => {
       })
 
       let user = await props.getUserList({ query: encrypt(passQuery) }).catch(err => err)
-      console.log(user)
-      user = matchUserArray(user, chatDataArr)
+      if (user) {
+        user = matchUserArray(user, chatDataArr)
+        user = user.map((data, index) => {
+          let last_msg = chatDataArr[index].msg[chatDataArr[index].msg.length - 1] && chatDataArr[index].msg[chatDataArr[index].msg.length - 1].contain
 
-      user = user.map((data, index) => {
-        let last_msg = chatDataArr[index].msg[chatDataArr[index].msg.length - 1] && chatDataArr[index].msg[chatDataArr[index].msg.length - 1].contain
+          return {
+            id: data.id,
+            nama: data.nama_perusahaan,
+            roomId: chatDataArr[index].roomId,
+            last_message: last_msg,
+            receiver: chatDataArr[index].receiver_id,
+            total_message_unread: chatDataArr[index].total_message_unread
+          }
+        })
+      }
 
-        return {
-          id: data.id,
-          nama: data.nama_perusahaan,
-          roomId: chatDataArr[index].roomId,
-          last_message: last_msg,
-          receiver: chatDataArr[index].receiver_id,
-          total_message_unread: chatDataArr[index].total_message_unread
-        }
-      })
 
       setUserData(user)
     })

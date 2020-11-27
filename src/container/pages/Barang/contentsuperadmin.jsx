@@ -147,11 +147,11 @@ class ContentBarangSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -172,11 +172,11 @@ class ContentBarangSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -197,11 +197,11 @@ class ContentBarangSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -265,11 +265,11 @@ class ContentBarangSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
         // and gcm_master_barang.status='A' 
@@ -279,7 +279,7 @@ class ContentBarangSuperAdmin extends Component {
         this.setState({ statusFilter: false, selectedFilter: 'Semua' })
         let passquerybarangselleronconfirmwithoutid = encrypt("select gcm_list_barang.id, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, " +
             "gcm_list_barang.company_id, " +
-            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('assets/images/product', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
+            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
             "else 'assets/images/no_image.png' end as foto, " +
             " gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
             "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, gcm_master_barang.volume, " +
@@ -292,8 +292,7 @@ class ContentBarangSuperAdmin extends Component {
             "left join gcm_master_user on gcm_list_barang.update_by = gcm_master_user.id " +
             "where (gcm_list_barang.status = 'C' or gcm_list_barang.status = 'R') and now() between gcm_listing_kurs.tgl_start and gcm_listing_kurs.tgl_end " +
             "order by gcm_list_barang.update_date desc, gcm_master_barang.category_id asc, gcm_master_barang.nama asc")
-        const resonconfirmwithoutid = await this.props.getDataBarangSellerAPI({ query: passquerybarangselleronconfirmwithoutid }).catch(err => err)
-        
+        const resonconfirmwithoutid = await this.props.getDataBarangSellerAPI({ query: passquerybarangselleronconfirmwithoutid }).catch(err => err)        
         if (resonconfirmwithoutid) {
             this.setState({
                 allDataBarangOnConfirmWithoutId: resonconfirmwithoutid,
@@ -308,11 +307,11 @@ class ContentBarangSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
         // and gcm_master_barang.status='A' 
@@ -430,11 +429,11 @@ class ContentBarangSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -495,11 +494,11 @@ class ContentBarangSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -625,7 +624,9 @@ class ContentBarangSuperAdmin extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                this.handleModalDetailOnConfirm()
+                this.handleModalConfirm()
+                this.loadDataBarangSellerOnConfirmWithoutId()
             });
         } else {
             swal({

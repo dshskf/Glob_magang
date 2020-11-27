@@ -20,6 +20,10 @@ class ContentMasterBank extends Component {
     }
 
     async componentDidMount() {
+        this.fetchMasterBank()
+    }
+
+    fetchMasterBank = async () => {
         const passquery = encrypt(`select * from gcm_master_bank`)
         const bank = await this.props.postData({ query: passquery }).catch(err => err)
 
@@ -45,7 +49,7 @@ class ContentMasterBank extends Component {
 
     handleOpenTambahbank = () => {
         const { isInsertOpen } = this.state
-        this.setState({ isInsertOpen: isInsertOpen ? false : true, imageData: null, imageShow: null })
+        this.setState({ isInsertOpen: isInsertOpen ? false : true, imageData: null, imageShow: null, bankInput: '' })
     }
 
     handleOpenUpdatebank = (e) => {
@@ -111,7 +115,8 @@ class ContentMasterBank extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                this.closeModal()
+                this.fetchMasterBank()
             });
         } else {
             swal({
@@ -121,12 +126,22 @@ class ContentMasterBank extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                // window.location.reload()
             });
         }
 
 
         Toast.hide();
+    }
+
+    closeModal = () => {
+        this.setState({
+            isInsertOpen: false,
+            isUpdateOpen: false,
+            isDeleteOpen: false,
+            bankInput: '',
+        })
+        this.fetchMasterBank()
     }
 
     render() {

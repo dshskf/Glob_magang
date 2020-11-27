@@ -55,9 +55,7 @@ class Sidebar extends Component {
             .then(() => {
                 return messaging.getToken()
             })
-            .then(async token => {
-                console.log(token)
-            })
+            .then(async token =>token)
             
         let user_id = parseInt(decrypt(userData.id))
         firebaseApp.database().ref().orderByChild('user_id_seller').equalTo(user_id).on("value", async snapshot => {

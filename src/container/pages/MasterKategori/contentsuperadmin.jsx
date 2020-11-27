@@ -11,20 +11,20 @@ import Toast from 'light-toast';
 
 class ContentMasterKategoriSuperAdmin extends Component {
     state = {
-        id_pengguna_login:'',
-        company_id:'',
-        company_name:'',
-        tipe_bisnis:'',
-        allCategory:[],
+        id_pengguna_login: '',
+        company_id: '',
+        company_name: '',
+        tipe_bisnis: '',
+        allCategory: [],
         isOpen: false,
         isOpenInsert: false,
         isOpenConfirmInsert: false,
         isOpenConfirmUpdate: false,
         empty_nama_kategori_inserted: false,
         empty_nama_kategori_selected: false,
-        nama_kategori_inserted:'',
-        id_kategori_selected:'',
-        nama_kategori_selected:'',
+        nama_kategori_inserted: '',
+        id_kategori_selected: '',
+        nama_kategori_selected: '',
         pembanding_nama_kategori_selected: '',
         isBtnUpdate: true
     }
@@ -40,13 +40,13 @@ class ContentMasterKategoriSuperAdmin extends Component {
         this.loadCategory()
     }
 
-    loadCategory = async() => {
+    loadCategory = async () => {
         let passquerycategory = encrypt("select * from gcm_master_category order by gcm_master_category.id;")
-        const rescategory = await this.props.getDataCategoryAPI({query:passquerycategory}).catch(err => err)
+        const rescategory = await this.props.getDataCategoryAPI({ query: passquerycategory }).catch(err => err)
         if (rescategory) {
             rescategory.map((user, index) => {
                 return (
-                    rescategory[index].keterangan = 
+                    rescategory[index].keterangan =
                     <center>
                         <button className="mb-2 mr-2 btn-transition btn btn-outline-primary"
                             onClick={(e) => this.handleDetailCategory(e, rescategory[index].id)}> Detail</button>
@@ -54,7 +54,7 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 )
             })
             this.setState({
-                allCategory:rescategory
+                allCategory: rescategory
             })
         } else {
             swal({
@@ -63,28 +63,28 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
-                    }
-                }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
-                });
+                }
+            }).then(() => {
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
+            });
         }
     }
 
     handleModalInsert = () => {
         this.setState({
             isOpenInsert: !this.state.isOpenInsert,
-            nama_kategori_inserted:'',
-            empty_nama_kategori_inserted:false
+            nama_kategori_inserted: '',
+            empty_nama_kategori_inserted: false
         })
     }
 
     handleChange = (event) => {
         this.setState({
-            [event.target.name] : event.target.value
+            [event.target.name]: event.target.value
         })
         if (event.target.name === 'nama_kategori_inserted') {
             this.check_field(event.target.value)
@@ -96,45 +96,45 @@ class ContentMasterKategoriSuperAdmin extends Component {
 
     check_field = (e) => {
         if (e === '') {
-            this.setState({empty_nama_kategori_inserted: true})
+            this.setState({ empty_nama_kategori_inserted: true })
         } else {
-            this.setState({empty_nama_kategori_inserted: false})
+            this.setState({ empty_nama_kategori_inserted: false })
         }
     }
-    
+
     check_field_edited = (e) => {
         if (e === '') {
-            this.setState({empty_nama_kategori_selected: true,  isBtnUpdate: true})
-        } else if (e !== ''){
-            this.setState({empty_nama_kategori_selected: false})
+            this.setState({ empty_nama_kategori_selected: true, isBtnUpdate: true })
+        } else if (e !== '') {
+            this.setState({ empty_nama_kategori_selected: false })
         }
-        if (e!== '' && e === this.state.pembanding_nama_kategori_selected) {
-            this.setState({empty_nama_kategori_selected: false, isBtnUpdate: true})
-        } else if (e!== '' && e !== this.state.pembanding_nama_kategori_selected) {
-            this.setState({empty_nama_kategori_selected: false, isBtnUpdate: false})
+        if (e !== '' && e === this.state.pembanding_nama_kategori_selected) {
+            this.setState({ empty_nama_kategori_selected: false, isBtnUpdate: true })
+        } else if (e !== '' && e !== this.state.pembanding_nama_kategori_selected) {
+            this.setState({ empty_nama_kategori_selected: false, isBtnUpdate: false })
         }
     }
 
     handleWhiteSpace = (e) => {
-        if (e.which === 32 &&  !e.target.value.length) {
+        if (e.which === 32 && !e.target.value.length) {
             e.preventDefault()
         }
     }
 
     handleModalConfirmInsert = () => {
-        if(this.state.nama_kategori_inserted === '') { this.setState({ empty_nama_kategori_inserted: true }) }
+        if (this.state.nama_kategori_inserted === '') { this.setState({ empty_nama_kategori_inserted: true }) }
         if (this.state.nama_kategori_inserted !== '') {
-                this.setState({
-                    isOpenConfirmInsert: !this.state.isOpenConfirmInsert
-                })
+            this.setState({
+                isOpenConfirmInsert: !this.state.isOpenConfirmInsert
+            })
         }
     }
 
-    confirmActionInsertCategory = async() => {
+    confirmActionInsertCategory = async () => {
         Toast.loading('Loading...');
-        let passqueryinsertcategory = encrypt("insert into gcm_master_category (nama) values ('"+this.state.nama_kategori_inserted+"') "+
+        let passqueryinsertcategory = encrypt("insert into gcm_master_category (nama) values ('" + this.state.nama_kategori_inserted + "') " +
             " returning nama;")
-        const resinsertMasterCategory = await this.props.insertMasterCategory({query:passqueryinsertcategory}).catch(err => err)
+        const resinsertMasterCategory = await this.props.insertMasterCategory({ query: passqueryinsertcategory }).catch(err => err)
         Toast.hide();
 
         if (resinsertMasterCategory) {
@@ -144,9 +144,10 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(()=> {
+            }).then(() => {
+                this.handleModalConfirmInsert()
+                this.handleModalInsert()
                 this.loadCategory()
-                window.location.reload()
             });
         } else {
             swal({
@@ -155,18 +156,18 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 icon: "error",
                 button: false,
                 timer: "2500"
-              }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
         }
     }
 
-    handleDetailCategory = async(e, id) => {
+    handleDetailCategory = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation()
-        let passquerydetail = encrypt("select gcm_master_category.id, gcm_master_category.nama from gcm_master_category "+
-            "where gcm_master_category.id="+id)
-        const resdetail = await this.props.getDataDetailedMasterCategoryAPI({query:passquerydetail}).catch(err => err)
+        let passquerydetail = encrypt("select gcm_master_category.id, gcm_master_category.nama from gcm_master_category " +
+            "where gcm_master_category.id=" + id)
+        const resdetail = await this.props.getDataDetailedMasterCategoryAPI({ query: passquerydetail }).catch(err => err)
         if (resdetail) {
             this.setState({
                 id_kategori_selected: id,
@@ -180,39 +181,39 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
-                    }
-                }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
-                });
+                }
+            }).then(() => {
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
+            });
         }
     }
 
     handleModalDetail = () => {
         this.setState({
             isOpen: !this.state.isOpen,
-            empty_nama_kategori_selected:false,
+            empty_nama_kategori_selected: false,
             isBtnUpdate: true
         })
     }
 
     handleModalConfirm = () => {
-        if(this.state.nama_kategori_selected === '') { this.setState({ empty_nama_kategori_selected: true }) }
+        if (this.state.nama_kategori_selected === '') { this.setState({ empty_nama_kategori_selected: true }) }
         if (this.state.nama_kategori_selected !== '') {
-                this.setState({
-                    isOpenConfirmUpdate: !this.state.isOpenConfirmUpdate
-                })
+            this.setState({
+                isOpenConfirmUpdate: !this.state.isOpenConfirmUpdate
+            })
         }
     }
 
-    confirmActionUpdateCategory = async() => {
+    confirmActionUpdateCategory = async () => {
         Toast.loading('Loading...');
-        let passqueryupdatemastercategory = encrypt("update gcm_master_category set nama='"+this.state.nama_kategori_selected+"' "+
-            " where id="+this.state.id_kategori_selected+" returning nama;")
-        const resupdateMasterCategory = await this.props.updateMasterCategory({query:passqueryupdatemastercategory}).catch(err => err)
+        let passqueryupdatemastercategory = encrypt("update gcm_master_category set nama='" + this.state.nama_kategori_selected + "' " +
+            " where id=" + this.state.id_kategori_selected + " returning nama;")
+        const resupdateMasterCategory = await this.props.updateMasterCategory({ query: passqueryupdatemastercategory }).catch(err => err)
         Toast.hide();
 
         if (resupdateMasterCategory) {
@@ -222,9 +223,10 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(()=> {
+            }).then(() => {
+                this.handleModalConfirm()
+                this.handleModalDetail()
                 this.loadCategory()
-                window.location.reload()
             });
         } else {
             swal({
@@ -233,13 +235,13 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 icon: "error",
                 button: false,
                 timer: "2500"
-              }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
         }
     }
 
-    render(){
+    render() {
         const data = {
             columns: [
                 {
@@ -252,8 +254,8 @@ class ContentMasterKategoriSuperAdmin extends Component {
                     field: 'keterangan',
                     width: 150
                 }],
-                rows: this.state.allCategory
-            }
+            rows: this.state.allCategory
+        }
         return (
             <div className="app-main__outer">
                 <div className="app-main__inner">
@@ -270,11 +272,11 @@ class ContentMasterKategoriSuperAdmin extends Component {
                                 </div>
                             </div>
                             <div className="page-title-actions">
-                                
+
                             </div>
                         </div>
                     </div>
-                    <div style={{textAlign: "right"}}>
+                    <div style={{ textAlign: "right" }}>
                         <button className="sm-2 mr-2 btn btn-primary" title="Tambah kategori" onClick={this.handleModalInsert}>
                             <i className="fa fa-plus" aria-hidden="true"></i>
                         </button>
@@ -289,7 +291,7 @@ class ContentMasterKategoriSuperAdmin extends Component {
                                             striped
                                             responsive
                                             hover
-                                            order={['id', 'asc' ]}
+                                            order={['id', 'asc']}
                                             sorting="false"
                                             data={data}
                                         />
@@ -304,12 +306,12 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 <Modal size="md" toggle={this.handleModalInsert} isOpen={this.state.isOpenInsert} backdrop="static" keyboard={false}>
                     <ModalHeader toggle={this.handleModalInsert}>Tambah Kategori</ModalHeader>
                     <ModalBody>
-                        <div className="position-relative form-group" style={{marginTop:'3%'}}>
+                        <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Kategori</p>
-                                <Input type="text" name="nama_kategori_inserted" id="nama_kategori_inserted" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Kategori</p>
+                                <Input type="text" name="nama_kategori_inserted" id="nama_kategori_inserted"
                                     placeholder="Nama Kategori" onChange={this.handleChange} onKeyPress={this.handleWhiteSpace}
-                                    invalid={this.state.empty_nama_kategori_inserted}/>
+                                    invalid={this.state.empty_nama_kategori_inserted} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                         </div>
@@ -338,12 +340,12 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 <Modal size="md" toggle={this.handleModalDetail} isOpen={this.state.isOpen} backdrop="static" keyboard={false}>
                     <ModalHeader toggle={this.handleModalDetail}>Detail Kategori</ModalHeader>
                     <ModalBody>
-                        <div className="position-relative form-group" style={{marginTop:'3%'}}>
+                        <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Kategori</p>
-                                <Input type="text" name="nama_kategori_selected" id="nama_kategori_selected" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Kategori</p>
+                                <Input type="text" name="nama_kategori_selected" id="nama_kategori_selected"
                                     placeholder="Nama Kategori" value={this.state.nama_kategori_selected} onChange={this.handleChange} onKeyPress={this.handleWhiteSpace}
-                                    invalid={this.state.empty_nama_kategori_selected}/>
+                                    invalid={this.state.empty_nama_kategori_selected} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                         </div>
@@ -383,4 +385,4 @@ const reduxDispatch = (dispatch) => ({
     logoutAPI: () => dispatch(logoutUserAPI())
 })
 
-export default withRouter( connect(reduxState, reduxDispatch)(ContentMasterKategoriSuperAdmin) );
+export default withRouter(connect(reduxState, reduxDispatch)(ContentMasterKategoriSuperAdmin));

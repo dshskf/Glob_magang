@@ -21,6 +21,10 @@ class ContentMasterKalenderLibur extends Component {
     }
 
     async componentDidMount() {
+        this.loadKalenderLibur()
+    }
+
+    loadKalenderLibur = async () => {
         let tempData = []
 
         let passquery = encrypt("select * from gcm_kalender_libur")
@@ -75,6 +79,7 @@ class ContentMasterKalenderLibur extends Component {
 
     handleModalClose = () => {
         this.setState({
+            isInsertOpen: false,
             isUpdateOpen: false,
             isDeleteOpen: false
         })
@@ -114,7 +119,8 @@ class ContentMasterKalenderLibur extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                this.handleModalClose()
+                this.loadKalenderLibur()
             });
         } else {
             swal({
@@ -149,7 +155,8 @@ class ContentMasterKalenderLibur extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                this.handleModalClose()
+                this.loadKalenderLibur()
             });
         } else {
             swal({
@@ -209,7 +216,8 @@ class ContentMasterKalenderLibur extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                this.handleModalClose()
+                this.loadKalenderLibur()
             });
         } else {
             swal({
@@ -388,8 +396,8 @@ class ContentMasterKalenderLibur extends Component {
                     </Modal>
 
 
-                    <Modal size="md" toggle={() => this.setState({ isInsertOpen: false })} isOpen={this.state.isInsertOpen} backdrop="static" keyboard={false}>
-                        <ModalHeader toggle={() => this.setState({ isInsertOpen: false })}>Perbarui Kalender Libur</ModalHeader>
+                    <Modal size="md" toggle={this.handleModalClose} isOpen={this.state.isInsertOpen} backdrop="static" keyboard={false}>
+                        <ModalHeader toggle={this.handleModalClose}>Perbarui Kalender Libur</ModalHeader>
                         <ModalBody>
                             <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                                 <div className="alert alert-danger fade show text-center" role="alert">
@@ -407,7 +415,7 @@ class ContentMasterKalenderLibur extends Component {
                         </ModalBody>
                         <ModalFooter>
                             <Button color="primary" disabled={this.state.fileData ? false : true} onClick={this.handleInsertForm}>Perbarui</Button>
-                            <Button color="danger" onClick={() => this.setState({ isInsertOpen: false })}>Batal</Button>
+                            <Button color="danger" onClick={this.handleModalClose}>Batal</Button>
                         </ModalFooter>
                     </Modal>
 

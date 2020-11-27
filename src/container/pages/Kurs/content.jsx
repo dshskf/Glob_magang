@@ -169,11 +169,11 @@ class ContentKurs extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -211,11 +211,11 @@ class ContentKurs extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -261,11 +261,11 @@ class ContentKurs extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -311,11 +311,11 @@ class ContentKurs extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -460,9 +460,9 @@ class ContentKurs extends Component {
             this.handleModalAttentionKurs()
         } else {
             await this.checkingdatakurs(passdateawal, passdateberakhir)
-            // console.log("pertama", this.state.allCheckedKursPertama)
-            // console.log("kedua", this.state.allCheckedKursKedua)
-            // console.log("ketiga", this.state.allCheckedKursKetiga)
+
+
+
             if (now > passdateawal) {
                 this.handleModalAttentionKursMulaiBerlaku()
             } else {
@@ -497,11 +497,11 @@ class ContentKurs extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -524,11 +524,11 @@ class ContentKurs extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
         if (Number(this.state.allCheckedKursPertama) > 0) {
@@ -550,11 +550,11 @@ class ContentKurs extends Component {
                         confirm: "Oke"
                     }
                 }).then(() => {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
             }
             let passquerycheckingkursketiga = ""
@@ -581,11 +581,11 @@ class ContentKurs extends Component {
                         confirm: "Oke"
                     }
                 }).then(() => {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
             }
         }
@@ -609,11 +609,11 @@ class ContentKurs extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -634,6 +634,7 @@ class ContentKurs extends Component {
     }
 
     confirmActionInsertKurs = async () => {
+        Toast.loading('Loading...');
         let passdateawal = moment(this.state.dateMulaiBerlaku).format("YYYY-MM-DD HH:mm:ss")
         let passdateberakhir = moment(this.state.dateBerakhir).format("YYYY-MM-DD HH:mm:ss")
         let passqueryinsertkurs = encrypt("insert into gcm_listing_kurs(nominal, company_id, create_date, update_date, create_by, update_by, tgl_start, tgl_end)" +
@@ -641,10 +642,10 @@ class ContentKurs extends Component {
             "'" + this.state.company_id + "', now(), now(), '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', " +
             "'" + passdateawal + "', '" + passdateberakhir + "') returning nominal")
 
-        Toast.loading('Loading...');
-        const resinsertkurs = await this.props.insertKursSeller({ query: passqueryinsertkurs }).catch(err => err)
-        Toast.hide();
 
+        const resinsertkurs = await this.props.insertKursSeller({ query: passqueryinsertkurs }).catch(err => err)
+
+        Toast.hide();
         if (resinsertkurs) {
             swal({
                 title: "Sukses!",
@@ -653,7 +654,10 @@ class ContentKurs extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                this.handleModalConfirmInsert()
+                this.handleModalInsert()
+                this.loadDataKurs()
+                this.loadActiveKurs()
             });
         } else {
             swal({
@@ -664,14 +668,15 @@ class ContentKurs extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
+
 
     confirmActionUpdateKurs = async () => {
         let passqueryupdatekurs = ""
@@ -710,7 +715,14 @@ class ContentKurs extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                this.handleModalConfirmUpdate()
+                if (this.state.flagupdate === '1') {
+                    this.handleModalDetailKurs()
+                } else {
+                    this.handleModalDetailKursNotYet()
+                }
+                this.loadDataKurs()
+                this.loadActiveKurs()
             });
         } else {
             swal({
@@ -721,16 +733,16 @@ class ContentKurs extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
-
-
     }
+
+
 
     handleChangeTimeMulaiBerlaku = async (e) => {
         await this.setState({ dateMulaiBerlaku: e._d, momentdateMulaiBerlaku: e, dateBerakhir: '', momentdateBerakhir: '' })
@@ -807,10 +819,10 @@ class ContentKurs extends Component {
         await this.setState({ dateBerakhirSelectedOngoing: e._d, momentdateBerakhirSelectedOngoing: e })
         let passdateawal = this.state.dateMulaiBerlakuSelected
         let passdateberakhir = moment(this.state.dateBerakhirSelectedOngoing).format("YYYY-MM-DD HH:mm")
-        // console.log("mulaiberlakuforflag", this.state.dateMulaiBerlakuSelectedForFlag)
-        // console.log("berakhirforflag", this.state.dateBerakhirSelectedForFlag)
-        // console.log("passdateawal", passdateawal)
-        // console.log("passdateberakhir", passdateberakhir)
+
+
+
+
         if (this.state.dateBerakhirSelectedForFlag === undefined) {
             this.setState({ isbtnupdatekurs: true })
         } else {
@@ -857,7 +869,7 @@ class ContentKurs extends Component {
         let passdateberakhir = moment(this.state.dateBerakhirSelected).format("YYYY-MM-DD HH:mm:ss")
         let now = moment().format("YYYY-MM-DD HH:mm:ss");
         let passdateberakhirongoing = moment(this.state.dateBerakhirSelectedOngoing).format("YYYY-MM-DD HH:mm")
-        // console.log("passdateberakhirongoing", passdateberakhirongoing)
+
         this.setState({ showDateMulaiBerlaku: passdateawal, showDateBerakhir: passdateberakhir })
         if (this.state.pembandingDateBerakhirSelected !== moment(this.state.dateBerakhirSelectedOngoing).format("YYYY-MM-DD HH:mm")
             && moment(this.state.dateBerakhirSelectedOngoing).format("YYYY-MM-DD HH:mm") !== 'Invalid date' && this.state.flagupdate === '1') {
@@ -868,9 +880,9 @@ class ContentKurs extends Component {
                     this.handleModalAttentionKurs()
                 } else {
                     await this.checkingdatakurs(passdateawal, passdateberakhirongoing)
-                    // console.log("pertamaif", this.state.allCheckedKursPertama)
-                    // console.log("keduaif", this.state.allCheckedKursKedua)
-                    // console.log("ketigaif", this.state.allCheckedKursKetiga)
+
+
+
                     if (now > passdateberakhirongoing) {
                         this.handleModalAttentionKursMulaiBerlakuOnGoing()
                     } else {
@@ -887,9 +899,9 @@ class ContentKurs extends Component {
                 }
             } else {
                 await this.checkingdatakurs(passdateawal, passdateberakhirongoing)
-                // console.log("pertama", this.state.allCheckedKursPertama)
-                // console.log("kedua", this.state.allCheckedKursKedua)
-                // console.log("ketiga", this.state.allCheckedKursKetiga)
+
+
+
                 if (now > passdateberakhirongoing) {
                     this.handleModalAttentionKursMulaiBerlakuOnGoing()
                 } else {

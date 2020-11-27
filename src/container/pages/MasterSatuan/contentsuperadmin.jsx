@@ -11,11 +11,11 @@ import Toast from 'light-toast';
 
 class ContentMasterSatuanSuperAdmin extends Component {
     state = {
-        id_pengguna_login:'',
-        company_id:'',
-        company_name:'',
-        tipe_bisnis:'',
-        allSatuan:[],
+        id_pengguna_login: '',
+        company_id: '',
+        company_name: '',
+        tipe_bisnis: '',
+        allSatuan: [],
         isOpen: false,
         isOpenInsert: false,
         isOpenConfirmInsert: false,
@@ -24,11 +24,11 @@ class ContentMasterSatuanSuperAdmin extends Component {
         empty_nama_alias_satuan_inserted: false,
         empty_nama_satuan_selected: false,
         empty_nama_alias_satuan_selected: false,
-        nama_satuan_inserted:'',
-        nama_alias_satuan_inserted:'',
-        id_satuan_selected:'',
-        nama_satuan_selected:'',
-        nama_alias_satuan_selected:'',
+        nama_satuan_inserted: '',
+        nama_alias_satuan_inserted: '',
+        id_satuan_selected: '',
+        nama_satuan_selected: '',
+        nama_alias_satuan_selected: '',
         pembanding_nama_satuan_selected: '',
         pembanding_nama_alias_satuan_selected: '',
         isBtnUpdate: true
@@ -45,25 +45,25 @@ class ContentMasterSatuanSuperAdmin extends Component {
         this.loadSatuan()
     }
 
-    loadSatuan = async() => {
+    loadSatuan = async () => {
         let passquerysatuan = encrypt("select * from gcm_master_satuan order by gcm_master_satuan.id;")
-        const ressatuan = await this.props.getDataSatuanAPI({query:passquerysatuan}).catch(err => err)
+        const ressatuan = await this.props.getDataSatuanAPI({ query: passquerysatuan }).catch(err => err)
         if (ressatuan) {
             ressatuan.map((user, index) => {
                 return (
-                    ressatuan[index].keterangan = 
-                        <center>
-                            <button className="mb-2 mr-2 btn-transition btn btn-outline-primary"
-                                onClick={(e) => this.handleDetailSatuan(e, ressatuan[index].id)}> Detail</button>
-                        </center>,
-                     ressatuan[index].alias =
-                        <center>
-                            <p>{user.alias}</p>
-                        </center>
+                    ressatuan[index].keterangan =
+                    <center>
+                        <button className="mb-2 mr-2 btn-transition btn btn-outline-primary"
+                            onClick={(e) => this.handleDetailSatuan(e, ressatuan[index].id)}> Detail</button>
+                    </center>,
+                    ressatuan[index].alias =
+                    <center>
+                        <p>{user.alias}</p>
+                    </center>
                 )
             })
             this.setState({
-                allSatuan:ressatuan
+                allSatuan: ressatuan
             })
         } else {
             swal({
@@ -72,30 +72,30 @@ class ContentMasterSatuanSuperAdmin extends Component {
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
-                    }
-                }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
-                });
+                }
+            }).then(() => {
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
+            });
         }
     }
 
     handleModalInsert = () => {
         this.setState({
             isOpenInsert: !this.state.isOpenInsert,
-            nama_satuan_inserted:'',
-            nama_alias_satuan_inserted:'',
-            empty_nama_satuan_inserted:false,
-            empty_nama_alias_satuan_inserted:false
+            nama_satuan_inserted: '',
+            nama_alias_satuan_inserted: '',
+            empty_nama_satuan_inserted: false,
+            empty_nama_alias_satuan_inserted: false
         })
     }
 
     handleChange = (event) => {
         this.setState({
-            [event.target.name] : event.target.value
+            [event.target.name]: event.target.value
         })
         if (event.target.name === 'nama_satuan_inserted') {
             this.check_field(event.target.value)
@@ -113,63 +113,63 @@ class ContentMasterSatuanSuperAdmin extends Component {
 
     check_field = (e) => {
         if (e === '') {
-            this.setState({empty_nama_satuan_inserted: true})
+            this.setState({ empty_nama_satuan_inserted: true })
         } else {
-            this.setState({empty_nama_satuan_inserted: false})
+            this.setState({ empty_nama_satuan_inserted: false })
         }
     }
 
     check_field_alias = (e) => {
         if (e === '') {
-            this.setState({empty_nama_alias_satuan_inserted: true})
+            this.setState({ empty_nama_alias_satuan_inserted: true })
         } else {
-            this.setState({empty_nama_alias_satuan_inserted: false})
+            this.setState({ empty_nama_alias_satuan_inserted: false })
         }
     }
-    
+
     check_field_edited = (e) => {
         if (e === '') {
-            this.setState({empty_nama_satuan_selected: true,  isBtnUpdate: true})
-        } else if (e !== ''){
-            this.setState({empty_nama_satuan_selected: false})
+            this.setState({ empty_nama_satuan_selected: true, isBtnUpdate: true })
+        } else if (e !== '') {
+            this.setState({ empty_nama_satuan_selected: false })
         }
-        if (e!== '' && e !== this.state.pembanding_nama_satuan_selected && this.state.nama_alias_satuan_selected !== '') {
-            this.setState({empty_nama_satuan_selected: false, isBtnUpdate: false})
+        if (e !== '' && e !== this.state.pembanding_nama_satuan_selected && this.state.nama_alias_satuan_selected !== '') {
+            this.setState({ empty_nama_satuan_selected: false, isBtnUpdate: false })
         }
     }
 
     check_field_edited_alias = (e) => {
         if (e === '') {
-            this.setState({empty_nama_alias_satuan_selected: true,  isBtnUpdate: true})
-        } else if (e !== ''){
-            this.setState({empty_nama_alias_satuan_selected: false})
+            this.setState({ empty_nama_alias_satuan_selected: true, isBtnUpdate: true })
+        } else if (e !== '') {
+            this.setState({ empty_nama_alias_satuan_selected: false })
         }
-        if (e!== '' && e !== this.state.pembanding_nama_alias_satuan_selected  && this.state.nama_satuan_selected !== '') {
-            this.setState({empty_nama_alias_satuan_selected: false, isBtnUpdate: false})
+        if (e !== '' && e !== this.state.pembanding_nama_alias_satuan_selected && this.state.nama_satuan_selected !== '') {
+            this.setState({ empty_nama_alias_satuan_selected: false, isBtnUpdate: false })
         }
     }
 
     handleWhiteSpace = (e) => {
-        if (e.which === 32 &&  !e.target.value.length) {
+        if (e.which === 32 && !e.target.value.length) {
             e.preventDefault()
         }
     }
 
     handleModalConfirmInsert = () => {
-        if(this.state.nama_satuan_inserted === '') { this.setState({ empty_nama_satuan_inserted: true }) }
-        if(this.state.nama_alias_satuan_inserted === '') { this.setState({ empty_nama_alias_satuan_inserted: true }) }
+        if (this.state.nama_satuan_inserted === '') { this.setState({ empty_nama_satuan_inserted: true }) }
+        if (this.state.nama_alias_satuan_inserted === '') { this.setState({ empty_nama_alias_satuan_inserted: true }) }
         if (this.state.nama_satuan_inserted !== '' && this.state.nama_alias_satuan_inserted !== '') {
-                this.setState({
-                    isOpenConfirmInsert: !this.state.isOpenConfirmInsert
-                })
+            this.setState({
+                isOpenConfirmInsert: !this.state.isOpenConfirmInsert
+            })
         }
     }
 
-    confirmActionInsertSatuan = async() => {
+    confirmActionInsertSatuan = async () => {
         Toast.loading('Loading...');
-        let passqueryinsertsatuan = encrypt("insert into gcm_master_satuan (nama, alias) values ('"+this.state.nama_satuan_inserted+"', '"+this.state.nama_alias_satuan_inserted+"') "+
+        let passqueryinsertsatuan = encrypt("insert into gcm_master_satuan (nama, alias) values ('" + this.state.nama_satuan_inserted + "', '" + this.state.nama_alias_satuan_inserted + "') " +
             " returning nama;")
-        const resinsertMasterSatuan = await this.props.insertMasterSatuan({query:passqueryinsertsatuan}).catch(err => err)
+        const resinsertMasterSatuan = await this.props.insertMasterSatuan({ query: passqueryinsertsatuan }).catch(err => err)
         Toast.hide();
 
         if (resinsertMasterSatuan) {
@@ -179,9 +179,10 @@ class ContentMasterSatuanSuperAdmin extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(()=> {
+            }).then(() => {
+                this.handleModalConfirmInsert()
+                this.handleModalInsert()
                 this.loadSatuan()
-                window.location.reload()
             });
         } else {
             swal({
@@ -190,18 +191,18 @@ class ContentMasterSatuanSuperAdmin extends Component {
                 icon: "error",
                 button: false,
                 timer: "2500"
-              }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
         }
     }
 
-    handleDetailSatuan = async(e, id) => {
+    handleDetailSatuan = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation()
-        let passquerydetail = encrypt("select gcm_master_satuan.id, gcm_master_satuan.nama, gcm_master_satuan.alias from gcm_master_satuan "+
-            "where gcm_master_satuan.id="+id)
-        const resdetail = await this.props.getDataDetailedMasterSatuanAPI({query:passquerydetail}).catch(err => err)
+        let passquerydetail = encrypt("select gcm_master_satuan.id, gcm_master_satuan.nama, gcm_master_satuan.alias from gcm_master_satuan " +
+            "where gcm_master_satuan.id=" + id)
+        const resdetail = await this.props.getDataDetailedMasterSatuanAPI({ query: passquerydetail }).catch(err => err)
         if (resdetail) {
             this.setState({
                 id_satuan_selected: id,
@@ -217,42 +218,42 @@ class ContentMasterSatuanSuperAdmin extends Component {
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
-                    }
-                }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
-                });
+                }
+            }).then(() => {
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
+            });
         }
     }
 
     handleModalDetail = () => {
         this.setState({
             isOpen: !this.state.isOpen,
-            empty_nama_satuan_selected:false,
+            empty_nama_satuan_selected: false,
             isBtnUpdate: true
         })
     }
 
     handleModalConfirm = () => {
-        if(this.state.nama_satuan_selected === '') { this.setState({ empty_nama_satuan_selected: true }) }
-        if(this.state.nama_alias_satuan_selected === '') { this.setState({ empty_nama_alias_satuan_selected: true }) }
+        if (this.state.nama_satuan_selected === '') { this.setState({ empty_nama_satuan_selected: true }) }
+        if (this.state.nama_alias_satuan_selected === '') { this.setState({ empty_nama_alias_satuan_selected: true }) }
         if (this.state.nama_satuan_selected !== '' && this.state.nama_alias_satuan_selected !== '') {
-                this.setState({
-                    isOpenConfirmUpdate: !this.state.isOpenConfirmUpdate
-                })
+            this.setState({
+                isOpenConfirmUpdate: !this.state.isOpenConfirmUpdate
+            })
         }
     }
 
-    confirmActionUpdateCategory = async() => {
+    confirmActionUpdateCategory = async () => {
         Toast.loading('Loading...');
-        let passqueryupdatemastersatuan = encrypt("update gcm_master_satuan set nama='"+this.state.nama_satuan_selected+"', alias='"+this.state.nama_alias_satuan_selected+"' "+
-            " where id="+this.state.id_satuan_selected+" returning nama;")
-        const resupdateMasterSatuan = await this.props.updateMasterSatuan({query:passqueryupdatemastersatuan}).catch(err => err)
+        let passqueryupdatemastersatuan = encrypt("update gcm_master_satuan set nama='" + this.state.nama_satuan_selected + "', alias='" + this.state.nama_alias_satuan_selected + "' " +
+            " where id=" + this.state.id_satuan_selected + " returning nama;")
+        const resupdateMasterSatuan = await this.props.updateMasterSatuan({ query: passqueryupdatemastersatuan }).catch(err => err)
         Toast.hide();
-        
+
         if (resupdateMasterSatuan) {
             swal({
                 title: "Sukses!",
@@ -260,9 +261,10 @@ class ContentMasterSatuanSuperAdmin extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(()=> {
+            }).then(() => {
+                this.handleModalConfirm()
+                this.handleModalDetail()
                 this.loadSatuan()
-                window.location.reload()
             });
         } else {
             swal({
@@ -271,13 +273,13 @@ class ContentMasterSatuanSuperAdmin extends Component {
                 icon: "error",
                 button: false,
                 timer: "2500"
-              }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
         }
     }
 
-    render(){
+    render() {
         const data = {
             columns: [
                 {
@@ -295,8 +297,8 @@ class ContentMasterSatuanSuperAdmin extends Component {
                     field: 'keterangan',
                     width: 150
                 }],
-                rows: this.state.allSatuan
-            }
+            rows: this.state.allSatuan
+        }
         return (
             <div className="app-main__outer">
                 <div className="app-main__inner">
@@ -313,11 +315,11 @@ class ContentMasterSatuanSuperAdmin extends Component {
                                 </div>
                             </div>
                             <div className="page-title-actions">
-                                
+
                             </div>
                         </div>
                     </div>
-                    <div style={{textAlign: "right"}}>
+                    <div style={{ textAlign: "right" }}>
                         <button className="sm-2 mr-2 btn btn-primary" title="Tambah satuan" onClick={this.handleModalInsert}>
                             <i className="fa fa-plus" aria-hidden="true"></i>
                         </button>
@@ -332,7 +334,7 @@ class ContentMasterSatuanSuperAdmin extends Component {
                                             striped
                                             responsive
                                             hover
-                                            order={['id', 'asc' ]}
+                                            order={['id', 'asc']}
                                             sorting="false"
                                             data={data}
                                         />
@@ -347,19 +349,19 @@ class ContentMasterSatuanSuperAdmin extends Component {
                 <Modal size="md" toggle={this.handleModalInsert} isOpen={this.state.isOpenInsert} backdrop="static" keyboard={false}>
                     <ModalHeader toggle={this.handleModalInsert}>Tambah Satuan</ModalHeader>
                     <ModalBody>
-                        <div className="position-relative form-group" style={{marginTop:'3%'}}>
+                        <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Satuan</p>
-                                <Input type="text" name="nama_satuan_inserted" id="nama_satuan_inserted" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Satuan</p>
+                                <Input type="text" name="nama_satuan_inserted" id="nama_satuan_inserted"
                                     placeholder="Nama Satuan" onChange={this.handleChange} onKeyPress={this.handleWhiteSpace}
-                                    invalid={this.state.empty_nama_satuan_inserted}/>
+                                    invalid={this.state.empty_nama_satuan_inserted} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Alias Satuan</p>
-                                <Input type="text" name="nama_alias_satuan_inserted" id="nama_alias_satuan_inserted" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Alias Satuan</p>
+                                <Input type="text" name="nama_alias_satuan_inserted" id="nama_alias_satuan_inserted"
                                     placeholder="Nama Alias Satuan" onChange={this.handleChange} onKeyPress={this.handleWhiteSpace}
-                                    invalid={this.state.empty_nama_alias_satuan_inserted}/>
+                                    invalid={this.state.empty_nama_alias_satuan_inserted} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                         </div>
@@ -388,19 +390,19 @@ class ContentMasterSatuanSuperAdmin extends Component {
                 <Modal size="md" toggle={this.handleModalDetail} isOpen={this.state.isOpen} backdrop="static" keyboard={false}>
                     <ModalHeader toggle={this.handleModalDetail}>Detail Satuan</ModalHeader>
                     <ModalBody>
-                        <div className="position-relative form-group" style={{marginTop:'3%'}}>
+                        <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Satuan</p>
-                                <Input type="text" name="nama_satuan_selected" id="nama_satuan_selected" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Satuan</p>
+                                <Input type="text" name="nama_satuan_selected" id="nama_satuan_selected"
                                     placeholder="Nama Satuan" value={this.state.nama_satuan_selected} onChange={this.handleChange} onKeyPress={this.handleWhiteSpace}
-                                    invalid={this.state.empty_nama_satuan_selected}/>
+                                    invalid={this.state.empty_nama_satuan_selected} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Alias Satuan</p>
-                                <Input type="text" name="nama_alias_satuan_selected" id="nama_alias_satuan_selected" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Alias Satuan</p>
+                                <Input type="text" name="nama_alias_satuan_selected" id="nama_alias_satuan_selected"
                                     placeholder="Nama Alias Satuan" value={this.state.nama_alias_satuan_selected} onChange={this.handleChange} onKeyPress={this.handleWhiteSpace}
-                                    invalid={this.state.empty_nama_alias_satuan_selected}/>
+                                    invalid={this.state.empty_nama_alias_satuan_selected} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                         </div>
@@ -440,4 +442,4 @@ const reduxDispatch = (dispatch) => ({
     logoutAPI: () => dispatch(logoutUserAPI())
 })
 
-export default withRouter( connect(reduxState, reduxDispatch)(ContentMasterSatuanSuperAdmin) );
+export default withRouter(connect(reduxState, reduxDispatch)(ContentMasterSatuanSuperAdmin));

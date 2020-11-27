@@ -11,17 +11,17 @@ import Toast from 'light-toast';
 
 class ContentMasterReasonSuperAdmin extends Component {
     state = {
-        id_pengguna_login:'',
-        company_id:'',
-        company_name:'',
-        tipe_bisnis:'',
+        id_pengguna_login: '',
+        company_id: '',
+        company_name: '',
+        tipe_bisnis: '',
         isOpen: false,
         isOpenInsert: false,
         isOpenConfirmInsert: false,
         isOpenConfirmUpdate: false,
         empty_nama_reason_inserted: false,
         empty_nama_reason_selected: false,
-        allDataReason:[],
+        allDataReason: [],
         pembanding_nama_reason_selected: '',
         isBtnUpdate: true
     }
@@ -37,13 +37,13 @@ class ContentMasterReasonSuperAdmin extends Component {
         this.loadReason()
     }
 
-    loadReason = async() => {
+    loadReason = async () => {
         let passqueryreason = encrypt("select * from gcm_master_reason order by gcm_master_reason.id;")
-        const resreason = await this.props.getDataReasonAPI({query:passqueryreason}).catch(err => err)
+        const resreason = await this.props.getDataReasonAPI({ query: passqueryreason }).catch(err => err)
         if (resreason) {
             resreason.map((user, index) => {
                 return (
-                    resreason[index].keterangan = 
+                    resreason[index].keterangan =
                     <center>
                         <button className="mb-2 mr-2 btn-transition btn btn-outline-primary"
                             onClick={(e) => this.handleDetailReason(e, resreason[index].id)}> Detail</button>
@@ -51,7 +51,7 @@ class ContentMasterReasonSuperAdmin extends Component {
                 )
             })
             this.setState({
-                allDataReason:resreason
+                allDataReason: resreason
             })
         } else {
             swal({
@@ -60,28 +60,28 @@ class ContentMasterReasonSuperAdmin extends Component {
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
-                    }
-                }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
-                });
+                }
+            }).then(() => {
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
+            });
         }
     }
 
     handleModalInsert = () => {
         this.setState({
             isOpenInsert: !this.state.isOpenInsert,
-            nama_reason_inserted:'',
-            empty_nama_reason_inserted:false
+            nama_reason_inserted: '',
+            empty_nama_reason_inserted: false
         })
     }
 
     handleChange = (event) => {
         this.setState({
-          [event.target.name] : event.target.value
+            [event.target.name]: event.target.value
         })
         if (event.target.name === 'nama_reason_inserted') {
             this.check_field(event.target.value)
@@ -93,45 +93,45 @@ class ContentMasterReasonSuperAdmin extends Component {
 
     check_field = (e) => {
         if (e === '') {
-            this.setState({empty_nama_reason_inserted: true})
+            this.setState({ empty_nama_reason_inserted: true })
         } else {
-            this.setState({empty_nama_reason_inserted: false})
+            this.setState({ empty_nama_reason_inserted: false })
         }
     }
-    
+
     check_field_edited = (e) => {
         if (e === '') {
-            this.setState({empty_nama_reason_selected: true, isBtnUpdate: true})
-        } else if (e !== ''){
-            this.setState({empty_nama_reason_selected: false})
+            this.setState({ empty_nama_reason_selected: true, isBtnUpdate: true })
+        } else if (e !== '') {
+            this.setState({ empty_nama_reason_selected: false })
         }
-        if (e!== '' && e === this.state.pembanding_nama_reason_selected) {
-            this.setState({empty_nama_reason_selected: false, isBtnUpdate: true})
-        } else if (e!== '' && e !== this.state.pembanding_nama_reason_selected) {
-            this.setState({empty_nama_reason_selected: false, isBtnUpdate: false})
+        if (e !== '' && e === this.state.pembanding_nama_reason_selected) {
+            this.setState({ empty_nama_reason_selected: false, isBtnUpdate: true })
+        } else if (e !== '' && e !== this.state.pembanding_nama_reason_selected) {
+            this.setState({ empty_nama_reason_selected: false, isBtnUpdate: false })
         }
     }
 
     handleWhiteSpace = (e) => {
-        if (e.which === 32 &&  !e.target.value.length) {
+        if (e.which === 32 && !e.target.value.length) {
             e.preventDefault()
         }
     }
 
     handleModalConfirmInsert = () => {
-        if(this.state.nama_reason_inserted === '') { this.setState({ empty_nama_reason_inserted: true }) }
+        if (this.state.nama_reason_inserted === '') { this.setState({ empty_nama_reason_inserted: true }) }
         if (this.state.nama_reason_inserted !== '') {
-                this.setState({
-                    isOpenConfirmInsert: !this.state.isOpenConfirmInsert
-                })
+            this.setState({
+                isOpenConfirmInsert: !this.state.isOpenConfirmInsert
+            })
         }
     }
 
-    confirmActionInsertReason = async() => {
+    confirmActionInsertReason = async () => {
         Toast.loading('Loading...');
-        let passqueryinsertreason = encrypt("insert into gcm_master_reason(nama) values ('"+this.state.nama_reason_inserted+"') "+
+        let passqueryinsertreason = encrypt("insert into gcm_master_reason(nama) values ('" + this.state.nama_reason_inserted + "') " +
             " returning nama;")
-        const resinsertMasterReason = await this.props.insertMasterReason({query:passqueryinsertreason}).catch(err => err)
+        const resinsertMasterReason = await this.props.insertMasterReason({ query: passqueryinsertreason }).catch(err => err)
         Toast.hide();
 
         if (resinsertMasterReason) {
@@ -141,9 +141,10 @@ class ContentMasterReasonSuperAdmin extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(()=> {
+            }).then(() => {
+                this.handleModalConfirmInsert()
+                this.handleModalInsert()
                 this.loadReason()
-                window.location.reload()
             });
         } else {
             swal({
@@ -152,18 +153,18 @@ class ContentMasterReasonSuperAdmin extends Component {
                 icon: "error",
                 button: false,
                 timer: "2500"
-              }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
         }
     }
 
-    handleDetailReason = async(e, id) => {
+    handleDetailReason = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation()
-        let passquerydetail = encrypt("select gcm_master_reason.id, gcm_master_reason.nama from gcm_master_reason "+
-            "where gcm_master_reason.id="+id)
-        const resdetail = await this.props.getDataDetailedMasterReasonAPI({query:passquerydetail}).catch(err => err)
+        let passquerydetail = encrypt("select gcm_master_reason.id, gcm_master_reason.nama from gcm_master_reason " +
+            "where gcm_master_reason.id=" + id)
+        const resdetail = await this.props.getDataDetailedMasterReasonAPI({ query: passquerydetail }).catch(err => err)
         if (resdetail) {
             this.setState({
                 id_reason_selected: id,
@@ -177,40 +178,40 @@ class ContentMasterReasonSuperAdmin extends Component {
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
-                    }
-                }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
-                });
+                }
+            }).then(() => {
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
+            });
         }
     }
 
     handleModalDetail = () => {
         this.setState({
             isOpen: !this.state.isOpen,
-            empty_nama_reason_selected:false
+            empty_nama_reason_selected: false
         })
     }
 
     handleModalConfirm = () => {
-        if(this.state.nama_reason_selected === '') { this.setState({ empty_nama_reason_selected: true }) }
+        if (this.state.nama_reason_selected === '') { this.setState({ empty_nama_reason_selected: true }) }
         if (this.state.nama_reason_selected !== '') {
-                this.setState({
-                    isOpenConfirmUpdate: !this.state.isOpenConfirmUpdate
-                })
+            this.setState({
+                isOpenConfirmUpdate: !this.state.isOpenConfirmUpdate
+            })
         }
     }
 
-    confirmActionUpdateReason = async() => {
+    confirmActionUpdateReason = async () => {
         Toast.loading('Loading...');
-        let passqueryupdatemasterreason = encrypt("update gcm_master_reason set nama='"+this.state.nama_reason_selected+"' "+
-            " where id="+this.state.id_reason_selected+" returning nama;")
-        const resupdateMasterReason = await this.props.updateMasterReason({query:passqueryupdatemasterreason}).catch(err => err)
+        let passqueryupdatemasterreason = encrypt("update gcm_master_reason set nama='" + this.state.nama_reason_selected + "' " +
+            " where id=" + this.state.id_reason_selected + " returning nama;")
+        const resupdateMasterReason = await this.props.updateMasterReason({ query: passqueryupdatemasterreason }).catch(err => err)
         Toast.hide();
-        
+
         if (resupdateMasterReason) {
             swal({
                 title: "Sukses!",
@@ -218,9 +219,10 @@ class ContentMasterReasonSuperAdmin extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(()=> {
+            }).then(() => {
+                this.handleModalConfirm()
+                this.handleModalDetail()
                 this.loadReason()
-                window.location.reload()
             });
         } else {
             swal({
@@ -229,13 +231,13 @@ class ContentMasterReasonSuperAdmin extends Component {
                 icon: "error",
                 button: false,
                 timer: "2500"
-              }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
         }
     }
 
-    render(){
+    render() {
         const data = {
             columns: [
                 {
@@ -248,8 +250,8 @@ class ContentMasterReasonSuperAdmin extends Component {
                     field: 'keterangan',
                     width: 150
                 }],
-                rows: this.state.allDataReason
-            }
+            rows: this.state.allDataReason
+        }
         return (
             <div className="app-main__outer">
                 <div className="app-main__inner">
@@ -266,11 +268,11 @@ class ContentMasterReasonSuperAdmin extends Component {
                                 </div>
                             </div>
                             <div className="page-title-actions">
-                                
+
                             </div>
                         </div>
                     </div>
-                    <div style={{textAlign: "right"}}>
+                    <div style={{ textAlign: "right" }}>
                         <button className="sm-2 mr-2 btn btn-primary" title="Tambah Reason" onClick={this.handleModalInsert}>
                             <i className="fa fa-plus" aria-hidden="true"></i>
                         </button>
@@ -285,7 +287,7 @@ class ContentMasterReasonSuperAdmin extends Component {
                                             striped
                                             responsive
                                             hover
-                                            order={['id', 'asc' ]}
+                                            order={['id', 'asc']}
                                             sorting="false"
                                             data={data}
                                         />
@@ -300,12 +302,12 @@ class ContentMasterReasonSuperAdmin extends Component {
                 <Modal size="md" toggle={this.handleModalInsert} isOpen={this.state.isOpenInsert} backdrop="static" keyboard={false}>
                     <ModalHeader toggle={this.handleModalInsert}>Tambah Master Reason</ModalHeader>
                     <ModalBody>
-                        <div className="position-relative form-group" style={{marginTop:'3%'}}>
+                        <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Master Reason</p>
-                                <Input type="text" name="nama_reason_inserted" id="nama_reason_inserted" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Master Reason</p>
+                                <Input type="text" name="nama_reason_inserted" id="nama_reason_inserted"
                                     placeholder="Nama Master Reason" onChange={this.handleChange} onKeyPress={this.handleWhiteSpace}
-                                    invalid={this.state.empty_nama_reason_inserted}/>
+                                    invalid={this.state.empty_nama_reason_inserted} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                         </div>
@@ -334,12 +336,12 @@ class ContentMasterReasonSuperAdmin extends Component {
                 <Modal size="md" toggle={this.handleModalDetail} isOpen={this.state.isOpen} backdrop="static" keyboard={false}>
                     <ModalHeader toggle={this.handleModalDetail}>Detail Master Reason</ModalHeader>
                     <ModalBody>
-                        <div className="position-relative form-group" style={{marginTop:'3%'}}>
+                        <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                             <FormGroup>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Master Reason</p>
-                                <Input type="text" name="nama_reason_selected" id="nama_reason_selected" 
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Master Reason</p>
+                                <Input type="text" name="nama_reason_selected" id="nama_reason_selected"
                                     placeholder="Nama Master Reason" value={this.state.nama_reason_selected} onChange={this.handleChange} onKeyPress={this.handleWhiteSpace}
-                                    invalid={this.state.empty_nama_reason_selected}/>
+                                    invalid={this.state.empty_nama_reason_selected} />
                                 <FormFeedback>Kolom ini wajib diisi</FormFeedback>
                             </FormGroup>
                         </div>
@@ -379,4 +381,4 @@ const reduxDispatch = (dispatch) => ({
     logoutAPI: () => dispatch(logoutUserAPI())
 })
 
-export default withRouter( connect(reduxState, reduxDispatch)(ContentMasterReasonSuperAdmin) );
+export default withRouter(connect(reduxState, reduxDispatch)(ContentMasterReasonSuperAdmin));

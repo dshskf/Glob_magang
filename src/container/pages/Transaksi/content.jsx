@@ -14,7 +14,7 @@ import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
 import './Transaksi.css'
 import {
     Modal, ModalHeader, ModalBody, ModalFooter, Button, ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle,
-    Col, Input, FormGroup, Label, Card, CardImg, CardBody, CardTitle, CardText, FormFeedback
+    Col, Input, FormGroup, Label, Card, CardImg, CardBody, CardTitle, CardText, FormFeedback, CardLink
 } from 'reactstrap'
 import io from 'socket.io-client'
 import moment from 'moment';
@@ -169,7 +169,9 @@ class ContentTransaksi extends Component {
         errUnggahBuktiPembayaran: false,
         isOpenConfirmBuktiPembayaran: false,
         disableBuktiPembayaran: true,
-        isOpenZoomBuktiPembayaran: false
+        isOpenZoomBuktiPembayaran: false,
+        buktiKomplain: null,
+        isOpenBuktiKomplain: false
     }
 
     componentWillMount() {
@@ -263,11 +265,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -471,11 +473,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
         this.setState({
@@ -709,11 +711,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -730,7 +732,7 @@ class ContentTransaksi extends Component {
         //     "where gcm_transaction_detail.transaction_id= '"+id_transaction+"' order by gcm_master_barang.nama asc")
         let passquerydetailedorder = ""
         if (status === 'WAITING' || status === 'CANCELED') {
-            console.log('hei1')
+
             passquerydetailedorder = encrypt("select gcm_list_barang.kode_barang, gcm_transaction_detail.id, gcm_transaction_detail.transaction_id, " +
                 "gcm_transaction_detail.barang_id, gcm_transaction_detail.harga_asli, gcm_master_barang.berat, " +
                 "gcm_master_barang.nama, gcm_transaction_detail.qty," +
@@ -760,7 +762,7 @@ class ContentTransaksi extends Component {
                 "where gcm_transaction_detail.transaction_id= '" + id_transaction + "' order by gcm_master_barang.nama asc")
         }
         const resdetailedorder = await this.props.getDataDetailedOrderAPI({ query: passquerydetailedorder }).catch(err => err)
-        console.log(resdetailedorder)
+
         if (resdetailedorder) {
             if (status === 'WAITING' || status === 'CANCELED') {
                 resdetailedorder.map((user, index) => {
@@ -817,11 +819,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -856,11 +858,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -895,11 +897,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -923,11 +925,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1008,11 +1010,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1042,7 +1044,17 @@ class ContentTransaksi extends Component {
         })
     }
 
-
+    cleanAfterPost = () => {
+        this.setState({
+            isOpenReceivedConfirm: false,
+            isOpenConfirmBuktiPembayaran: false,
+            isOpenUnggahBuktiPembayaran: false,
+            isOpenConfirm: false,
+            isOpen: false,
+            ongkos_kirim_onconfirm: '',
+            catatan_logistik: ''
+        })
+    }
 
     confirmAction = async () => {
         Toast.loading('Loading...');
@@ -1062,7 +1074,7 @@ class ContentTransaksi extends Component {
 
         const set_catatan_logistik = {
             field: this.state.isCheckedCatatanLogistic ? ', log_logistik=' : '',
-            value: this.state.isCheckedCatatanLogistic ? this.state.catatan_logistik : ''
+            value: this.state.isCheckedCatatanLogistic ? `'${this.state.catatan_logistik}'` : ''
         }
 
         if (this.state.status === waiting) {
@@ -1129,6 +1141,7 @@ class ContentTransaksi extends Component {
                     }
                     this.handleUpdateTransactionDetail()
                 } else {
+                    console.log("in here")
                     passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status_payment='" + status_payment +
                         "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), approval_by_sales='" + this.state.id_pengguna_login + "', id_sales='" + this.state.id_pengguna_login + "' " + set_catatan_logistik.field + set_catatan_logistik.value +
                         " where id=" + this.state.id + " returning status;")
@@ -1145,6 +1158,7 @@ class ContentTransaksi extends Component {
         } else if (this.state.status === complained) {
             passqueryupdatestatustransaksi = encrypt(`update gcm_master_transaction set status='FINISHED', date_finished=now() where id=${this.state.id} returning status`)
         }
+        console.log(decrypt(passqueryupdatestatustransaksi))
         const resupdatestatustransaksi = await this.props.updateTransactionStatus({ query: passqueryupdatestatustransaksi }).catch(err => err)
         Toast.hide();
         if (resupdatestatustransaksi) {
@@ -1155,8 +1169,8 @@ class ContentTransaksi extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                this.loadDataTransactions("0")
-                window.location.reload()
+                this.cleanAfterPost()
+                this.loadData()
             });
         } else {
             swal({
@@ -1199,6 +1213,7 @@ class ContentTransaksi extends Component {
         }
         let querygabung = encrypt(queryawal.concat(queryloop))
         const resupdatestatustransaksi = await this.props.updateTransactionStatus({ query: querygabung }).catch(err => err)
+
         if (resupdatestatustransaksi) {
             swal({
                 title: "Sukses!",
@@ -1207,8 +1222,8 @@ class ContentTransaksi extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                this.loadDataTransactions("0")
-                window.location.reload()
+                this.cleanAfterPost()
+                this.loadData()
             });
         } else {
             swal({
@@ -1290,11 +1305,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1416,11 +1431,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1479,11 +1494,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1663,7 +1678,7 @@ class ContentTransaksi extends Component {
     }
 
     handleUbahPengirimanInput = e => {
-        console.log(e.target.value)
+
         this.setState({
             updateTanggalPengirimanKirim: e.target.value
         })
@@ -1712,7 +1727,7 @@ class ContentTransaksi extends Component {
         left join gcm_listing_bank glb on gmt.id_list_bank=glb.id
         left join gcm_master_bank gmb on glb.id_bank = gmb.id
         where gmt.status='WAITING' and gmt.id_transaction='${this.state.id_transaction}'`)
-        console.log(decrypt(query))
+
         const resdetail = await this.props.postQuery({ query: query }).catch(err => err)
         if (resdetail) {
             this.setState({ detailStatusPembayaran: resdetail[0] })
@@ -1739,7 +1754,7 @@ class ContentTransaksi extends Component {
             update gcm_master_transaction set status_payment = 'PAID', update_by=  '${this.state.id_pengguna_login}', update_date = now() where 
             status = 'WAITING' and id_transaction = '${this.state.id_transaction}' returning *
         `)
-        console.log(decrypt(query))
+
         const postQuery = await this.props.postQuery({ query: query }).catch(err => err)
 
         if (postQuery) {
@@ -1833,10 +1848,7 @@ class ContentTransaksi extends Component {
                     button: false,
                     timer: "2500"
                 }).then(async () => {
-                    await _this.setState({
-                        isOpenConfirmBuktiPembayaran: false,
-                        isOpenUnggahBuktiPembayaran: false
-                    })
+                    await this.cleanAfterPost()
                     await this.loadData()
                 })
             } else {
@@ -1872,6 +1884,34 @@ class ContentTransaksi extends Component {
     handleZoomBuktiPembayaran = () => {
         this.setState({
             isOpenZoomBuktiPembayaran: !this.state.isOpenZoomBuktiPembayaran
+        })
+    }
+
+    handleModalBuktiKomplain = async () => {
+        console.log(this.state)
+        const query = encrypt(`select * from gcm_listing_bukti_complain where detail_transaction_id=748`)
+        let getBukti = await this.props.postQuery({ query: query }).catch(err => err)
+        getBukti = getBukti.map((bukti, index) => {
+            const formatted = {
+                id: index + 1,
+                nama_file:
+                    <div className="default-center-box">
+                        <img style={{ width: 150, height: 150, margin: '4px 0' }} alt="" src={bukti.bukti} />
+                    </div>
+                ,
+                aksi:
+                    <div className="default-center-box">
+                        <button className="mb-2 mr-2 btn-transition btn btn-outline-primary" onClick={
+                            ()=>window.open(bukti.bukti,'htmlname','width=largeImage.stylewidth,height=largeImage.style.height,resizable=1')
+                        }>Lihat Detail</button>
+                    </div>
+            }
+            return formatted
+        })
+
+        this.setState({
+            buktiKomplain: getBukti,
+            isOpenBuktiKomplain: !this.state.isOpenBuktiKomplain
         })
     }
 
@@ -2203,6 +2243,25 @@ class ContentTransaksi extends Component {
                 }],
             rows: this.state.allDetailedOrderNonWaiting
         }
+
+        const buktiKomplainTable = {
+            columns: [
+                {
+                    label: 'No.',
+                    field: 'id'
+                },
+                {
+                    label: 'Nama File',
+                    field: 'nama_file'
+                },
+                {
+                    label: 'Aksi',
+                    field: 'aksi'
+                },
+            ],
+            rows: this.state.buktiKomplain
+        }
+
         return (
             <div className="app-main__outer">
                 <div className="app-main__inner">
@@ -2377,7 +2436,7 @@ class ContentTransaksi extends Component {
                                 <li className="nav-item"><a data-toggle="tab" href="#tab-eg115-0-transaction" className="active nav-link">Informasi Transaksi</a></li>
                                 <li className="nav-item"><a data-toggle="tab" href="#tab-eg115-1-transaction" className="nav-link">Data Transaksi</a></li>
                                 {this.state.status === 'COMPLAINED' ?
-                                    <li className="nav-item"><a data-toggle="tab" href="#tab-eg115-2-transaction" className="nav-link">Daftar Aduan</a></li>
+                                    <li className="nav-item"><a data-toggle="tab" href="#tab-eg115-2-transaction" className="nav-link">Daftar Komplain</a></li>
                                     : null
                                 }
                             </ul>
@@ -2819,21 +2878,37 @@ class ContentTransaksi extends Component {
                                                 {
                                                     this.state.allTransactionComplained.map((user, index) => {
                                                         return (
-                                                            <Col xs="12" sm="12" md="4" className="product-card ">
+                                                            <Col xs="14" sm="14" md="4" className="product-card ">
                                                                 <Card style={{ marginBottom: '10%' }}>
                                                                     <div style={{ width: "50%", alignContent: "center", margin: "auto", marginTop: "5%" }}>
                                                                         <CardImg src={user.foto} alt="" />
                                                                     </div>
                                                                     <CardBody>
                                                                         <CardTitle>{user.nama}</CardTitle>
-                                                                        <CardText>Jenis Aduan : {user.jenis_complain}</CardText>
+                                                                        <CardText>Jenis Komplain : {user.jenis_complain}</CardText>
                                                                         <CardText>Rincian : {user.notes_complain}</CardText>
+                                                                        <p className="default-custom-link" onClick={this.handleModalBuktiKomplain}>Lihat Bukti Komplain</p>
                                                                     </CardBody>
                                                                 </Card>
                                                             </Col>
                                                         )
                                                     })
                                                 }
+                                                <Modal size="m" toggle={this.handleModalBuktiKomplain} isOpen={this.state.isOpenBuktiKomplain} backdrop="static" keyboard={false}>
+                                                    <ModalHeader toggle={this.handleModalBuktiKomplain}>Konfirmasi Aksi</ModalHeader>
+                                                    <ModalBody>
+                                                        <div className="position-relative form-group">
+                                                            <MDBDataTable
+                                                                bordered
+                                                                striped
+                                                                responsive
+                                                                hover
+                                                                order={['id', 'asc']}
+                                                                data={buktiKomplainTable}
+                                                            />
+                                                        </div>
+                                                    </ModalBody>
+                                                </Modal>
                                             </div>
                                         </div>
                                     </div>
@@ -2889,12 +2964,15 @@ class ContentTransaksi extends Component {
                                             <label>Konfirmasi transaksi ini?</label>
                             }
                         </div>
-                        <div style={{ marginLeft: '1.2rem' }}>
-                            <Input type="checkbox"
-                                checked={this.state.isCheckedCatatanLogistic}
-                                onChange={this.toogleCheckedCatatanLogistik}
-                            />Tambahkan catatan logistik
+                        {
+                            this.state.sa_role !== 'admin' && <div style={{ marginLeft: '1.2rem' }}>
+                                <Input type="checkbox"
+                                    checked={this.state.isCheckedCatatanLogistic}
+                                    onChange={this.toogleCheckedCatatanLogistik}
+                                />Tambahkan catatan logistik
                         </div>
+                        }
+
                         {
                             this.state.isCheckedCatatanLogistic && <Input
                                 name="catatan_logistik"

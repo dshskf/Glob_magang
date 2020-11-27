@@ -10,3 +10,6 @@ port: 5432
 user: gcm
 
 password: Gcm46822422
+
+
+user : globdb, pass: GLOBbukanGMOS97

@@ -112,11 +112,11 @@ class ContentNegosiasiSuperAdmin extends Component {
                     confirm: "Oke"
                     }
                 }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
         }
     }
@@ -175,11 +175,11 @@ class ContentNegosiasiSuperAdmin extends Component {
                     confirm: "Oke"
                     }
                 }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
         }
     }
@@ -248,11 +248,11 @@ class ContentNegosiasiSuperAdmin extends Component {
                     confirm: "Oke"
                     }
                 }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
         }
     }
@@ -295,11 +295,11 @@ class ContentNegosiasiSuperAdmin extends Component {
                     confirm: "Oke"
                     }
                 }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
         }
         this.loadSellerNego(id_history_nego)
@@ -334,11 +334,11 @@ class ContentNegosiasiSuperAdmin extends Component {
                     confirm: "Oke"
                     }
                 }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
         }
         this.loadBarangNego(id)
@@ -377,11 +377,11 @@ class ContentNegosiasiSuperAdmin extends Component {
                     confirm: "Oke"
                     }
                 }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
         }
     }
@@ -410,11 +410,11 @@ class ContentNegosiasiSuperAdmin extends Component {
                     confirm: "Oke"
                     }
                 }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
         }
     }

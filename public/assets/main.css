@@ -24658,6 +24658,23 @@ a.fc-more:hover {
     width: 100%
 }
 
+.default-custom-link{
+    color:blue;
+    cursor: pointer;
+    margin:0;
+}
+
+.default-center-box{
+    width: 100%;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+}
+
+.default-custom-link:hover{
+text-decoration: underline;
+}
+
 @media (max-width:992px) {
     .showing {
         display: flex !important;

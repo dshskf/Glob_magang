@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import './App.css'
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom'
 import { Provider } from 'react-redux'
@@ -32,6 +32,7 @@ import { Notifications } from 'react-push-notification';
 
 
 function App() {
+
   if ("serviceWorker" in navigator) {
     navigator.serviceWorker
       .register('/firebase-messaging-sw.js')
@@ -43,32 +44,21 @@ function App() {
       });
   }
 
-
-
-
   useEffect(() => {
-    navigator.serviceWorker.addEventListener("message", (message) => {
-      console.log(message)
-      if (message.data.firebaseMessaging) {
-        console.log(message.data.firebaseMessaging.payload.data)
-      } else {
-        console.log(message.data)
-      }
+    navigator.serviceWorker.addEventListener("message", (message) => {      
+      let msg = message.data.firebaseMessaging ?
+        JSON.parse(message.data.firebaseMessaging.payload.data.notification)
+        :
+        message.data["firebase-messaging-msg-data"] ?
+          JSON.parse(message.data["firebase-messaging-msg-data"])
+          :
+          JSON.parse(message.data.data.notification)
 
-      const msg = JSON.parse(message.data.firebaseMessaging.payload.data.notification)
-      // addNotification({
-      //   title: 'Warning',
-      //   subtitle: 'This is a subtitle',
-      //   message: 'This is a very long message',
-      //   theme: 'darkblue',
-      //   native: true // when using native, your OS will handle theming.
-      // });
-
-      NotificationManager.success(msg.body, 'Glob');
+      NotificationManager.success(msg.body, 'GLOB');
       return message
     });
-  }, [])
 
+  }, [])
 
   const state = {
     isLogin: localStorage.getItem('userData')

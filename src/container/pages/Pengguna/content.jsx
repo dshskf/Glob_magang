@@ -268,11 +268,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -300,11 +300,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -344,11 +344,11 @@ class ContentPengguna extends Component {
                         confirm: "Oke"
                     }
                 }).then(() => {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
             }
         } else {
@@ -401,11 +401,11 @@ class ContentPengguna extends Component {
                             confirm: "Oke"
                         }
                     }).then(() => {
-                        const res = this.props.logoutAPI();
-                        if (res) {
-                            this.props.history.push('/admin')
-                            window.location.reload()
-                        }
+                        // const res = this.props.logoutAPI();
+                        // if (res) {
+                        //     this.props.history.push('/admin')
+                        //     window.location.reload()
+                        // }
                     });
                 }
             }
@@ -448,11 +448,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
         await this.loadRegisteredAccount(id)
@@ -487,11 +487,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -516,11 +516,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -597,11 +597,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -645,11 +645,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -712,11 +712,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -747,11 +747,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -798,11 +798,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -823,11 +823,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -956,11 +956,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1020,11 +1020,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1066,8 +1066,10 @@ class ContentPengguna extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
+                    this.handleModalDetail()
+                    this.handleModalBlacklist()
+                    this.handleModalConfirm()
                     this.loadDataUsers()
-                    window.location.reload()
                 });
             } else {
                 swal({
@@ -1109,8 +1111,9 @@ class ContentPengguna extends Component {
                         timer: "2500"
                     })
                         .then(() => {
+                            this.handleModalDetail()                            
+                            this.handleModalConfirm()
                             this.loadDataUsers()
-                            // window.location.reload()
                         });
                 } else {
                     swal({
@@ -1166,8 +1169,9 @@ class ContentPengguna extends Component {
                         timer: "2500"
                     })
                         .then(() => {
+                            this.handleModalDetail()                            
+                            this.handleModalConfirm()
                             this.loadDataUsers()
-                            // window.location.reload()
                         });
                 } else {
                     swal({
@@ -1203,11 +1207,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1229,11 +1233,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1380,7 +1384,6 @@ class ContentPengguna extends Component {
         }
         else if (this.state.kode_shipto_mapping === "") {
             if (e === '') {
-                console.log('billto kosong')
                 this.setState({
                     isbtnupdatekodemappingalamat: true, feedback_kode_billto_mapping: 'Kolom ini wajib diisi',
                     empty_kode_billto_mapping: true, validation_kode_billto_mapping: false
@@ -1652,7 +1655,7 @@ class ContentPengguna extends Component {
 
     }
 
-    handleCloseModal = () => {
+    handleModalInsertAlamatMapping = () => {
         this.setState({
             isConfirmAlamatValid: false
         })
@@ -1679,7 +1682,10 @@ class ContentPengguna extends Component {
                     timer: "2500"
                 }).then(() => {
                     this.handleModalDetailAlamat()
-                    this.loadAlamatAccount(decrypt(this.state.company_register_id))
+                    this.handleModalInsertAlamatMapping()
+                    this.handleModalDetail()
+                    // this.loadAlamatAccount(decrypt(this.state.company_register_id))
+                    this.loadDataUsers()
                 });
             }
             else {
@@ -1723,11 +1729,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1755,11 +1761,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1782,11 +1788,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1904,11 +1910,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -1927,11 +1933,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -2030,11 +2036,11 @@ class ContentPengguna extends Component {
                         confirm: "Oke"
                     }
                 }).then(() => {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
             }
         }
@@ -2085,11 +2091,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -2121,11 +2127,11 @@ class ContentPengguna extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
         await this.checkCountPayment(this.state.id_buyer)
@@ -2168,8 +2174,9 @@ class ContentPengguna extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
+                this.handleModalConfirmMapping()
+                this.handleModalDetailMapping()
                 this.loadDataUsers()
-                window.location.reload()
             });
         } else {
             swal({
@@ -3121,8 +3128,8 @@ class ContentPengguna extends Component {
                 </Modal>
 
                 {/* Modal Confirm Mapping Alamat */}
-                <Modal size="sm" toggle={this.handleCloseModal} isOpen={this.state.isConfirmAlamatValid} backdrop="static" keyboard={false}>
-                    <ModalHeader toggle={this.handleCloseModal}>Konfirmasi Aksi</ModalHeader>
+                <Modal size="sm" toggle={this.handleModalInsertAlamatMapping} isOpen={this.state.isConfirmAlamatValid} backdrop="static" keyboard={false}>
+                    <ModalHeader toggle={this.handleModalInsertAlamatMapping}>Konfirmasi Aksi</ModalHeader>
                     <ModalBody>
                         <div className="position-relative form-group">
                             <label>Apakah yakin akan melakukan aksi ini?</label>
@@ -3130,7 +3137,7 @@ class ContentPengguna extends Component {
                     </ModalBody>
                     <ModalFooter>
                         <Button color="primary" onClick={this.confirmActionMappingAlamat}>Perbarui</Button>
-                        <Button color="danger" onClick={this.handleCloseModal}>Batal</Button>
+                        <Button color="danger" onClick={this.handleModalInsertAlamatMapping}>Batal</Button>
                     </ModalFooter>
                 </Modal>
             </div>

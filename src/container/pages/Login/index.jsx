@@ -111,9 +111,7 @@ class Login extends Component {
                 await this.props.postData({ query: passquery }).catch(err => err)
                 return token
             })
-            .catch(err => {
-                console.log(err)
-            })
+            .catch(err => err)
     }
 
 

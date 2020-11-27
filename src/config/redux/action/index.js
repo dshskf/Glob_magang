@@ -834,6 +834,7 @@ export const updateStatusPayment = (data) => (dispatch) => {
         API.postQuery(data)
             .then(res => {
                 let status = res.data.status;
+                console.log(status)
                 if (status === "success")
                     resolve(true)
                 dispatch({ type: "CHANGE_LOADING", value: false })
@@ -4490,9 +4491,7 @@ export const sendEmailAktivasi = (data) => (dispatch) => {
 
     axios.post(`https://glob.co.id/External/sendEmail`, data)
         .then(res => {
-            console.log(res);
-            console.log(res.data);
-            window.location.reload();
+            
         })
 }
 

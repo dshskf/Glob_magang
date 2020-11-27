@@ -1,6 +1,6 @@
 {
   "keys": {
-    "accessKey": "AC14A72C49E8610F7098CA9C01B351DC63A05B02",
+    "accessKey": "AC14A72C49E8610F7098CA9C01B351DC63A05B02",    
     "secretKey": "716386853B45FEA4BBB55243756113E256CCDDD3"
   },
   "applicationId": "5fb48418bb762200157b50a3",
@@ -12,10 +12,12 @@
   "params": [
     {
       "options": {
+        "countermeasures": {
+          "realTimeNotifications": true
+        },
         "browsers": [
-          "iexplorer",
-          "chrome",
-          "firefox"
+          "firefox",
+          "chrome"
         ]
       },
       "name": "browserLock"
@@ -72,7 +74,7 @@
   "useRecommendedOrder": true,
   "jscramblerVersion": "7.0",
   "tolerateMinification": true,
-  "profilingDataMode": "off",
+  "profilingDataMode": "automatic",
   "useAppClassification": true,
   "browsers": {}
 }

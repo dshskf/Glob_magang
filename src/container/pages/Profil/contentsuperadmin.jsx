@@ -63,11 +63,11 @@ class ContentProfilSuperAdmin extends Component {
                     confirm: "Oke"
                     }
                 }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
         }
 
@@ -93,11 +93,11 @@ class ContentProfilSuperAdmin extends Component {
                     confirm: "Oke"
                     }
                 }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
+                    // const res = this.props.logoutAPI();
+                    // if (res) {
+                    //     this.props.history.push('/admin')
+                    //     window.location.reload()
+                    // }
                 });
         }
 

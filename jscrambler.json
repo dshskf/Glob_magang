@@ -12,12 +12,10 @@
   "params": [
     {
       "options": {
-        "countermeasures": {
-          "realTimeNotifications": true
-        },
         "browsers": [
-          "firefox",
-          "chrome"
+          "iexplorer",
+          "chrome",
+          "firefox"
         ]
       },
       "name": "browserLock"
@@ -74,7 +72,7 @@
   "useRecommendedOrder": true,
   "jscramblerVersion": "7.0",
   "tolerateMinification": true,
-  "profilingDataMode": "automatic",
+  "profilingDataMode": "off",
   "useAppClassification": true,
   "browsers": {}
 }

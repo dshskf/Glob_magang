@@ -23203,3 +23203,11 @@ a.fc-more:hover {
     margin-bottom: 30px;
     background-size: 100%
 }
+
+.default-custom-link{
+    color:blue;
+}
+
+.default-custom-link:hover{
+text-decoration: underline;
+}

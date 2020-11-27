@@ -75,11 +75,11 @@ class ContentMasterPaymentSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -203,7 +203,9 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                this.handleModalConfirmInsert()
+                this.handleModalInsert()
+                this.loadPayment()
             });
         } else {
             swal({
@@ -239,11 +241,11 @@ class ContentMasterPaymentSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -278,8 +280,9 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
+                this.handleModalConfirm()
+                this.handleModalDetail()
                 this.loadPayment()
-                window.location.reload()
             });
         } else {
             swal({

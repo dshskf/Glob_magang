@@ -20,13 +20,23 @@ const MessageList = (props) => {
   const roomData = props.userIdToFecth
 
   const lastMessageRef = useRef(null)
+  const firebase = useRef(null)
+  const isOpenMessage = useRef(true)
 
   useEffect(() => {
-    if (roomData) {
-      getMessages();
+    return () => {
+      if (firebase.current) {
+        firebase.current.off('value')
+      }
     }
+  }, [])
 
-  }, [roomData ? roomData.roomId : roomData])
+  useEffect(() => {
+    isOpenMessage.current = props.boolChatSceen
+    if (!props.boolChatSceen) {
+      getMessages()
+    }
+  }, [props.boolChatSceen])
 
   useEffect(() => {
     renderMessages()
@@ -35,13 +45,12 @@ const MessageList = (props) => {
   useEffect(() => {
     if (lastMessageRef.current) {
       lastMessageRef.current.scrollIntoView({ behavior: "smooth" })
-      // var objDiv = document.getElementById("l-message");
-      // objDiv.scrollTop = objDiv.scrollHeight;
     }
   }, [msgComponent])
 
   const getMessages = () => {
-    firebaseApp.database().ref(roomData.roomId).on("value", async snapshot => {
+    firebase.current = firebaseApp.database().ref(roomData.roomId)
+    firebase.current.on("value", async snapshot => {
       let update_read_flag_key = []
 
       let result = Object.keys(snapshot.val().message).map((key) => {
@@ -51,7 +60,7 @@ const MessageList = (props) => {
         }
         return snapshot.val().message[key]
       });
-      
+
       result = result.map((data, index) => ({
         id: data.id,
         author: data.sender,
@@ -62,11 +71,15 @@ const MessageList = (props) => {
         status: data.read
       }))
 
-      update_read_flag_key.map(msg_key => firebaseApp.database().ref(`/${roomData.roomId}/message/${msg_key}`).update({ read: true }))
+      if (!isOpenMessage.current) {
+        update_read_flag_key.map(msg_key => firebaseApp.database().ref(`/${roomData.roomId}/message/${msg_key}`).update({ read: true }))
+      }
+
 
       setMessages(result)
     })
   }
+
 
   const renderMessages = () => {
     let tempMessages = [];
@@ -185,7 +198,9 @@ const MessageList = (props) => {
     }
   }
 
-  const handleChangeScreen = () => props.changeChatScreen(true)
+  const handleChangeScreen = () => {
+    props.changeChatScreen(true)
+  }
 
   return (
 

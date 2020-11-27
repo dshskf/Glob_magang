@@ -28,7 +28,7 @@ class SidebarAdmin extends Component {
         totalUnreadMessages: 0
     }
 
-    async componentDidMount() {        
+    async componentDidMount() {
         const userData = JSON.parse(localStorage.getItem('userData'))
         let user_id = parseInt(decrypt(userData.id))
         let company_id = parseInt(decrypt(userData.company_id))
@@ -42,7 +42,7 @@ class SidebarAdmin extends Component {
                 "inner join gcm_company_listing_sales on gcm_master_cart.company_id = gcm_company_listing_sales.buyer_id " +
                 "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
                 "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-                "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id) +
+                "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + company_id +
                 " and gcm_company_listing_sales.id_sales=" + decrypt(userData.id))
         } else {
             query = encrypt("select count(*) " +
@@ -51,11 +51,11 @@ class SidebarAdmin extends Component {
                 "inner join gcm_master_company on gcm_master_cart.company_id = gcm_master_company.id " +
                 "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
                 "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-                "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id))
+                "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + company_id)
         }
 
         if (!this.props.sidebarStatus) {
-            const post = await this.props.getNumber({ query: query }).catch(err => err)            
+            const post = await this.props.getNumber({ query: query }).catch(err => err)
             this.setState({ totalNotification: post[0].count })
             this.props.checkRenderedSidebar(post[0].count)
         }
@@ -71,18 +71,12 @@ class SidebarAdmin extends Component {
             let count_unread = 0
 
             roomData.map(data => {
-                let isAdd = false
-
                 if (data.message) {
                     Object.keys(data.message).map((key) => {
-                        if (data.message[key].read === false && parseInt(data.message[key].receiver) === parseInt(user_id)) {
-                            isAdd = true
+                        if (data.message[key].read === false && parseInt(data.message[key].receiver) === parseInt(company_id)) {
+                            count_unread += 1
                         }
                     })
-                }
-
-                if (isAdd) {
-                    count_unread += 1
                 }
                 return null;
             })
@@ -90,6 +84,7 @@ class SidebarAdmin extends Component {
 
             this.setState({ totalUnreadMessages: count_unread })
         })
+
         if (this.props.sidebarStatus) {
             this.setState({ totalNotification: this.props.sidebarStatus })
         }
@@ -114,7 +109,7 @@ class SidebarAdmin extends Component {
         //     socket.emit('admin_room', {
         //         room_id: `${company_id}-${user_id}`
         //     })
-            
+
         //     this.props.setSocketIOConnection(socket)
         // }
         // else {            

@@ -22,6 +22,7 @@
 .scrollable {
   position: relative;
   overflow-y: scroll;
+  max-height: 52.5rem;
   -webkit-overflow-scrolling: touch;
 }
 

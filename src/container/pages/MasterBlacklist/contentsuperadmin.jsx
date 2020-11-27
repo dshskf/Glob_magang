@@ -62,11 +62,11 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -141,8 +141,9 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
+                this.handleModalConfirmInsert()
+                this.handleModalInsert()
                 this.loadBlacklist()
-                window.location.reload()
             });
         } else {
             swal({
@@ -178,11 +179,11 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                const res = this.props.logoutAPI();
-                if (res) {
-                    this.props.history.push('/admin')
-                    window.location.reload()
-                }
+                // const res = this.props.logoutAPI();
+                // if (res) {
+                //     this.props.history.push('/admin')
+                //     window.location.reload()
+                // }
             });
         }
     }
@@ -217,8 +218,9 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
+                this.handleModalConfirm()
+                this.handleModalDetail()
                 this.loadBlacklist()
-                window.location.reload()
             });
         } else {
             swal({
