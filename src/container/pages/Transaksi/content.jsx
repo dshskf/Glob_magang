@@ -1932,13 +1932,7 @@ class ContentTransaksi extends Component {
                     label: 'Nama Perusahaan',
                     field: 'nama_perusahaan',
                     width: 150
-                },
-                // {
-                //     label: 'Status Pembayaran',
-                //     field: 'status_payment',
-                //     sort: 'asc',
-                //     width: 150
-                // },
+                },              
                 {
                     label: 'Status Konfirmasi',
                     field: 'status_approval',
@@ -1975,13 +1969,7 @@ class ContentTransaksi extends Component {
                     label: 'Nama Perusahaan',
                     field: 'nama_perusahaan',
                     width: 150
-                },
-                // {
-                //     label: 'Status Pembayaran',
-                //     field: 'status_payment',
-                //     sort: 'asc',
-                //     width: 150
-                // },
+                },                
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
@@ -2012,13 +2000,7 @@ class ContentTransaksi extends Component {
                     label: 'Nama Perusahaan',
                     field: 'nama_perusahaan',
                     width: 150
-                },
-                // {
-                //     label: 'Status Pembayaran',
-                //     field: 'status_payment',
-                //     sort: 'asc',
-                //     width: 150
-                // },
+                },              
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
@@ -2049,13 +2031,7 @@ class ContentTransaksi extends Component {
                     label: 'Nama Perusahaan',
                     field: 'nama_perusahaan',
                     width: 150
-                },
-                // {
-                //     label: 'Status Pembayaran',
-                //     field: 'status_payment',
-                //     sort: 'asc',
-                //     width: 150
-                // },
+                },               
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
@@ -2087,12 +2063,6 @@ class ContentTransaksi extends Component {
                     field: 'nama_perusahaan',
                     width: 150
                 },
-                // {
-                //     label: 'Status Pembayaran',
-                //     field: 'status_payment',
-                //     sort: 'asc',
-                //     width: 150
-                // },
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
@@ -2124,12 +2094,6 @@ class ContentTransaksi extends Component {
                     field: 'nama_perusahaan',
                     width: 150
                 },
-                // {
-                //     label: 'Status Pembayaran',
-                //     field: 'status_payment',
-                //     sort: 'asc',
-                //     width: 150
-                // },
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
