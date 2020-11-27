@@ -1887,14 +1887,13 @@ class ContentTransaksi extends Component {
         })
     }
 
-    handleModalBuktiKomplain = async () => {
-        console.log(this.state)
+    handleModalBuktiKomplain = async () => {        
         const query = encrypt(`select * from gcm_listing_bukti_complain where detail_transaction_id=748`)
         let getBukti = await this.props.postQuery({ query: query }).catch(err => err)
         getBukti = getBukti.map((bukti, index) => {
             const formatted = {
                 id: index + 1,
-                nama_file:
+                file:
                     <div className="default-center-box">
                         <img style={{ width: 150, height: 150, margin: '4px 0' }} alt="" src={bukti.bukti} />
                     </div>
@@ -2251,8 +2250,8 @@ class ContentTransaksi extends Component {
                     field: 'id'
                 },
                 {
-                    label: 'Nama File',
-                    field: 'nama_file'
+                    label: 'File',
+                    field: 'file'
                 },
                 {
                     label: 'Aksi',

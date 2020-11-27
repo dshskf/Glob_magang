@@ -4027,8 +4027,8 @@ class ContentBarang extends Component {
     insertBarang = async () => {
         Toast.loading('Loading...');
 
-        let passqueryinsertlistbarang = ""        
-        const addDepartmentValue = this.state.isShowDepartmentSales ? `, ${this.state.selected_department_sales.value}` : `, ${this.state.id_kategori_barang_registered_insert}`      
+        let passqueryinsertlistbarang = ""
+        const addDepartmentValue = this.state.isShowDepartmentSales ? `, ${this.state.selected_department_sales.value}` : `, ${this.state.id_kategori_barang_registered_insert}`
         if (this.state.default_currency === 'IDR') {
             let x = this.state.insert_price.split('.').join('')
             let y = Math.round(x.split(',').join('.'))
@@ -7197,6 +7197,9 @@ class ContentBarang extends Component {
                                 <div style={{ width: '50%', display: 'flex', flexDirection: 'column', flexWrap: 'wrap', border: '1px solid silver', borderRadius: 4, padding: '1rem 2rem', position: 'relative', boxShadow: '2px 2px 6px gray' }}>
                                     <p style={{ position: 'absolute', top: '-2rem', left: 0, fontWeight: 'bold' }}>Harga Barang</p>
                                     <div style={{ margin: '8px 0' }}>
+                                        {
+                                            this.state.jumlah_form_kosong_department > 0 && <p style={{ margin: '4px 0',color: 'red' }}>{this.state.jumlah_form_kosong_department} Data Derpartment Kosong</p>
+                                        }
                                         <p className="mb-0" style={{ fontWeight: 'bold' }}>Department Sales</p>
                                         {
                                             !this.state.disable_form_select_department ?
@@ -7218,9 +7221,7 @@ class ContentBarang extends Component {
                                                             }
                                                         </DropdownMenu>
                                                     </ButtonDropdown>
-                                                    {
-                                                        this.state.jumlah_form_kosong_department > 0 && <p style={{ margin: 0, marginLeft: '14px', color: 'red' }}>{this.state.jumlah_form_kosong_department} Form kosong</p>
-                                                    }
+
                                                 </div>
                                                 :
                                                 <Input disabled={true} value={this.state.nama_category_barang_inserted !== 'Umum' ? this.state.nama_category_barang_inserted : ''} />
