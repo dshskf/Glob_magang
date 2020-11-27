@@ -1887,9 +1887,17 @@ class ContentTransaksi extends Component {
         })
     }
 
-    handleModalBuktiKomplain = async () => {        
-        const query = encrypt(`select * from gcm_listing_bukti_complain where detail_transaction_id=748`)
+    handleModalBuktiKomplain = async () => {
+        const query = encrypt(`
+            select bukti.* 
+            from gcm_transaction_detail gtd 
+            left join(
+                select id,detail_transaction_id as bukti_transaction_id, bukti from gcm_listing_bukti_complain
+            ) bukti on gtd.id=bukti.bukti_transaction_id
+            where gtd.transaction_id='${this.state.id_transaction}'
+        `)
         let getBukti = await this.props.postQuery({ query: query }).catch(err => err)
+        
         getBukti = getBukti.map((bukti, index) => {
             const formatted = {
                 id: index + 1,
@@ -1901,7 +1909,7 @@ class ContentTransaksi extends Component {
                 aksi:
                     <div className="default-center-box">
                         <button className="mb-2 mr-2 btn-transition btn btn-outline-primary" onClick={
-                            ()=>window.open(bukti.bukti,'htmlname','width=largeImage.stylewidth,height=largeImage.style.height,resizable=1')
+                            () => window.open(bukti.bukti, 'htmlname', 'width=largeImage.stylewidth,height=largeImage.style.height,resizable=1')
                         }>Lihat Detail</button>
                     </div>
             }
@@ -1932,7 +1940,7 @@ class ContentTransaksi extends Component {
                     label: 'Nama Perusahaan',
                     field: 'nama_perusahaan',
                     width: 150
-                },              
+                },
                 {
                     label: 'Status Konfirmasi',
                     field: 'status_approval',
@@ -1969,7 +1977,7 @@ class ContentTransaksi extends Component {
                     label: 'Nama Perusahaan',
                     field: 'nama_perusahaan',
                     width: 150
-                },                
+                },
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
@@ -2000,7 +2008,7 @@ class ContentTransaksi extends Component {
                     label: 'Nama Perusahaan',
                     field: 'nama_perusahaan',
                     width: 150
-                },              
+                },
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
@@ -2031,7 +2039,7 @@ class ContentTransaksi extends Component {
                     label: 'Nama Perusahaan',
                     field: 'nama_perusahaan',
                     width: 150
-                },               
+                },
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
