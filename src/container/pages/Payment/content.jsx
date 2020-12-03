@@ -97,7 +97,7 @@ class ContentPayment extends Component {
         getRekening = getRekening.map(data => ({
             ...data,
             action: <center>
-                <button className="mb-2 mr-2 btn-transition btn btn-outline-danger" name={data.id} onClick={this.handleDeactivateRekeningBank} value="delete"> Delete</button>
+                <button className="mb-2 mr-2 btn-transition btn btn-outline-danger" name={data.id} onClick={this.handleDeactivateRekeningBank} value="delete"> Hapus</button>
             </center>
         }))
 
@@ -366,15 +366,19 @@ class ContentPayment extends Component {
                 where id= ${this.state.id_payment} returning status                
             `
         } else {
+
             passquerychangestatuspayment = `
-                with new_order as (
+                with new_order1 as (
                 update gcm_seller_payment_listing set status='${this.state.status_payment}'
-                where id= ${this.state.id_payment} returning status)
+                where id= ${this.state.id_payment} returning status), 
+                new_order2 as(
                 update gcm_payment_listing set status='${this.state.status_payment}'
-                where payment_id= ${this.state.id_payment} and seller_id= ${this.state.company_id} returning status                
-                `
-        }        
-        const resupdatestatuspayment = await this.props.updateStatusPayment({ query: encrypt(passquerychangestatuspayment) }).catch(err => err)        
+                where payment_id= ${this.state.id_payment} and seller_id= ${this.state.company_id})
+                select status from new_order1
+            `
+        }
+
+        const resupdatestatuspayment = await this.props.updateStatusPayment({ query: encrypt(passquerychangestatuspayment) }).catch(err => err)
 
         if (resupdatestatuspayment) {
             if (this.state.status_payment === 'R') {

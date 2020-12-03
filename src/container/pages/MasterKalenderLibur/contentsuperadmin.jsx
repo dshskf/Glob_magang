@@ -27,7 +27,7 @@ class ContentMasterKalenderLibur extends Component {
     loadKalenderLibur = async () => {
         let tempData = []
 
-        let passquery = encrypt("select * from gcm_kalender_libur")
+        let passquery = encrypt("select * from gcm_kalender_libur order by tanggal")
         const getData = await this.props.queryKalender({ query: passquery }).catch(err => err)
 
         getData.map(data => {
@@ -35,7 +35,7 @@ class ContentMasterKalenderLibur extends Component {
             const actionButton =
                 <center>
                     <button className="mb-2 mr-2 btn-transition btn btn-outline-primary" value="update" name={data.id} onClick={this.handleModalOpen}> Edit</button>
-                    <button className="mb-2 mr-2 btn-transition btn btn-outline-danger" value="delete" name={data.id} onClick={this.handleModalOpen}> Delete</button>
+                    <button className="mb-2 mr-2 btn-transition btn btn-outline-danger" value="delete" name={data.id} onClick={this.handleModalOpen}> Hapus</button>
                 </center>
 
             tempData.push({
@@ -265,7 +265,7 @@ class ContentMasterKalenderLibur extends Component {
                                     </i>
                                 </div>
                                 <div>Manajemen Kalender Libur
-                                    <div className="page-title-subheading">Daftar Kalender ContentMasterKalenderLibur
+                                    <div className="page-title-subheading">Daftar Kalender Libur pada GLOB
                                     </div>
                                 </div>
                             </div>
@@ -274,7 +274,7 @@ class ContentMasterKalenderLibur extends Component {
                         </div>
                     </div>
                     <div style={{ textAlign: "right" }}>
-                        <button className="sm-2 mr-2 btn btn-primary" title="Perbarui data ongkir" onClick={() => this.setState({ isInsertOpen: true })}>
+                        <button className="sm-2 mr-2 btn btn-primary" title="Tambah tanggal libur" onClick={() => this.setState({ isInsertOpen: true })}>
                             <i className="fa fa-plus" aria-hidden="true"></i>
                         </button>
                         <button className="sm-2 mr-2 btn btn-danger" >
@@ -287,7 +287,7 @@ class ContentMasterKalenderLibur extends Component {
                                     textDecoration: "none",
                                     padding: '5px'
                                 }}
-                            >Unduh template</Link>
+                            >Unduh Template</Link>
                         </button>
                     </div>
                     <div className="row">
@@ -390,7 +390,7 @@ class ContentMasterKalenderLibur extends Component {
                             </div>
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="primary" onClick={this.deleteKalender}>Delete</Button>
+                            <Button color="primary" onClick={this.deleteKalender}>Hapus</Button>
                             <Button color="danger" onClick={this.handleModalClose}>Batal</Button>
                         </ModalFooter>
                     </Modal>

@@ -6277,6 +6277,7 @@ class ContentBarang extends Component {
                                             className="sm-2 mr-2 btn btn-danger"
                                             style={{ marginLeft: '10px' }}
                                             onClick={this.handleCloseUpdateHargaBarang}
+                                            title="Update harga barang"
                                         >
                                             Update
                                         </button>
@@ -6687,7 +6688,7 @@ class ContentBarang extends Component {
                                     <Button color="danger" style={{ float: "right" }} onClick={() => this.setState({ isRiwayatHargaOpen: true })}>Riwayat Harga</Button>
                                     {
                                         <Modal size="lg" toggle={this.handleModalConfirm} isOpen={this.state.isRiwayatHargaOpen} backdrop="static" keyboard={false} >
-                                            <ModalHeader >Riwayat Harga</ModalHeader>
+                                            <ModalHeader toggle={() => this.setState({ isRiwayatHargaOpen: false })} >Riwayat Harga</ModalHeader>
                                             <ModalBody style={{ padding: "2rem" }}>
                                                 <FormGroup style={{
                                                     display: 'flex',
@@ -6745,7 +6746,6 @@ class ContentBarang extends Component {
 
                                                     }}
                                                 />
-                                                <Button color="danger" style={{ float: "right" }} onClick={() => this.setState({ isRiwayatHargaOpen: false })}>Close</Button>
                                             </ModalBody>
 
                                         </Modal>
@@ -7198,7 +7198,7 @@ class ContentBarang extends Component {
                                     <p style={{ position: 'absolute', top: '-2rem', left: 0, fontWeight: 'bold' }}>Harga Barang</p>
                                     <div style={{ margin: '8px 0' }}>
                                         {
-                                            this.state.jumlah_form_kosong_department > 0 && <p style={{ margin: '4px 0',color: 'red' }}>{this.state.jumlah_form_kosong_department} Data Derpartment Kosong</p>
+                                            this.state.jumlah_form_kosong_department > 0 && <p style={{ margin: '4px 0',color: 'red' }}>{this.state.jumlah_form_kosong_department} data department kosong</p>
                                         }
                                         <p className="mb-0" style={{ fontWeight: 'bold' }}>Department Sales</p>
                                         {

@@ -1668,8 +1668,6 @@ class ContentPengguna extends Component {
         let passquerymappingalamat = encrypt(`update gcm_listing_alamat set kode_shipto_customer='${this.state.kode_shipto_mapping}', kode_billto_customer='${this.state.kode_billto_mapping}'
             where id=${this.state.id_alamat} returning kode_shipto_customer, kode_billto_customer`)
 
-        // let check_kode_shipto_map = this.state.allCheckedKodeAlamat.filter
-
         if (this.state.isConfirmAlamatValid) {
             const resupdatemappingalamat = await this.props.updateKodeMappingAlamat({ query: passquerymappingalamat }).catch(err => err)
             Toast.hide();
@@ -1682,10 +1680,7 @@ class ContentPengguna extends Component {
                     timer: "2500"
                 }).then(() => {
                     this.handleModalDetailAlamat()
-                    this.handleModalInsertAlamatMapping()
-                    this.handleModalDetail()
-                    // this.loadAlamatAccount(decrypt(this.state.company_register_id))
-                    this.loadDataUsers()
+                    this.loadAlamatAccount(decrypt(this.state.company_register_id))
                 });
             }
             else {
@@ -1696,7 +1691,7 @@ class ContentPengguna extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    window.location.reload()
+                    // window.location.reload()
                 });
             }
         }
@@ -2022,6 +2017,9 @@ class ContentPengguna extends Component {
                     "inner join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id " +
                     "where gcm_seller_payment_listing.status = 'A' and gcm_seller_payment_listing.seller_id = " + this.state.company_id)
             }
+
+            console.log(decrypt(passquerypaymentnotlisted))
+
             const respaymentnotlisted = await this.props.getDataPaymentAPI({ query: passquerypaymentnotlisted }).catch(err => err)
             if (respaymentnotlisted) {
                 this.setState({

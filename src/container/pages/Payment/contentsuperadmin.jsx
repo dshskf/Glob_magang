@@ -2,8 +2,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { encrypt, decrypt } from '../../../config/lib';
 import { MDBDataTable } from 'mdbreact';
-import { getDataPaymentAdminAPI, getDataPaymentAPI, insertPaymentListingSeller, getDataDetailedPaymentSuperAdminAPI, 
-    getDataCheckedIdPayment, updateStatusPayment, logoutUserAPI }
+import {
+    getDataPaymentAdminAPI, getDataPaymentAPI, insertPaymentListingSeller, getDataDetailedPaymentSuperAdminAPI,
+    getDataCheckedIdPayment, updateStatusPayment, logoutUserAPI
+}
     from '../../../config/redux/action';
 import swal from 'sweetalert';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button } from 'reactstrap'
@@ -12,22 +14,22 @@ import Toast from 'light-toast';
 
 class ContentPaymentSuperAdmin extends Component {
     state = {
-        id_pengguna_login:'',
-        company_id:'',
-        company_name:'',
-        tipe_bisnis:'',
-        allPaymentListing:[],
+        id_pengguna_login: '',
+        company_id: '',
+        company_name: '',
+        tipe_bisnis: '',
+        allPaymentListing: [],
         isOpen: false,
         isOpenInsert: false,
         isBtnInsert: true,
         isOpenConfirmInsert: false,
-        nama_company_payment:'',
+        nama_company_payment: '',
         id_payment: '',
-        nama_payment:'',
-        deskripsi_payment:'',
-        status_payment:'',
-        status_payment_updated:'',
-        pembanding_status_payment:'',
+        nama_payment: '',
+        deskripsi_payment: '',
+        status_payment: '',
+        status_payment_updated: '',
+        pembanding_status_payment: '',
         isOpenStatusPayment: false,
         isbtnupdatepayment: true,
         isOpenConfirmStatusPayment: false
@@ -42,24 +44,26 @@ class ContentPaymentSuperAdmin extends Component {
             tipe_bisnis: decrypt(userData.tipe_bisnis)
         })
     }
-    
+
     componentDidMount() {
         this.loadPaymentListing()
     }
 
-    loadPaymentListing = async() => {
-        let passquerypaymentlisting = encrypt("select gcm_master_company.nama_perusahaan,"+
-            "gcm_master_payment.payment_name, gcm_seller_payment_listing.status, "+
-            "gcm_seller_payment_listing.id "+
-                "from gcm_seller_payment_listing "+
-            "inner join gcm_master_payment on gcm_seller_payment_listing.payment_id = gcm_master_payment.id "+
-            "inner join gcm_master_company on gcm_seller_payment_listing.seller_id = gcm_master_company.id "+
-            "where gcm_seller_payment_listing.status='C' or gcm_seller_payment_listing.status='R'")
-        const respaymentlisting = await this.props.getDataPaymentAdminAPI({query:passquerypaymentlisting}).catch(err => err)
+    loadPaymentListing = async () => {
+        let passquerypaymentlisting = encrypt("select gcm_master_company.nama_perusahaan," +
+            "gcm_master_payment.payment_name, gcm_seller_payment_listing.status, " +
+            "gcm_seller_payment_listing.id " +
+            "from gcm_seller_payment_listing " +
+            "inner join gcm_master_payment on gcm_seller_payment_listing.payment_id = gcm_master_payment.id " +
+            "inner join gcm_master_company on gcm_seller_payment_listing.seller_id = gcm_master_company.id " +
+            // "where gcm_seller_payment_listing.status='C' or gcm_seller_payment_listing.status='R'")
+            "order by gcm_master_company.nama_perusahaan, gcm_master_payment.payment_name")
+
+        const respaymentlisting = await this.props.getDataPaymentAdminAPI({ query: passquerypaymentlisting }).catch(err => err)
         if (respaymentlisting) {
             respaymentlisting.map((user, index) => {
                 return (
-                    respaymentlisting[index].keterangan = 
+                    respaymentlisting[index].keterangan =
                     <center>
                         <button className="mb-2 mr-2 btn-transition btn btn-outline-primary"
                             onClick={(e) => this.handleDetailPayment(e, respaymentlisting[index].id)}> Lihat Detail</button>
@@ -67,7 +71,7 @@ class ContentPaymentSuperAdmin extends Component {
                 )
             })
             this.setState({
-                allPaymentListing:respaymentlisting
+                allPaymentListing: respaymentlisting
             })
         } else {
             swal({
@@ -76,35 +80,35 @@ class ContentPaymentSuperAdmin extends Component {
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
-                    }
-                }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
-                });
+                }
+            }).then(() => {
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
+            });
         }
     }
 
-    handleDetailPayment = async(e, id) => {
+    handleDetailPayment = async (e, id) => {
         this.handleModalDetailPayment()
         e.stopPropagation()
-        let passquerydetailpayment = encrypt("select gcm_master_payment.payment_name, gcm_master_payment.deskripsi, "+
-            "gcm_seller_payment_listing.status, gcm_seller_payment_listing.id, gcm_master_company.nama_perusahaan "+
-            "from gcm_seller_payment_listing "+
-                "inner join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id "+
-                "inner join gcm_master_company on gcm_seller_payment_listing.seller_id = gcm_master_company.id "+
-            "where gcm_seller_payment_listing.id="+id)
-        const resdetailpayment = await this.props.getDataDetailedPaymentSuperAdminAPI({query:passquerydetailpayment}).catch(err => err)
+        let passquerydetailpayment = encrypt("select gcm_master_payment.payment_name, gcm_master_payment.deskripsi, " +
+            "gcm_seller_payment_listing.status, gcm_seller_payment_listing.id, gcm_master_company.nama_perusahaan " +
+            "from gcm_seller_payment_listing " +
+            "inner join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id " +
+            "inner join gcm_master_company on gcm_seller_payment_listing.seller_id = gcm_master_company.id " +
+            "where gcm_seller_payment_listing.id=" + id)
+        const resdetailpayment = await this.props.getDataDetailedPaymentSuperAdminAPI({ query: passquerydetailpayment }).catch(err => err)
         if (resdetailpayment) {
             await this.setState({
                 nama_company_payment: resdetailpayment.nama_perusahaan,
                 id_payment: resdetailpayment.id,
-                nama_payment:resdetailpayment.nama,
-                deskripsi_payment:resdetailpayment.deskripsi,
-                status_payment:resdetailpayment.status,
-                pembanding_status_payment:resdetailpayment.status
+                nama_payment: resdetailpayment.nama,
+                deskripsi_payment: resdetailpayment.deskripsi,
+                status_payment: resdetailpayment.status,
+                pembanding_status_payment: resdetailpayment.status
             })
         } else {
             swal({
@@ -113,14 +117,14 @@ class ContentPaymentSuperAdmin extends Component {
                 icon: "error",
                 buttons: {
                     confirm: "Oke"
-                    }
-                }).then(()=> {
-                    const res = this.props.logoutAPI();
-                    if (res) {
-                        this.props.history.push('/admin')
-                        window.location.reload()
-                    }
-                });
+                }
+            }).then(() => {
+                const res = this.props.logoutAPI();
+                if (res) {
+                    // this.props.history.push('/admin')
+                    window.location.reload()
+                }
+            });
         }
 
     }
@@ -129,26 +133,26 @@ class ContentPaymentSuperAdmin extends Component {
         this.setState({
             isOpen: !this.state.isOpen,
             id_payment: '',
-            nama_payment:'',
-            deskripsi_payment:'',
-            status_payment:'',
-            pembanding_status_payment:'',
-            status_payment_updated:'',
+            nama_payment: '',
+            deskripsi_payment: '',
+            status_payment: '',
+            pembanding_status_payment: '',
+            status_payment_updated: '',
             isbtnupdatepayment: true
         })
     }
 
-    handleModalConfirmStatusPayment = async(stat) => {
-        await this.setState({isOpenConfirmStatusPayment: !this.state.isOpenConfirmStatusPayment, status_payment_updated: stat })
+    handleModalConfirmStatusPayment = async (stat) => {
+        await this.setState({ isOpenConfirmStatusPayment: !this.state.isOpenConfirmStatusPayment, status_payment_updated: stat })
     }
 
-    confirmActionChangeStatusPayment = async() => {
+    confirmActionChangeStatusPayment = async () => {
         Toast.loading('Loading...');
-        let passquerychangestatuspayment = encrypt("update gcm_seller_payment_listing set status='"+this.state.status_payment_updated+"' "+
-            "where id="+this.state.id_payment+" returning status")            
-        const resupdatestatuspayment = await this.props.updateStatusPayment({query:passquerychangestatuspayment}).catch(err => err)
+        let passquerychangestatuspayment = encrypt("update gcm_seller_payment_listing set status='" + this.state.status_payment_updated + "' " +
+            "where id=" + this.state.id_payment + " returning status")
+        const resupdatestatuspayment = await this.props.updateStatusPayment({ query: passquerychangestatuspayment }).catch(err => err)
         Toast.hide();
-        
+
         if (resupdatestatuspayment) {
             swal({
                 title: "Sukses!",
@@ -156,10 +160,10 @@ class ContentPaymentSuperAdmin extends Component {
                 icon: "success",
                 button: false,
                 timer: "2500"
-            }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
-        } 
+        }
         else {
             swal({
                 title: "Gagal!",
@@ -167,13 +171,13 @@ class ContentPaymentSuperAdmin extends Component {
                 icon: "error",
                 button: false,
                 timer: "2500"
-              }).then(()=> {
+            }).then(() => {
                 window.location.reload()
             });
         }
     }
 
-    render(){
+    render() {
         const dataPaymentListing = {
             columns: [
                 {
@@ -196,8 +200,8 @@ class ContentPaymentSuperAdmin extends Component {
                     field: 'keterangan',
                     width: 150
                 }],
-                rows: this.state.allPaymentListing
-            }
+            rows: this.state.allPaymentListing
+        }
         return (
             <div className="app-main__outer">
                 <div className="app-main__inner">
@@ -214,12 +218,12 @@ class ContentPaymentSuperAdmin extends Component {
                                 </div>
                             </div>
                             <div className="page-title-actions">
-                                
+
                             </div>
                         </div>
                     </div>
-                    <div style={{textAlign: "right"}}>
-                        
+                    <div style={{ textAlign: "right" }}>
+
                     </div>
                     <div className="row">
                         <div className="col-md-12">
@@ -231,7 +235,7 @@ class ContentPaymentSuperAdmin extends Component {
                                             striped
                                             responsive
                                             hover
-                                            order={['id', 'asc' ]}
+                                            order={['id', 'asc']}
                                             sorting="false"
                                             data={dataPaymentListing}
                                         />
@@ -247,34 +251,36 @@ class ContentPaymentSuperAdmin extends Component {
                     <ModalHeader toggle={this.handleModalDetailPayment}>Detail Informasi Payment</ModalHeader>
                     <ModalBody>
                         {/* <div className="position-relative form-group" style={{marginTop:'3%'}}> */}
-                        <div style={{marginTop:'3%'}} className="row">                                        
-                            <div style={{width:'50%', float:'left', paddingLeft:'3%'}}>
-                                <p className="mb-0" style={{fontWeight:'bold'}}>Nama Perusahaan</p>
+                        <div style={{ marginTop: '3%' }} className="row">
+                            <div style={{ width: '50%', float: 'left', paddingLeft: '3%' }}>
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}>Nama Perusahaan</p>
                                 <p className="mb-0"> {this.state.nama_company_payment}</p>
-                                <p className="mb-0" style={{fontWeight:'bold'}}> Nama Payment</p>
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}> Nama Payment</p>
                                 <p className="mb-0"> {this.state.nama_payment}</p>
                             </div>
-                            <div style={{width:'50%', float:'right', paddingLeft:'3%', paddingRight:'3%'}}>
-                                <p className="mb-0" style={{fontWeight:'bold'}}> Status Payment</p>
+                            <div style={{ width: '50%', float: 'right', paddingLeft: '3%', paddingRight: '3%' }}>
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}> Status Payment</p>
                                 {
-                                    (this.state.status_payment === 'C') ? 
-                                        <div className='mb-2 mr-2 badge badge-primary'>Proses Konfirmasi</div>
-                                    : (this.state.status_payment === 'R') ? 
-                                        <div className='mb-2 mr-2 badge badge-warning'>Ditolak</div>
-                                    : null                                        
-                                }                                
-                                <p className="mb-0" style={{fontWeight:'bold'}}> Deskripsi Payment</p>
+                                    (this.state.status_payment === 'A') ?
+                                        <div className='mb-2 mr-2 badge badge-success'>Aktif</div>
+                                        : (this.state.status_payment === 'C') ?
+                                            <div className='mb-2 mr-2 badge badge-primary'>Proses Konfirmasi</div>
+                                            : (this.state.status_payment === 'R') ?
+                                                <div className='mb-2 mr-2 badge badge-warning'>Ditolak</div>
+                                                : null
+                                }
+                                <p className="mb-0" style={{ fontWeight: 'bold' }}> Deskripsi Payment</p>
                                 <p className="mb-0"> {this.state.deskripsi_payment}</p>
                             </div>
                         </div>
                     </ModalBody>
                     {
-                        (this.state.status_payment !== 'R') ?
+                        (this.state.status_payment !== 'R' && this.state.status_payment !== 'A') ?
                             <ModalFooter>
                                 <Button color="primary" onClick={() => this.handleModalConfirmStatusPayment('A')}>Konfirmasi</Button>
-                                <Button color="danger" onClick={() =>this.handleModalConfirmStatusPayment('R')}>Tolak</Button>
+                                <Button color="danger" onClick={() => this.handleModalConfirmStatusPayment('R')}>Tolak</Button>
                             </ModalFooter>
-                        : null
+                            : null
                     }
                 </Modal>
 
@@ -314,4 +320,4 @@ const reduxDispatch = (dispatch) => ({
     logoutAPI: () => dispatch(logoutUserAPI())
 })
 
-export default withRouter( connect(reduxState, reduxDispatch)(ContentPaymentSuperAdmin) );
+export default withRouter(connect(reduxState, reduxDispatch)(ContentPaymentSuperAdmin));

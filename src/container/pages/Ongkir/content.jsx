@@ -93,7 +93,9 @@ class ContentOngkir extends Component {
             "from gcm_ongkos_kirim " +
             "inner join gcm_master_city on gcm_ongkos_kirim.tujuan_kota = gcm_master_city.id " +
             "inner join gcm_master_provinsi on gcm_master_city.id_provinsi = gcm_master_provinsi.id " +
-            "where gcm_ongkos_kirim.id_company=" + this.state.company_id)
+            "where gcm_ongkos_kirim.id_company=" + this.state.company_id + 
+            " order by gcm_master_provinsi.nama, gcm_master_city.nama")
+
         const resdataongkir = await this.props.getDataOngkirAPI({ query: passquerydataongkir }).catch(err => err)
         if (resdataongkir) {
             resdataongkir.map((user, index) => {
@@ -337,7 +339,9 @@ class ContentOngkir extends Component {
                 timer: "2500"
             }).then(() => {
                 this.loadDataOngkir()
-                window.location.reload()
+                this.handleModalConfirm()
+                this.handleModalDetail()
+                // window.location.reload()
             });
         } else {
             swal({
@@ -416,7 +420,7 @@ class ContentOngkir extends Component {
                                     textDecoration: "none",
                                     padding: '5px'
                                 }}
-                            >Unduh template</Link>
+                            >Unduh Template</Link>
                         </button>
                     </div>
                     <div className="row">

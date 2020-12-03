@@ -27,7 +27,26 @@ import { encrypt, decrypt } from '../../../config/lib';
 class SidebarSuperAdmin extends Component {
     state = {
         totalNotification: 0,
-        scrollBottom: false
+        itemPerPage: 0,
+        pageNumber: 1,
+        pageConfig: [
+            { route: 'beranda', title: 'Beranda', icon: 'home' },
+            { route: 'pengguna', title: 'Manajemen Penjual', icon: 'users' },
+            { route: 'barang', title: 'Manajemen Barang', icon: 'server' },
+            { route: 'negosiasi', title: 'Manajemen Negosiasi', icon: 'comment' },
+            { route: 'transaksi', title: 'Manajemen Transaksi', icon: 'graph2' },
+            { route: 'payment', title: 'Manajemen Payment', icon: 'wallet' },
+            { route: 'masterbarang', title: 'Manajemen Master Barang', icon: 'server' },
+            { route: 'masterkategori', title: 'Manajemen Master Kategori', icon: 'photo-gallery' },
+            { route: 'mastersatuan', title: 'Manajemen Master Satuan', icon: 'box2' },
+            { route: 'masterbank', title: 'Manajemen Master Bank', icon: 'cash' },
+            { route: 'masterpayment', title: 'Manajemen Master Payment', icon: 'culture' },
+            { route: 'masterreason', title: 'Manajemen Master Reason', icon: 'note' },
+            { route: 'masternonaktif', title: 'Manajemen Master Nonaktif', icon: 'attention' },
+            { route: 'masterkalenderlibur', title: 'Manajemen Kalender Libur', icon: 'sun' },
+            { route: 'masterbanner', title: 'Manajemen Banner', icon: 'photo' },
+        ],
+
     }
 
     async componentDidMount() {
@@ -35,10 +54,43 @@ class SidebarSuperAdmin extends Component {
         const query = encrypt(`select count(*) from gcm_notification_nego where seller_id=${decrypt(userData.id)}`)
 
         const post = await this.props.getNumber({ query: query }).catch(err => err)
-        this.setState({ totalNotification: post[0].count })
+        this.calculateScreenHeight()
+        this.setState({
+            totalNotification: post[0].count,
+        })
+
+        // window.addEventListener('resize', () => this.calculateScreenHeight())
     }
 
-    handleScrollPosition = () => this.setState({ scrollBottom: !this.state.scrollBottom })
+    calculateScreenHeight = () => {
+        // menu-height: 60px, sidebar-title: 30px              
+        const items_per_page = (window.innerHeight - 90) / 50
+        const pageIndex = this.state.pageConfig.filter((page, index) => {
+            if (this.props.page === page.route) {
+                page.index = index
+                return page
+            }
+        })[0]
+
+        if (pageIndex.index > items_per_page) {
+            const currentPage = Math.ceil(pageIndex.index / items_per_page)
+            this.setState({
+                pageNumber: currentPage
+            })
+        }
+
+        return this.setState({
+            itemPerPage: items_per_page
+        })
+    }
+
+    handleScrollPosition = () => {
+        if (this.state.itemPerPage * this.state.pageNumber > this.state.pageConfig.length) {
+            this.setState({ pageNumber: this.state.pageNumber - 1 })
+        } else {
+            this.setState({ pageNumber: this.state.pageNumber + 1 })
+        }
+    }
 
     render() {
         const page = this.props.page;
@@ -82,277 +134,36 @@ class SidebarSuperAdmin extends Component {
                                 <ul className="vertical-nav-menu">
                                     <li className="app-sidebar__heading">Menu Utama</li>
                                     {
-                                        !this.state.scrollBottom && <React.Fragment>
-                                            {
-                                                page === 'beranda' ? (
-                                                    <li>
-                                                        <Link to="/admin/beranda" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-home">
-                                                            </i>Beranda
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/beranda">
-                                                            <i className="metismenu-icon pe-7s-home">
-                                                            </i>Beranda
-                                                </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'pengguna' ? (
-                                                    <li>
-                                                        <Link to="/admin/pengguna" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-users">
-                                                            </i>Manajemen Penjual
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/pengguna">
-                                                            <i className="metismenu-icon pe-7s-users">
-                                                            </i>Manajemen Penjual
-                                                </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'barang' ? (
-                                                    <li>
-                                                        <Link to="/admin/barang" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-server">
-                                                            </i>Manajemen Barang
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/barang">
-                                                            <i className="metismenu-icon pe-7s-server">
-                                                            </i>Manajemen Barang
-                                                </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'negosiasi' ? (
-                                                    <li>
-                                                        <Link to="/admin/negosiasi" className="mm-active">
-                                                            <div style={{
-                                                                display: 'flex',
-                                                                alignItems: 'center'
 
-                                                            }}>
-                                                                <i className="metismenu-icon pe-7s-comment" />
-                                                                <p>Manajemen Negosiasi</p>
-                                                                {/* <p style={{ color: '#B81F44', marginLeft: '3.5rem', fontWeight: 'bold' }}>{this.state.totalNotification}</p> */}
-                                                            </div>
+                                        this.state.pageConfig.map((pageData, index) => {
+                                            const { route, title, icon } = pageData;
+                                            return (index > (this.state.pageNumber - 1) * this.state.itemPerPage && index < this.state.pageNumber * this.state.itemPerPage) && (
+                                                page === route ?
+                                                    (
+                                                        <li>
+                                                            <Link to={`/admin/${route}`} className="mm-active">
+                                                                <i className={`metismenu-icon pe-7s-${icon}`}>
+                                                                </i>{title}
+                                                            </Link>
+                                                        </li>
+                                                    ) :
+                                                    <li>
+                                                        <Link to={`/admin/${route}`}>
+                                                            <i className={`metismenu-icon pe-7s-${icon}`}>
+                                                            </i>{title}
                                                         </Link>
                                                     </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/negosiasi">
-                                                            <div style={{
-                                                                display: 'flex',
-                                                                alignItems: 'center'
-
-                                                            }}>
-                                                                <i className="metismenu-icon pe-7s-comment" />
-                                                                <p>Manajemen Negosiasi</p>
-                                                                {/* <p style={{ color: '#B81F44', marginLeft: '3.5rem', fontWeight: 'bold' }}>{this.state.totalNotification}</p> */}
-                                                            </div>
-                                                        </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'transaksi' ? (
-                                                    <li>
-                                                        <Link to="/admin/transaksi" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-graph2">
-                                                            </i>Manajemen Transaksi
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/transaksi">
-                                                            <i className="metismenu-icon pe-7s-graph2">
-                                                            </i>Manajemen Transaksi
-                                                </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'payment' ? (
-                                                    <li>
-                                                        <Link to="/admin/payment" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-wallet">
-                                                            </i>Manajemen Payment
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/payment">
-                                                            <i className="metismenu-icon pe-7s-wallet">
-                                                            </i>Manajemen Payment
-                                                </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'masterbarang' ? (
-                                                    <li>
-                                                        <Link to="/admin/masterbarang" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-server">
-                                                            </i>Manajemen Master Barang
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/masterbarang">
-                                                            <i className="metismenu-icon pe-7s-server">
-                                                            </i>Manajemen Master Barang
-                                                </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'masterkategori' ? (
-                                                    <li>
-                                                        <Link to="/admin/masterkategori" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-photo-gallery">
-                                                            </i>Manajemen Master Kategori
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/masterkategori">
-                                                            <i className="metismenu-icon pe-7s-photo-gallery">
-                                                            </i>Manajemen Master Kategori
-                                                </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'mastersatuan' ? (
-                                                    <li>
-                                                        <Link to="/admin/mastersatuan" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-box2">
-                                                            </i>Manajemen Master Satuan
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/mastersatuan">
-                                                            <i className="metismenu-icon pe-7s-box2">
-                                                            </i>Manajemen Master Satuan
-                                                </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'masterpayment' ? (
-                                                    <li>
-                                                        <Link to="/admin/masterpayment" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-cash">
-                                                            </i>Manajemen Master Payment
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/masterpayment">
-                                                            <i className="metismenu-icon pe-7s-cash">
-                                                            </i>Manajemen Master Payment
-                                                </Link>
-                                                    </li>
-                                            }
-                                        </React.Fragment>
-                                    }
-
-
-                                    {
-                                        this.state.scrollBottom && <React.Fragment>
-                                            {
-                                                page === 'masterreason' ? (
-                                                    <li>
-                                                        <Link to="/admin/masterreason" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-note">
-                                                            </i>Manajemen Master Reason
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/masterreason">
-                                                            <i className="metismenu-icon pe-7s-note">
-                                                            </i>Manajemen Master Reason
-                                                </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'masternonaktif' ? (
-                                                    <li>
-                                                        <Link to="/admin/masternonaktif" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-attention">
-                                                            </i>Manajemen Master Nonaktif
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/masternonaktif">
-                                                            <i className="metismenu-icon pe-7s-attention">
-                                                            </i>Manajemen Master Nonaktif
-                                                </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'masterkalenderlibur' ? (
-                                                    <li>
-                                                        <Link to="/admin/masterkalenderlibur" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-sun">
-                                                            </i>Manajemen Kalender Libur
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/masterkalenderlibur">
-                                                            <i className="metismenu-icon pe-7s-sun">
-                                                            </i>Manajemen Kalender Libur
-                                                </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'masterbanner' ? (
-                                                    <li>
-                                                        <Link to="/admin/masterbanner" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-photo">
-                                                            </i>Manajemen Banner
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/masterbanner">
-                                                            <i className="metismenu-icon pe-7s-photo">
-                                                            </i>Manajemen Banner
-                                                </Link>
-                                                    </li>
-                                            }
-                                            {
-                                                page === 'masterbank' ? (
-                                                    <li>
-                                                        <Link to="/admin/masterbank" className="mm-active">
-                                                            <i className="metismenu-icon pe-7s-culture">
-                                                            </i>Manajemen Bank
-                                                </Link>
-                                                    </li>
-                                                ) :
-                                                    <li>
-                                                        <Link to="/admin/masterbank">
-                                                            <i className="metismenu-icon pe-7s-culture">
-                                                            </i>Manajemen Bank
-                                                </Link>
-                                                    </li>
-                                            }
-                                        </React.Fragment>
+                                            )
+                                        })
                                     }
 
                                     <div id="scroll-down-sidebar">
                                         {
-                                            this.state.scrollBottom ?
-
-                                                <i className="metismenu-icon pe-7s-angle-up" onClick={this.handleScrollPosition} />
-                                                :
+                                            this.state.itemPerPage * this.state.pageNumber < this.state.pageConfig.length - 1 ?
                                                 <i className="metismenu-icon pe-7s-angle-down" onClick={this.handleScrollPosition} />
+                                                :
+                                                this.state.itemPerPage < this.state.pageConfig.length - 1 &&
+                                                <i className="metismenu-icon pe-7s-angle-up" onClick={this.handleScrollPosition} />
                                         }
 
                                     </div>
@@ -361,39 +172,40 @@ class SidebarSuperAdmin extends Component {
                         </div>
                     </div>
                     {
-                        page === 'beranda' ? (
-                            <ContentBerandaSuperAdmin />
-                        ) : page === 'barang' ? (
-                            <ContentBarangSuperAdmin />
-                        ) : page === 'negosiasi' ? (
-                            <ContentNegosiasiSuperAdmin />
-                        ) : page === 'pengguna' ? (
-                            <ContentPenggunaSuperAdmin />
-                        ) : page === 'transaksi' ? (
-                            <ContentTransaksiSuperAdmin />
-                        ) : page === 'masterbarang' ? (
-                            <ContentMasterBarangSuperAdmin />
-                        ) : page === 'masterkategori' ? (
-                            <ContentMasterKategoriSuperAdmin />
-                        ) : page === 'masternonaktif' ? (
-                            <ContentMasterBlacklistSuperAdmin />
-                        ) : page === 'mastersatuan' ? (
-                            <ContentMasterSatuanSuperAdmin />
-                        ) : page === 'masterpayment' ? (
-                            <ContentMasterPaymentSuperAdmin />
-                        ) : page === 'masterreason' ? (
-                            <ContentMasterReasonSuperAdmin />
-                        ) : page === 'masterkalenderlibur' ? (
-                            <ContentMasterKalenderLibur />
-                        ) : page === 'masterbanner' ? (
-                            <ContentMasterBanner />
-                        ) : page === 'masterbank' ? (
-                            <ContentMasterBank />
-                        ) : page === 'profil' ? (
-                            <ContentProfilSuperAdmin />
-                        ) : page === 'payment' ? (
-                            <ContentPaymentSuperAdmin />
-                        ) : null
+                        this.state.itemPerPage > 0 &&
+                            page === 'beranda' ? (
+                                <ContentBerandaSuperAdmin />
+                            ) : page === 'barang' ? (
+                                <ContentBarangSuperAdmin />
+                            ) : page === 'negosiasi' ? (
+                                <ContentNegosiasiSuperAdmin />
+                            ) : page === 'pengguna' ? (
+                                <ContentPenggunaSuperAdmin />
+                            ) : page === 'transaksi' ? (
+                                <ContentTransaksiSuperAdmin />
+                            ) : page === 'masterbarang' ? (
+                                <ContentMasterBarangSuperAdmin />
+                            ) : page === 'masterkategori' ? (
+                                <ContentMasterKategoriSuperAdmin />
+                            ) : page === 'masternonaktif' ? (
+                                <ContentMasterBlacklistSuperAdmin />
+                            ) : page === 'mastersatuan' ? (
+                                <ContentMasterSatuanSuperAdmin />
+                            ) : page === 'masterpayment' ? (
+                                <ContentMasterPaymentSuperAdmin />
+                            ) : page === 'masterreason' ? (
+                                <ContentMasterReasonSuperAdmin />
+                            ) : page === 'masterkalenderlibur' ? (
+                                <ContentMasterKalenderLibur />
+                            ) : page === 'masterbanner' ? (
+                                <ContentMasterBanner />
+                            ) : page === 'masterbank' ? (
+                                <ContentMasterBank />
+                            ) : page === 'profil' ? (
+                                <ContentProfilSuperAdmin />
+                            ) : page === 'payment' ? (
+                                <ContentPaymentSuperAdmin />
+                            ) : null
                     }
                 </div>
                 <div className="app-wrapper-footer">

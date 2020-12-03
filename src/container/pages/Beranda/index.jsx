@@ -13,7 +13,6 @@ class Beranda extends Component {
     render(){
         const role = this.state.role
         const sa_role = this.state.sa_role
-        console.log("masuk beranda")
         return (
             <div>
                 {(role === 'admin' && sa_role === 'admin') ? <SidebarAdmin page='beranda'></SidebarAdmin> :

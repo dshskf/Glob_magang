@@ -34,7 +34,7 @@ class ContentMasterBanner extends Component {
             nama: data.nama,
             action: <center>
                 <button className="mb-2 mr-2 btn-transition btn btn-outline-primary" name={data.id} onClick={this.handleOpenUpdateBanner} value="update"> Edit</button>
-                <button className="mb-2 mr-2 btn-transition btn btn-outline-danger" name={data.id} onClick={this.handleOpenDeleteBanner} value="delete"> Delete</button>
+                <button className="mb-2 mr-2 btn-transition btn btn-outline-danger" name={data.id} onClick={this.handleOpenDeleteBanner} value="delete"> Hapus</button>
             </center>
         }))
 
@@ -213,7 +213,7 @@ class ContentMasterBanner extends Component {
                     </div>
 
                     <div style={{ textAlign: "right" }}>
-                        <button className="sm-2 mr-2 btn btn-primary" title="Perbarui data ongkir" onClick={this.handleOpenTambahBanner}>
+                        <button className="sm-2 mr-2 btn btn-primary" title="Tambah banner" onClick={this.handleOpenTambahBanner}>
                             <i className="fa fa-plus" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -237,7 +237,7 @@ class ContentMasterBanner extends Component {
                     </div>
                     {/* ADD */}
                     <Modal size="md" toggle={this.handleOpenTambahBanner} isOpen={this.state.isInsertOpen} backdrop="static" keyboard={false}>
-                        <ModalHeader toggle={this.handleOpenTambahBanner}>Unggah Banner</ModalHeader>
+                        <ModalHeader toggle={this.handleOpenTambahBanner}>Tambah Banner</ModalHeader>
                         <ModalBody>
                             {
                                 this.state.imageShow && <img style={{ width: '100%' }} src={this.state.imageShow} alt="" />
@@ -288,7 +288,7 @@ class ContentMasterBanner extends Component {
                             </div>
                         </ModalBody>
                         <ModalFooter>
-                            <Button color="primary" onClick={() => this.confirmAction("D")}>Delete</Button>
+                            <Button color="primary" onClick={() => this.confirmAction("D")}>Hapus</Button>
                             <Button color="danger" onClick={this.handleOpenDeleteBanner}>Batal</Button>
                         </ModalFooter>
                     </Modal>

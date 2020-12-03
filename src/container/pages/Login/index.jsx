@@ -169,7 +169,7 @@ class Login extends Component {
                             timer: "2500"
                         }).then(() => {
                             this.props.history.push('/admin/beranda')
-                            window.location.reload()
+                            // window.location.reload()
                         });
                     }
                 } else {
@@ -229,7 +229,7 @@ class Login extends Component {
                                         timer: "2500"
                                     }).then(() => {
                                         this.props.history.push('/admin/beranda')
-                                        window.location.reload()
+                                        // window.location.reload()
                                     });
                                 } else {
                                     // status akun = 'R'
@@ -395,7 +395,7 @@ class Login extends Component {
                     button: false,
                     timer: "3000"
                 }).then(() => {
-                    // this.props.history.push('/admin/beranda')
+                    this.props.history.push('/admin/beranda')
                     // window.location.reload()
                 });
             }

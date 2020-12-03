@@ -101,7 +101,7 @@ class SidebarAdmin extends Component {
                 return messaging.getToken()
             })
             .then(async token => {
-                console.log(token)
+                // console.log(token)
             })
 
         // if (!this.props.io) {

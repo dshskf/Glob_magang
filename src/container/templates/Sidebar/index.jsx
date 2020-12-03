@@ -18,7 +18,8 @@ import { encrypt, decrypt } from '../../../config/lib';
 
 class Sidebar extends Component {
     state = {
-        totalNotification: 0
+        totalNotification: 0,
+        totalUnreadMessages: 0
     }
     async componentDidMount() {
         const userData = JSON.parse(localStorage.getItem('userData'))
@@ -55,8 +56,8 @@ class Sidebar extends Component {
             .then(() => {
                 return messaging.getToken()
             })
-            .then(async token =>token)
-            
+            .then(async token => token)
+
         let user_id = parseInt(decrypt(userData.id))
         firebaseApp.database().ref().orderByChild('user_id_seller').equalTo(user_id).on("value", async snapshot => {
             if (!snapshot.val()) {
@@ -86,6 +87,8 @@ class Sidebar extends Component {
 
             this.setState({ totalUnreadMessages: count_unread })
         })
+
+
         if (this.props.sidebarStatus) {
             this.setState({ totalNotification: this.props.sidebarStatus })
         }

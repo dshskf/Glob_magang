@@ -178,7 +178,16 @@ class ContentTransaksiSuperAdmin extends Component {
             this.setState({
                 allDataTransaction: res,
                 tmpfilteredDataTransaction: res
-            })           
+            })
+            swal({
+                title: "Sukses!",
+                text: "Data transaksi berhasil diperbarui!",
+                icon: "success",
+                button: false,
+                timer: "2500"
+            }).then(() => {
+
+            });
         } else {
             swal({
                 title: "Kesalahan 503!",
@@ -481,7 +490,7 @@ class ContentTransaksiSuperAdmin extends Component {
             if (status === 'WAITING' || status === 'CANCELED') {
                 resdetailedorder.map((user, index) => {
                     return (
-                        resdetailedorder[index].nama = 
+                        resdetailedorder[index].nama =
                         <div>
                             <p className="mb-0"> {user.nama}</p>
                             <p style={{ marginTop: '1rem', fontSize: '1.1rem' }}><b>Catatan:</b> {user.note}</p>
@@ -498,7 +507,7 @@ class ContentTransaksiSuperAdmin extends Component {
             } else {
                 resdetailedorder.map((user, index) => {
                     return (
-                        resdetailedorder[index].nama = 
+                        resdetailedorder[index].nama =
                         <div>
                             <p className="mb-0"> {user.nama}</p>
                             <p style={{ marginTop: '1rem', fontSize: '1.1rem' }}><b>Catatan:</b> {user.note}</p>
@@ -551,12 +560,13 @@ class ContentTransaksiSuperAdmin extends Component {
 
     handleRefreshTransaction = async () => {
         await this.setState({ isBtnRefreshTransaction: true })
-        await this.checkDataCanceledTransactions()
-        if (this.state.allTransactionToCanceled.length > 0) {
-            await this.updateTransactionToCanceled()
-        } else {
-            await this.loadDataTransactions("1")
-        }
+        // await this.checkDataCanceledTransactions()
+        // if (this.state.allTransactionToCanceled.length > 0) {
+        //     await this.updateTransactionToCanceled()
+        // } else {
+        //     await this.loadDataTransactions("1")
+        // }
+        await this.loadDataTransactions("1")
         await this.setState({ isBtnRefreshTransaction: false })
     }
 

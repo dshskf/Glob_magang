@@ -124,6 +124,23 @@ thead{
   display: block;
 }
 
+.default-custom-link{
+  color:blue;
+  cursor: pointer;
+  margin:0;
+}
+
+.default-custom-link:hover{
+text-decoration: underline;
+}
+
+.default-center-box{
+  width: 100%;
+  display: flex; 
+  justify-content: center; 
+  align-items: center;
+}
+
 @media (min-width: 1250px) {
   .input::before {
     left: -70.8333333333px;

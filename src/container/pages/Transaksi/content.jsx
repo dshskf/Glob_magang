@@ -14,7 +14,7 @@ import DatetimeRangePicker from 'react-bootstrap-datetimerangepicker';
 import './Transaksi.css'
 import {
     Modal, ModalHeader, ModalBody, ModalFooter, Button, ButtonDropdown, DropdownItem, DropdownMenu, DropdownToggle,
-    Col, Input, FormGroup, Label, Card, CardImg, CardBody, CardTitle, CardText, FormFeedback, CardLink
+    Col, Input, FormGroup, Label, Card, CardImg, CardBody, CardTitle, CardText, FormFeedback
 } from 'reactstrap'
 import io from 'socket.io-client'
 import moment from 'moment';
@@ -62,6 +62,7 @@ class ContentTransaksi extends Component {
         isOpenDropdownStatusPayment: false,
         isOpenConfirmCancel: false,
         isOpenUbahTanggalPengirimanKirim: false,
+        isUnpaidAdvancePayment: false,
         updateTanggalPengirimanKirim: null,
         selectedFilterPayment: 'Semua',
         id: '',
@@ -204,13 +205,26 @@ class ContentTransaksi extends Component {
         await this.loadData()
     }
 
+    cleanAfterPost = () => {
+        this.setState({
+            isOpenReceivedConfirm: false,
+            isOpenConfirmBuktiPembayaran: false,
+            isOpenUnggahBuktiPembayaran: false,
+            isOpenConfirmCancel: false,
+            isOpenConfirm: false,
+            isOpen: false,
+            ongkos_kirim_onconfirm: '',
+            catatan_logistik: ''
+        })
+    }
+
 
     loadData = async () => {
         await this.loadDataTransactions("0")
         // await this.checkDataCanceledTransactions()
-        if (this.state.allTransactionToCanceled.length > 0) {
-            // await this.updateTransactionToCanceled()
-        }
+        // if (this.state.allTransactionToCanceled.length > 0) {
+        //     await this.updateTransactionToCanceled()
+        // }
         await this.checkDataLimitHari()
         if (this.state.countDataLimitHari > 0) {
             await this.loadDataLimitHari()
@@ -265,11 +279,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
             });
         }
     }
@@ -473,11 +487,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
             });
         }
         this.setState({
@@ -525,8 +539,11 @@ class ContentTransaksi extends Component {
     }
 
     handleDetailTransaction = async (e, id, status) => {
-        this.handleModalDetail()
-        e.stopPropagation();
+        if (!this.state.isOpen) {
+            this.handleModalDetail()
+            e.stopPropagation();
+        }
+
         let passquerydetailtransaction = ""
         if (status === 'Menunggu' || status === 'Dibatalkan') {
             passquerydetailtransaction = encrypt("select gcm_master_transaction.id, gcm_master_transaction.id_transaction, gcm_master_transaction.bukti_bayar,gcm_master_transaction.tanggal_bayar," +
@@ -711,11 +728,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
             });
         }
     }
@@ -732,7 +749,6 @@ class ContentTransaksi extends Component {
         //     "where gcm_transaction_detail.transaction_id= '"+id_transaction+"' order by gcm_master_barang.nama asc")
         let passquerydetailedorder = ""
         if (status === 'WAITING' || status === 'CANCELED') {
-
             passquerydetailedorder = encrypt("select gcm_list_barang.kode_barang, gcm_transaction_detail.id, gcm_transaction_detail.transaction_id, " +
                 "gcm_transaction_detail.barang_id, gcm_transaction_detail.harga_asli, gcm_master_barang.berat, " +
                 "gcm_master_barang.nama, gcm_transaction_detail.qty," +
@@ -762,7 +778,6 @@ class ContentTransaksi extends Component {
                 "where gcm_transaction_detail.transaction_id= '" + id_transaction + "' order by gcm_master_barang.nama asc")
         }
         const resdetailedorder = await this.props.getDataDetailedOrderAPI({ query: passquerydetailedorder }).catch(err => err)
-
         if (resdetailedorder) {
             if (status === 'WAITING' || status === 'CANCELED') {
                 resdetailedorder.map((user, index) => {
@@ -819,11 +834,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
             });
         }
     }
@@ -858,11 +873,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
             });
         }
     }
@@ -897,11 +912,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
             });
         }
     }
@@ -925,11 +940,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
             });
         }
     }
@@ -1010,11 +1025,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
             });
         }
     }
@@ -1032,10 +1047,36 @@ class ContentTransaksi extends Component {
     }
 
     handleModalReceivedConfirm = () => {
-        this.setState({
-            isOpenReceivedConfirm: !this.state.isOpenReceivedConfirm,
-            ongkos_kirim_onconfirm: ''
-        })
+
+        if (this.state.payment_name === 'Advance Payment') {
+            if (this.state.status_payment === 'menunggu verifikasi' || this.state.status_payment === 'menunggu pembayaran') {
+                this.setState({
+                    isUnpaidAdvancePayment: !this.state.isUnpaidAdvancePayment
+                })
+                if (this.state.status_payment === 'menunggu pembayaran') {
+                    this.setState({
+                        labelModalUnpaidAdvPayment: 'Proses konfirmasi tidak dapat dilakukan. Pembeli menggunakan metode bayar Advance Payment dan belum melakukan pembayaran & konfirmasi pembayaran'
+                    })
+                }
+                else if (this.state.status_payment === 'menunggu verifikasi') {
+                    this.setState({
+                        labelModalUnpaidAdvPayment: 'Proses konfirmasi tidak dapat dilakukan. Silakan lakukan verifikasi pembayaran pembeli'
+                    })
+                }
+            }
+            else {
+                this.setState({
+                    isOpenReceivedConfirm: !this.state.isOpenReceivedConfirm,
+                    ongkos_kirim_onconfirm: ''
+                })
+            }
+        }
+        else {
+            this.setState({
+                isOpenReceivedConfirm: !this.state.isOpenReceivedConfirm,
+                ongkos_kirim_onconfirm: ''
+            })
+        }
     }
 
     changeStatusPayment = (e) => {
@@ -1044,19 +1085,8 @@ class ContentTransaksi extends Component {
         })
     }
 
-    cleanAfterPost = () => {
-        this.setState({
-            isOpenReceivedConfirm: false,
-            isOpenConfirmBuktiPembayaran: false,
-            isOpenUnggahBuktiPembayaran: false,
-            isOpenConfirm: false,
-            isOpen: false,
-            ongkos_kirim_onconfirm: '',
-            catatan_logistik: ''
-        })
-    }
-
     confirmAction = async () => {
+
         Toast.loading('Loading...');
         let waiting = "WAITING"
         let ongoing = "ONGOING"
@@ -1141,7 +1171,6 @@ class ContentTransaksi extends Component {
                     }
                     this.handleUpdateTransactionDetail()
                 } else {
-                    console.log("in here")
                     passqueryupdatestatustransaksi = encrypt("update gcm_master_transaction set status_payment='" + status_payment +
                         "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), approval_by_sales='" + this.state.id_pengguna_login + "', id_sales='" + this.state.id_pengguna_login + "' " + set_catatan_logistik.field + set_catatan_logistik.value +
                         " where id=" + this.state.id + " returning status;")
@@ -1158,9 +1187,9 @@ class ContentTransaksi extends Component {
         } else if (this.state.status === complained) {
             passqueryupdatestatustransaksi = encrypt(`update gcm_master_transaction set status='FINISHED', date_finished=now() where id=${this.state.id} returning status`)
         }
-        console.log(decrypt(passqueryupdatestatustransaksi))
         const resupdatestatustransaksi = await this.props.updateTransactionStatus({ query: passqueryupdatestatustransaksi }).catch(err => err)
         Toast.hide();
+
         if (resupdatestatustransaksi) {
             swal({
                 title: "Sukses!",
@@ -1171,6 +1200,7 @@ class ContentTransaksi extends Component {
             }).then(() => {
                 this.cleanAfterPost()
                 this.loadData()
+
             });
         } else {
             swal({
@@ -1213,7 +1243,6 @@ class ContentTransaksi extends Component {
         }
         let querygabung = encrypt(queryawal.concat(queryloop))
         const resupdatestatustransaksi = await this.props.updateTransactionStatus({ query: querygabung }).catch(err => err)
-
         if (resupdatestatustransaksi) {
             swal({
                 title: "Sukses!",
@@ -1222,8 +1251,8 @@ class ContentTransaksi extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
+                this.loadDataTransactions("0")
                 this.cleanAfterPost()
-                this.loadData()
             });
         } else {
             swal({
@@ -1305,11 +1334,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
             });
         }
     }
@@ -1431,11 +1460,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
             });
         }
     }
@@ -1494,11 +1523,11 @@ class ContentTransaksi extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+                const res = this.props.logoutAPI();
+                if (res) {
+                    this.props.history.push('/admin')
+                    window.location.reload()
+                }
             });
         }
     }
@@ -1678,7 +1707,6 @@ class ContentTransaksi extends Component {
     }
 
     handleUbahPengirimanInput = e => {
-
         this.setState({
             updateTanggalPengirimanKirim: e.target.value
         })
@@ -1697,8 +1725,9 @@ class ContentTransaksi extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
+                this.setState({ tgl_permintaan_kirim: moment(this.state.updateTanggalPengirimanKirim).format('DD/MM/YYYY') })
                 this.loadDataTransactions("0")
-                window.location.reload()
+                this.handleModalUbahTanggalPengiriman()
             });
         } else {
             swal({
@@ -1727,7 +1756,6 @@ class ContentTransaksi extends Component {
         left join gcm_listing_bank glb on gmt.id_list_bank=glb.id
         left join gcm_master_bank gmb on glb.id_bank = gmb.id
         where gmt.status='WAITING' and gmt.id_transaction='${this.state.id_transaction}'`)
-
         const resdetail = await this.props.postQuery({ query: query }).catch(err => err)
         if (resdetail) {
             this.setState({ detailStatusPembayaran: resdetail[0] })
@@ -1754,7 +1782,6 @@ class ContentTransaksi extends Component {
             update gcm_master_transaction set status_payment = 'PAID', update_by=  '${this.state.id_pengguna_login}', update_date = now() where 
             status = 'WAITING' and id_transaction = '${this.state.id_transaction}' returning *
         `)
-
         const postQuery = await this.props.postQuery({ query: query }).catch(err => err)
 
         if (postQuery) {
@@ -1765,7 +1792,10 @@ class ContentTransaksi extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                // window.location.reload()
+                this.setState({
+                    isOpenDetailStatusPembayaran: false,
+                    status_payment: 'pembayaran selesai'
+                })
             });
         } else {
             swal({
@@ -1793,6 +1823,11 @@ class ContentTransaksi extends Component {
             disableBuktiPembayaran: true,
             buktiPembayaran: null
         })
+
+    }
+
+    handleModalUnpaidAdvPayment = () => {
+        this.setState({ isUnpaidAdvancePayment: !this.state.isUnpaidAdvancePayment })
     }
 
     handleChangeUnggahBuktiPembayaran = (e) => {
@@ -1848,7 +1883,11 @@ class ContentTransaksi extends Component {
                     button: false,
                     timer: "2500"
                 }).then(async () => {
-                    await this.cleanAfterPost()
+                    await _this.setState({
+                        isOpenConfirmBuktiPembayaran: false,
+                        isOpenUnggahBuktiPembayaran: false
+                    })
+                    await this.handleModalDetail()
                     await this.loadData()
                 })
             } else {
@@ -1859,8 +1898,8 @@ class ContentTransaksi extends Component {
                     button: false,
                     timer: "2500"
                 }).then(() => {
-                    _this.setState({
-                        isOpenConfirmBuktiPembayaran: !_this.state.isOpenConfirmBuktiPembayaran
+                    this.setState({
+                        isOpenConfirmBuktiPembayaran: !this.state.isOpenConfirmBuktiPembayaran
                     })
                 })
             }
@@ -1882,9 +1921,7 @@ class ContentTransaksi extends Component {
     }
 
     handleZoomBuktiPembayaran = () => {
-        this.setState({
-            isOpenZoomBuktiPembayaran: !this.state.isOpenZoomBuktiPembayaran
-        })
+        window.open(this.state.detailStatusPembayaran.bukti_bayar, 'htmlname', 'width=largeImage.stylewidth,height=largeImage.style.height,resizable=1')
     }
 
     handleModalBuktiKomplain = async () => {
@@ -1897,7 +1934,7 @@ class ContentTransaksi extends Component {
             where gtd.transaction_id='${this.state.id_transaction}'
         `)
         let getBukti = await this.props.postQuery({ query: query }).catch(err => err)
-        
+
         getBukti = getBukti.map((bukti, index) => {
             const formatted = {
                 id: index + 1,
@@ -1941,6 +1978,12 @@ class ContentTransaksi extends Component {
                     field: 'nama_perusahaan',
                     width: 150
                 },
+                // {
+                //     label: 'Status Pembayaran',
+                //     field: 'status_payment',
+                //     sort: 'asc',
+                //     width: 150
+                // },
                 {
                     label: 'Status Konfirmasi',
                     field: 'status_approval',
@@ -1978,6 +2021,12 @@ class ContentTransaksi extends Component {
                     field: 'nama_perusahaan',
                     width: 150
                 },
+                // {
+                //     label: 'Status Pembayaran',
+                //     field: 'status_payment',
+                //     sort: 'asc',
+                //     width: 150
+                // },
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
@@ -2009,6 +2058,12 @@ class ContentTransaksi extends Component {
                     field: 'nama_perusahaan',
                     width: 150
                 },
+                // {
+                //     label: 'Status Pembayaran',
+                //     field: 'status_payment',
+                //     sort: 'asc',
+                //     width: 150
+                // },
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
@@ -2040,6 +2095,12 @@ class ContentTransaksi extends Component {
                     field: 'nama_perusahaan',
                     width: 150
                 },
+                // {
+                //     label: 'Status Pembayaran',
+                //     field: 'status_payment',
+                //     sort: 'asc',
+                //     width: 150
+                // },
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
@@ -2071,6 +2132,12 @@ class ContentTransaksi extends Component {
                     field: 'nama_perusahaan',
                     width: 150
                 },
+                // {
+                //     label: 'Status Pembayaran',
+                //     field: 'status_payment',
+                //     sort: 'asc',
+                //     width: 150
+                // },
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
@@ -2102,6 +2169,12 @@ class ContentTransaksi extends Component {
                     field: 'nama_perusahaan',
                     width: 150
                 },
+                // {
+                //     label: 'Status Pembayaran',
+                //     field: 'status_payment',
+                //     sort: 'asc',
+                //     width: 150
+                // },
                 {
                     label: 'Tanggal Transaksi',
                     field: 'create_date',
@@ -2585,10 +2658,10 @@ class ContentTransaksi extends Component {
                                                 <p className="mb-0"> {(this.state.tgl_permintaan_kirim === null ? 'Tidak ditentukan' : this.state.tgl_permintaan_kirim)}</p>
                                                 {
                                                     this.state.status === 'WAITING' &&
-                                                    <p
+                                                    <label className="ml-0 mb-0"
                                                         onClick={this.handleModalUbahTanggalPengiriman}
-                                                        style={{ color: 'red', textDecoration: 'underline', cursor: 'pointer' }}
-                                                    >Ubah</p>
+                                                        style={{ fontSize: '11px', color: 'red', textDecoration: 'underline', cursor: 'pointer' }}
+                                                    >Ubah tanggal</label>
                                                 }
                                                 <Modal size="md" toggle={this.handleModalUbahTanggalPengiriman} isOpen={this.state.isOpenUbahTanggalPengirimanKirim} backdrop="static" keyboard={false}>
                                                     <ModalHeader toggle={this.handleModalUbahTanggalPengiriman}>Ubah Tanggal Pengiriman</ModalHeader>
@@ -2596,7 +2669,7 @@ class ContentTransaksi extends Component {
                                                         <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                                                             <FormGroup>
                                                                 <Input type="date" placeholder="Tanggal Perminataan Kirim" onChange={this.handleUbahPengirimanInput} />
-                                                                <p style={{ color: 'red', fontSize: '12px', marginLeft: '10px' }}>*Harap perhatikan format tanggal</p>
+                                                                <p style={{ color: 'red', fontSize: '12px', marginLeft: '5px', marginTop: '5px' }}>*Harap perhatikan format tanggal</p>
                                                             </FormGroup>
                                                         </div>
                                                     </ModalBody>
@@ -2641,13 +2714,13 @@ class ContentTransaksi extends Component {
                                                 <p className="mb-0"> <NumberFormat value={Number(this.state.kurs_rate)} displayType={'text'} thousandSeparator='.' decimalSeparator=',' prefix={'IDR '}></NumberFormat> </p>
                                                 <p className="mb-0" style={{ fontWeight: 'bold' }}> Metode Pembayaran  </p>
                                                 <p className="mb-0"> {this.state.payment_name}</p>
-                                                <p className="mb-0" style={{ fontWeight: 'bold' }}> Status Pembayaranx  </p>
+                                                <p className="mb-0" style={{ fontWeight: 'bold' }}> Status Pembayaran  </p>
                                                 <p className="mb-0"> {this.state.status_payment}</p>
                                                 {
-                                                    (this.state.status === 'WAITING' && this.state.bukti_bayar) && <p className="mb-0" style={{ color: 'red', textDecoration: 'underline', cursor: 'pointer' }} onClick={this.handleDetailsStatusPembayaranModal}>Lihat Detail</p>
+                                                    (this.state.status === 'WAITING' && this.state.bukti_bayar) && <p className="mb-0" style={{ fontSize: '11px', color: 'red', textDecoration: 'underline', cursor: 'pointer' }} onClick={this.handleDetailsStatusPembayaranModal}>Lihat Detail</p>
                                                 }
                                                 {
-                                                    (this.state.status === 'CANCELED' && this.state.payment_name === 'Advance Payment') && <a style={{ color: 'blue', textDecoration: 'underline', cursor: 'pointer' }} onClick={this.handleModalBuktiPembayaran}> Unggah Bukti Pembayaran</a>
+                                                    (this.state.status === 'CANCELED' && this.state.payment_name === 'Advance Payment' && this.state.status_payment.toString().toLowerCase() === 'menunggu pembayaran') && <a style={{ fontSize: '11px', color: 'red', textDecoration: 'underline', cursor: 'pointer' }} onClick={this.handleModalBuktiPembayaran}> Unggah Bukti Pembayaran</a>
                                                 }
 
 
@@ -2677,7 +2750,7 @@ class ContentTransaksi extends Component {
                                                     <ModalHeader toggle={this.handleConfirmBuktiPembayaran}>Konfirmasi Aksi</ModalHeader>
                                                     <ModalBody>
                                                         <div className="position-relative form-group">
-                                                            <label>Mengunggah bukti pembayaran customer, otomatis akan mengubah status transaksi menjadi MENUNGGU. Lanjutkan ?</label>
+                                                            <label>Mengunggah bukti pembayaran customer, otomatis akan mengubah status transaksi menjadi <strong>MENUNGGU</strong>. Lanjutkan ?</label>
                                                         </div>
                                                     </ModalBody>
                                                     <ModalFooter>
@@ -2713,15 +2786,15 @@ class ContentTransaksi extends Component {
                                                                     <p>{this.state.detailStatusPembayaran.tanggal_bayar ? this.state.detailStatusPembayaran.tanggal_bayar.split('T')[0] : '-'}</p>
                                                                 </div>
                                                                 <div>
-                                                                    <label style={{ margin: 0, fontWeight: 'bold', width: '100%' }}>Buktix Pembayaran</label>
+                                                                    <label style={{ margin: 0, fontWeight: 'bold', width: '100%' }}>Bukti Pembayaran</label>
                                                                     <img src={this.state.detailStatusPembayaran.bukti_bayar} style={{ width: '10rem' }} onClick={this.handleZoomBuktiPembayaran} />
                                                                 </div>
-                                                                {
+                                                                {/* {
                                                                     this.state.isOpenZoomBuktiPembayaran && <div style={{ position: 'fixed', top: 0, left: 0, background: 'rgba(0,0,0,0.7)', width: '100vw', height: '100vh', zIndex: 10, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                                                                         <p style={{ color: 'white', fontSize: '2rem', position: 'absolute', top: '1rem', right: '1rem', cursor: 'pointer' }} onClick={this.handleZoomBuktiPembayaran}>X</p>
                                                                         <img src={this.state.detailStatusPembayaran.bukti_bayar} />
                                                                     </div>
-                                                                }
+                                                                } */}
                                                             </div>
                                                         </ModalBody>
                                                         <ModalFooter style={{ position: 'relative' }}>
@@ -2849,7 +2922,7 @@ class ContentTransaksi extends Component {
                                                 {
                                                     this.state.allTransactionComplained.map((user, index) => {
                                                         return (
-                                                            <Col xs="14" sm="14" md="4" className="product-card ">
+                                                            <Col xs="12" sm="12" md="4" className="product-card ">
                                                                 <Card style={{ marginBottom: '10%' }}>
                                                                     <div style={{ width: "50%", alignContent: "center", margin: "auto", marginTop: "5%" }}>
                                                                         <CardImg src={user.foto} alt="" />
@@ -2932,16 +3005,18 @@ class ContentTransaksi extends Component {
                                         : this.state.status_aksi_transaksi === 'Cancel' ?
                                             <label>Batalkan transaksi ini?</label>
                                             :
-                                            <label>Konfirmasi transaksi ini?</label>
+                                            <label>Konfirmasi transaksi ini ?</label>
                             }
                         </div>
                         {
-                            this.state.sa_role !== 'admin' && <div style={{ marginLeft: '1.2rem' }}>
-                                <Input type="checkbox"
-                                    checked={this.state.isCheckedCatatanLogistic}
-                                    onChange={this.toogleCheckedCatatanLogistik}
-                                />Tambahkan catatan logistik
-                        </div>
+                            this.state.status_aksi_transaksi !== 'Cancel' && this.state.sa_role !== 'admin' ?
+                                <div style={{ marginLeft: '1.2rem' }}>
+                                    <Input type="checkbox"
+                                        checked={this.state.isCheckedCatatanLogistic}
+                                        onChange={this.toogleCheckedCatatanLogistik}
+                                    />Tambahkan catatan logistik
+                                </div>
+                                : null
                         }
 
                         {
@@ -3063,17 +3138,17 @@ class ContentTransaksi extends Component {
                             <p className="mb-0"> {this.state.kelurahan_shipto}, {this.state.kecamatan_shipto}</p>
                             <p className="mb-0"> {this.state.kota_shipto}, {this.state.provinsi_shipto} {this.state.kodepos_shipto}</p>
                             <p className="mb-0"> {this.state.no_telp_shipto}</p>
-                            <div className="position-relative form-group">
+                            <div className="position-relative form-group mb-1">
                                 <label style={{ fontWeight: 'bold', width: '100%' }}>Catatan Logistik</label>
                                 <Input type="textarea"
                                     maxLength='100'
-                                    style={{ resize: 'none', border: '1px solid gray', borderRadius: '4px', width: '100%', height: '6rem', padding: '8px 10px' }}
+                                    style={{ borderRadius: '4px', width: '100%', height: '6rem', padding: '8px 10px' }}
                                     name="catatan_logistik"
                                     value={this.state.catatan_logistik}
                                     onChange={this.handleChange}
                                 />
                             </div>
-                            <p className="mb-0" style={{ fontWeight: 'bold', borderTop: '2px solid gray', paddingTop: '10px' }}> Subtotal </p>
+                            <p className="mb-0" style={{ fontWeight: 'bold' }}> Subtotal </p>
                             <p className="mb-0"> <NumberFormat value={Number(this.state.total)} displayType={'text'} thousandSeparator='.' decimalSeparator=',' prefix={'IDR '}></NumberFormat></p>
                             {this.state.company_info_ppn !== 0 ?
                                 <div>
@@ -3247,6 +3322,17 @@ class ContentTransaksi extends Component {
                         <Button color="danger" onClick={this.handleModalConfirmLimitHariTransaksi}>Batal</Button>
                     </ModalFooter>
                 </Modal>
+
+                {/* Modal Advance Payment belum bayar */}
+                <Modal size="sm" toggle={this.handleModalUnpaidAdvPayment} isOpen={this.state.isUnpaidAdvancePayment} backdrop="static" keyboard={false}>
+                    <ModalHeader toggle={this.handleModalUnpaidAdvPayment}>Perhatian!</ModalHeader>
+                    <ModalBody>
+                        <div className="position-relative form-group">
+                            <label>{this.state.labelModalUnpaidAdvPayment}</label>
+                        </div>
+                    </ModalBody>
+                </Modal>
+
             </div>
         )
     }

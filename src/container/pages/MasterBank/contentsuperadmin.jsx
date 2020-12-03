@@ -34,7 +34,7 @@ class ContentMasterBank extends Component {
             create_by: data.create_by,
             action: <center>
                 <button className="mb-2 mr-2 btn-transition btn btn-outline-primary" name={data.id} onClick={this.handleOpenUpdatebank} value="update"> Edit</button>
-                <button className="mb-2 mr-2 btn-transition btn btn-outline-danger" name={data.id} onClick={this.handleOpenDeletebank} value="delete"> Delete</button>
+                <button className="mb-2 mr-2 btn-transition btn btn-outline-danger" name={data.id} onClick={this.handleOpenDeletebank} value="delete"> Hapus</button>
             </center>
         }))
 
@@ -169,8 +169,8 @@ class ContentMasterBank extends Component {
                                     <i className="pe-7s-photo icon-gradient bg-mean-fruit">
                                     </i>
                                 </div>
-                                <div>Manajemen bank
-                                <div className="page-title-subheading">Daftar bank
+                                <div>Manajemen Master Bank
+                                <div className="page-title-subheading">Daftar master bank pada GLOB
                                 </div>
                                 </div>
                             </div>
@@ -180,7 +180,7 @@ class ContentMasterBank extends Component {
                     </div>
 
                     <div style={{ textAlign: "right" }}>
-                        <button className="sm-2 mr-2 btn btn-primary" title="Perbarui data ongkir" onClick={this.handleOpenTambahbank}>
+                        <button className="sm-2 mr-2 btn btn-primary" title="Tambah master bank" onClick={this.handleOpenTambahbank}>
                             <i className="fa fa-plus" aria-hidden="true"></i>
                         </button>
                     </div>
@@ -204,11 +204,12 @@ class ContentMasterBank extends Component {
                     </div>
                     {/* ADD */}
                     <Modal size="md" toggle={this.handleOpenTambahbank} isOpen={this.state.isInsertOpen} backdrop="static" keyboard={false}>
-                        <ModalHeader toggle={this.handleOpenTambahbank}>Tambah bank</ModalHeader>
+                        <ModalHeader toggle={this.handleOpenTambahbank}>Tambah Master Bank</ModalHeader>
                         <ModalBody>
                             <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                                 <FormGroup>
-                                    <Input type="text" onChange={this.handleInput} style={{ marginTop: '5%' }} value={this.state.bankInput} />
+                                    <p className="mb-1" style={{ fontWeight: 'bold' }}>Nama Bank</p>
+                                    <Input type="text" onChange={this.handleInput} value={this.state.bankInput} />
                                 </FormGroup>
                             </div>
                         </ModalBody>
@@ -224,7 +225,8 @@ class ContentMasterBank extends Component {
                         <ModalBody>
                             <div className="position-relative form-group" style={{ marginTop: '3%' }}>
                                 <FormGroup>
-                                    <Input type="text" onChange={this.handleInput} style={{ marginTop: '5%' }} value={this.state.bankInput} />
+                                    <p className="mb-1" style={{ fontWeight: 'bold' }}>Nama Bank</p>
+                                    <Input type="text" onChange={this.handleInput} value={this.state.bankInput} />
                                 </FormGroup>
                             </div>
                         </ModalBody>

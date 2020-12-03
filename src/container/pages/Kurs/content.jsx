@@ -460,9 +460,6 @@ class ContentKurs extends Component {
             this.handleModalAttentionKurs()
         } else {
             await this.checkingdatakurs(passdateawal, passdateberakhir)
-
-
-
             if (now > passdateawal) {
                 this.handleModalAttentionKursMulaiBerlaku()
             } else {
@@ -654,7 +651,7 @@ class ContentKurs extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                this.handleModalConfirmInsert()
+                this.setState({ isOpenConfirmInsert: !this.state.isOpenConfirmInsert })
                 this.handleModalInsert()
                 this.loadDataKurs()
                 this.loadActiveKurs()
