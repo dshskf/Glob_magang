@@ -3,7 +3,7 @@ import { MDBDataTable } from 'mdbreact';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { decrypt, encrypt } from '../../../config/lib';
-import { uploadGambarBanner, postQuery } from '../../../config/redux/action';
+import { uploadGambarBanner, postMasterBankData, getMasterBankData } from '../../../config/redux/action';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup } from 'reactstrap'
 // import Resizer from './react-file-image-resizer';
 import swal from 'sweetalert';
@@ -24,8 +24,7 @@ class ContentMasterBank extends Component {
     }
 
     fetchMasterBank = async () => {
-        const passquery = encrypt(`select * from gcm_master_bank`)
-        const bank = await this.props.postData({ query: passquery }).catch(err => err)
+        const bank = await this.props.getMasterBankData().catch(err => err)
 
         const bankList = bank.map(data => ({
             id: data.id,
@@ -84,28 +83,12 @@ class ContentMasterBank extends Component {
     confirmAction = async (method) => {
         Toast.loading('Loading...');
         const userData = JSON.parse(localStorage.getItem('userData'))
-        let passQuery = ''
-
-        // C-> Create, U-> Update, D-> Delete
-
-
-        if (method === "C") {
-            passQuery = encrypt(`
-                    insert into gcm_master_bank(nama,status,create_by,create_date,update_by,update_date) 
-                    values('${this.state.bankInput}','A',${decrypt(userData.company_id)},now(),${decrypt(userData.company_id)},now()) 
-                    returning *
-                `)
-        } else if (method === "U") {
-            passQuery = encrypt(`
-                update gcm_master_bank set nama='${this.state.bankInput}',status='I',
-                update_by=${decrypt(userData.company_id)},update_date=now()
-                where id=${this.state.selectedbankData.id} returning *
-            `)
-        } else {
-            passQuery = encrypt(`delete from gcm_master_bank where id=${this.state.selectedbankData.id} returning *`)
-        }
-
-        const insertbank = await this.props.postData({ query: passQuery }).catch(err => err)
+        const insertbank = await this.props.postMasterBankData({
+            nama: this.state.bankInput,
+            user_id: decrypt(userData.id),
+            bank_id: this.state.selectedbankData.id,
+            action: method
+        }).catch(err => err)
 
         if (insertbank) {
             swal({
@@ -123,11 +106,10 @@ class ContentMasterBank extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                // window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
 
 
@@ -265,7 +247,8 @@ const reduxState = (state) => ({
 
 const reduxDispatch = (dispatch) => ({
     uploadGambarBanner: (data) => dispatch(uploadGambarBanner(data)),
-    postData: (data) => dispatch(postQuery(data))
+    getMasterBankData: (data) => dispatch(getMasterBankData(data)),
+    postMasterBankData: (data) => dispatch(postMasterBankData(data))
 })
 
 export default withRouter(connect(reduxState, reduxDispatch)(ContentMasterBank));

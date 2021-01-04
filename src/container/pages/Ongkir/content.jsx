@@ -64,9 +64,7 @@ class ContentOngkir extends Component {
     }
 
     loadKotaSeller = async () => {
-        let passquerykotaseller = encrypt("select kota from gcm_master_alamat " +
-            "where company_id=" + this.state.company_id + " and flag_active='A' limit 1")
-        const reskotaseller = await this.props.getKotaSeller({ query: passquerykotaseller }).catch(err => err)
+        const reskotaseller = await this.props.getKotaSeller({ company_id: this.state.company_id }).catch(err => err)
         if (reskotaseller) {
             this.setState({ kotaasalseller: decrypt(reskotaseller.kota) })
         } else {
@@ -77,26 +75,15 @@ class ContentOngkir extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadDataOngkir = async () => {
-        let passquerydataongkir = encrypt("select gcm_ongkos_kirim.id, gcm_master_city.nama as nama_kota, " +
-            "gcm_master_provinsi.nama as nama_provinsi, gcm_ongkos_kirim.satuan, gcm_ongkos_kirim.harga " +
-            "from gcm_ongkos_kirim " +
-            "inner join gcm_master_city on gcm_ongkos_kirim.tujuan_kota = gcm_master_city.id " +
-            "inner join gcm_master_provinsi on gcm_master_city.id_provinsi = gcm_master_provinsi.id " +
-            "where gcm_ongkos_kirim.id_company=" + this.state.company_id + 
-            " order by gcm_master_provinsi.nama, gcm_master_city.nama")
+        const resdataongkir = await this.props.getDataOngkirAPI({
+            company_id: this.state.company_id
+        }).catch(err => err)
 
-        const resdataongkir = await this.props.getDataOngkirAPI({ query: passquerydataongkir }).catch(err => err)
         if (resdataongkir) {
             resdataongkir.map((user, index) => {
                 return (
@@ -133,25 +120,17 @@ class ContentOngkir extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     handleDetailOngkir = async (e, id) => {
         this.handleModalDetail()
-        let passquerydetaileddataongkir = encrypt("select gcm_ongkos_kirim.id, gcm_master_city.nama as nama_kota, " +
-            "gcm_master_provinsi.nama as nama_provinsi, gcm_ongkos_kirim.satuan, gcm_ongkos_kirim.harga " +
-            "from gcm_ongkos_kirim " +
-            "inner join gcm_master_city on gcm_ongkos_kirim.tujuan_kota = gcm_master_city.id " +
-            "inner join gcm_master_provinsi on gcm_master_city.id_provinsi = gcm_master_provinsi.id " +
-            "where gcm_ongkos_kirim.id_company=" + this.state.company_id + " and gcm_ongkos_kirim.id=" + id)
-        const resdetailedongkir = await this.props.getDataDetailedOngkirAPI({ query: passquerydetaileddataongkir }).catch(err => err)
+        const resdetailedongkir = await this.props.getDataDetailedOngkirAPI({
+            company_id: this.state.company_id,
+            ongkir_id: id
+        }).catch(err => err)
+
         if (resdetailedongkir) {
             this.setState({
                 id_ongkir_selected: decrypt(resdetailedongkir.id),
@@ -168,13 +147,7 @@ class ContentOngkir extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -274,9 +247,7 @@ class ContentOngkir extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                window.location.reload()
-            });
+            })
         }
     }
 
@@ -326,9 +297,12 @@ class ContentOngkir extends Component {
 
     confirmActionUpdateOngkir = async () => {
         Toast.loading('Loading...');
-        let passqueryupdateongkir = encrypt("update gcm_ongkos_kirim set harga='" + this.state.harga_selected.split('.').join('').split(',').join('.') + "' " +
-            " where id=" + this.state.id_ongkir_selected + " returning id_company;")
-        const resupdateongkir = await this.props.updateHargaOngkir({ query: passqueryupdateongkir }).catch(err => err)
+
+        const resupdateongkir = await this.props.updateHargaOngkir({
+            harga: this.state.harga_selected.split('.').join('').split(',').join('.'),
+            id_ongkir: this.state.id_ongkir_selected
+        }).catch(err => err)
+
         Toast.hide();
         if (resupdateongkir) {
             swal({
@@ -341,18 +315,16 @@ class ContentOngkir extends Component {
                 this.loadDataOngkir()
                 this.handleModalConfirm()
                 this.handleModalDetail()
-                // window.location.reload()
             });
         } else {
             swal({
-                title: "Gagal!",
-                text: "Tidak ada perubahan disimpan!",
+                title: "Kesalahan 503!",
+                text: "Harap periksa koneksi internet!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 

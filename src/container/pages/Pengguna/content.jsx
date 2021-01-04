@@ -8,7 +8,8 @@ import {
     getDataPaymentListingAPI, getDataPaymentAPI, getDataCheckedIdPayment, getDataDetailedPaymentAPI, updateStatusPayment, insertPaymentListingSeller,
     getDataDetailedUserRegisteredAPI, updateUserStatus, getstragg, getDataCategoryAPI, getDataCheckedKodeCust, getDataKodeCustAPI, getDataDetailedSalesHandlerAPI,
     getDataDetailedKodeCustomerAPI, getDataDetailedMappingAPI, getDataDetailedAlamatMappingAPI, getDataKodeMappingAlamatAPI, updateKodeMappingAlamat,
-    getDataCheckedKodeAlamatMapping, totalBeranda, logoutUserAPI, sendEmailAktivasi, postQuery,
+    getDataCheckedKodeAlamatMapping, totalBeranda, logoutUserAPI, sendEmailAktivasi, postQuery, getDataCategoryAdminPengguna, getDokumenPengguna,
+    getTotalCountPengguna, getDataAlamatPengguna
 } from '../../../config/redux/action';
 import { MDBDataTable } from 'mdbreact';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
@@ -187,48 +188,11 @@ class ContentPengguna extends Component {
     }
 
     loadDataUsers = async () => {
-        let passquery = ""
-        // if (this.state.sa_role==='sales' && this.state.tipe_bisnis === '1') {
-        //     passquery = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan, "+
-        //         "gcm_master_category.nama as tipe_bisnis, gcm_company_listing.status as company_status, to_char(gcm_master_company.create_date, 'DD/MM/YYYY') create_date "+
-        //         "from gcm_master_company "+
-        //             "inner join gcm_company_listing on gcm_master_company.id = gcm_company_listing.buyer_id "+
-        //             "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id "+
-        //         "where gcm_company_listing.seller_id="+this.state.company_id+
-        //             " and gcm_master_company.type='B'"+
-        //             " and gcm_master_company.tipe_bisnis="+this.state.sa_divisi+
-        //             " order by gcm_master_company.nama_perusahaan asc, gcm_company_listing.update_date desc;")
-        // } else {
-        //     passquery = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan, "+
-        //         "gcm_master_category.nama as tipe_bisnis, gcm_company_listing.status as company_status, to_char(gcm_master_company.create_date, 'DD/MM/YYYY') create_date "+
-        //         "from gcm_master_company "+
-        //             "inner join gcm_company_listing on gcm_master_company.id = gcm_company_listing.buyer_id "+
-        //             "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id "+
-        //         "where gcm_company_listing.seller_id="+this.state.company_id+
-        //             " and gcm_master_company.type='B'"+
-        //             " order by gcm_master_company.nama_perusahaan asc, gcm_company_listing.update_date desc;")
-        // }
-        if (this.state.sa_role === 'sales') {
-            passquery = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan, " +
-                "gcm_master_category.nama as tipe_bisnis, gcm_company_listing.status as company_status, to_char(gcm_master_company.create_date, 'DD/MM/YYYY') create_date " +
-                "from gcm_company_listing_sales " +
-                "inner join gcm_master_company on gcm_master_company.id = gcm_company_listing_sales.buyer_id " +
-                "inner join gcm_company_listing on gcm_master_company.id = gcm_company_listing.buyer_id " +
-                "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
-                "where gcm_company_listing.seller_id=" + this.state.company_id + " and gcm_company_listing_sales.seller_id=" + this.state.company_id +
-                " and gcm_master_company.type='B' and gcm_company_listing_sales.id_sales=" + this.state.id_pengguna_login +
-                " order by gcm_master_company.create_date desc, gcm_master_company.nama_perusahaan asc, gcm_company_listing.update_date desc;")
-        } else {
-            passquery = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan, " +
-                "gcm_master_category.nama as tipe_bisnis, gcm_company_listing.status as company_status, to_char(gcm_master_company.create_date, 'DD/MM/YYYY') create_date " +
-                "from gcm_master_company " +
-                "inner join gcm_company_listing on gcm_master_company.id = gcm_company_listing.buyer_id " +
-                "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
-                "where gcm_company_listing.seller_id=" + this.state.company_id +
-                " and gcm_master_company.type='B'" +
-                " order by gcm_master_company.create_date desc, gcm_master_company.nama_perusahaan asc, gcm_company_listing.update_date desc;")
-        }
-        const res = await this.props.getDataUsersAPI({ query: passquery }).catch(err => err)
+        const res = await this.props.getDataUsersAPI({
+            company_id: this.state.company_id,
+            sa_role: 'sales'
+        }).catch(err => err)
+
         if (res) {
             res.map((user, index) => {
                 return (
@@ -267,26 +231,23 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadCategory = async (kategori_sales) => {
-        let passquerycategory = ""
+        let rescategory
         if (this.state.tipe_bisnis === '1') {
-            passquerycategory = encrypt("select * from gcm_master_user where gcm_master_user.company_id=" +
-                this.state.company_id + " and gcm_master_user.sa_divisi=" + kategori_sales + " order by id;")
+            rescategory = await this.props.getDataCategoryAdminPengguna({
+                company_id: this.state.company_id,
+                sa_divisi: kategori_sales
+            }).catch(err => err)
         } else {
-            passquerycategory = encrypt("select * from gcm_master_user where gcm_master_user.company_id=" +
-                this.state.company_id + " order by id;")
+            rescategory = await this.props.getDataCategoryAdminPengguna({
+                company_id: this.state.company_id,
+            }).catch(err => err)
         }
-        const rescategory = await this.props.getDataCategoryAPI({ query: passquerycategory }).catch(err => err)
+
         if (rescategory) {
             this.setState({
                 allCategory: rescategory
@@ -299,13 +260,7 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -313,13 +268,12 @@ class ContentPengguna extends Component {
         if (stat !== 'I') {
             this.handleModalDetailMapping()
             e.stopPropagation();
-            let passquerydetailmapping = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan, " +
-                "gcm_company_listing.status, gcm_master_category.nama as tipe_bisnis_nama, gcm_master_company.tipe_bisnis, " +
-                "to_char(gcm_master_company.create_date, 'DD/MM/YYYY') create_date, gcm_company_listing.buyer_number_mapping " +
-                "from gcm_master_company inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
-                "inner join gcm_company_listing on gcm_master_company.id = gcm_company_listing.buyer_id " +
-                "where gcm_master_company.id=" + id + " and gcm_company_listing.seller_id =" + this.state.company_id)
-            const resdetailmapping = await this.props.getDataDetailedMappingAPI({ query: passquerydetailmapping }).catch(err => err)
+
+            const resdetailmapping = await this.props.getDataDetailedMappingAPI({
+                company_id: id,
+                seller_id: this.state.company_id
+            }).catch(err => err)
+
             if (resdetailmapping) {
                 await this.setState({
                     company_mapping_register_id: resdetailmapping.id,
@@ -343,13 +297,7 @@ class ContentPengguna extends Component {
                     buttons: {
                         confirm: "Oke"
                     }
-                }).then(() => {
-                    // const res = this.props.logoutAPI();
-                    // if (res) {
-                    //     this.props.history.push('/admin')
-                    //     window.location.reload()
-                    // }
-                });
+                })
             }
         } else {
             this.handleModalAttentionStatusInactive()
@@ -359,30 +307,17 @@ class ContentPengguna extends Component {
     handleDetailUser = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation();
-        let passquerydetail = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan, " +
-            "gcm_company_listing.status, gcm_master_company.no_npwp, gcm_master_company.tipe_bisnis, " +
-            "gcm_master_company.no_siup, gcm_master_company.email, gcm_master_company.no_telp, " +
-            "gcm_master_category.nama as tipe_bisnis_nama, gcm_master_company.dokumen_pendukung, gcm_company_listing.buyer_number_mapping, " +
-            "to_char(gcm_master_company.create_date, 'DD/MM/YYYY') create_date, to_char(gcm_master_company.update_date, 'DD/MM/YYYY') update_date, count(gcm_master_user.id) as jumlah_akun, " +
-            "gcm_company_listing.is_blacklist, gcm_company_listing.id_blacklist, gcm_company_listing.blacklist_by, gcm_company_listing.notes_blacklist " +
-            "from gcm_master_company left join gcm_master_user on gcm_master_company.id = gcm_master_user.company_id " +
-            "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
-            "inner join gcm_company_listing on gcm_master_company.id = gcm_company_listing.buyer_id " +
-            "where gcm_master_company.id=" + id + " and gcm_company_listing.seller_id =" + this.state.company_id +
-            "group by gcm_master_company.id, gcm_master_company.nama_perusahaan, gcm_company_listing.status, " +
-            "gcm_master_company.no_npwp, gcm_master_company.no_siup, " +
-            "gcm_master_company.email, gcm_master_company.no_telp, gcm_master_category.nama, gcm_master_company.dokumen_pendukung, " +
-            "gcm_master_company.create_date, gcm_master_company.update_date, gcm_company_listing.is_blacklist, gcm_company_listing.buyer_number_mapping, " +
-            "gcm_company_listing.id_blacklist, gcm_company_listing.blacklist_by, gcm_company_listing.notes_blacklist, gcm_master_company.tipe_bisnis")
-        const resdetail = await this.props.getDataDetailedUserAPI({ query: passquerydetail }).catch(err => err)
+        const resdetail = await this.props.getDataDetailedUserAPI({
+            id: id,
+            seller_id: this.state.company_id
+        }).catch(err => err)
 
         if (resdetail) {
             let dokumen = decrypt(resdetail.dokumen)
             let is_listing = false
 
             if (dokumen === 'listing') {
-                passquerydetail = encrypt("select url_file,tipe from gcm_listing_dokumen where company_id=" + id)
-                const getDokumen = await this.props.postQuery({ query: passquerydetail }).catch(err => err)
+                const getDokumen = await this.props.getDokumenPengguna({ id: id }).catch(err => err)
 
                 if (getDokumen) {
                     dokumen = getDokumen.map(dok => ({
@@ -400,13 +335,7 @@ class ContentPengguna extends Component {
                         buttons: {
                             confirm: "Oke"
                         }
-                    }).then(() => {
-                        // const res = this.props.logoutAPI();
-                        // if (res) {
-                        //     this.props.history.push('/admin')
-                        //     window.location.reload()
-                        // }
-                    });
+                    })
                 }
             }
 
@@ -447,13 +376,7 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         await this.loadRegisteredAccount(id)
         await this.loadAlamatAccount(id)
@@ -470,10 +393,12 @@ class ContentPengguna extends Component {
 
     checkCountPayment = async (id) => {
         await this.setState({ id_buyer: id })
-        let passquerycheckcountpayment = await encrypt("select count(gcm_payment_listing.id) as total " +
-            "from gcm_payment_listing " +
-            "where gcm_payment_listing.buyer_id =" + id + " and gcm_payment_listing.seller_id =" + this.state.company_id)
-        const rescountcheckpayment = await this.props.totalBeranda({ query: passquerycheckcountpayment }).catch(err => err)
+        const rescountcheckpayment = await this.props.getTotalCountPengguna({
+            buyer_id: id,
+            seller_id: this.state.company_id,
+            type: 'checkCountPayment'
+        }).catch(err => err)
+
         if (rescountcheckpayment) {
             this.setState({
                 checkCountPaymentBuyer: Number(rescountcheckpayment.total)
@@ -486,23 +411,17 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     checkCountAlamatMapped = async (id) => {
-        let passquerycountalamatmapped = encrypt("select count(gcm_listing_alamat.id) as total " +
-            "from gcm_listing_alamat " +
-            "inner join gcm_master_alamat on gcm_listing_alamat.id_master_alamat = gcm_master_alamat.id " +
-            "where gcm_master_alamat.company_id=" + id + " and flag_active='A' and gcm_listing_alamat.id_seller=" + this.state.company_id +
-            " and gcm_listing_alamat.id_buyer=" + id + " and gcm_listing_alamat.kode_shipto_customer is not null;")
-        const rescountalamatmapped = await this.props.totalBeranda({ query: passquerycountalamatmapped }).catch(err => err)
+        const rescountalamatmapped = await this.props.getTotalCountPengguna({
+            id: id,
+            company_id: this.state.company_id,
+            type: 'checkCountAlamatMapped'
+        }).catch(err => err)
+
         if (rescountalamatmapped) {
             this.setState({
                 checkCountAlamatMapped: Number(rescountalamatmapped.total)
@@ -515,22 +434,15 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadSalesHandler = async (buyer_id) => {
-        let passquerysaleshandler = encrypt("select gcm_master_user.nama, gcm_master_user.kode_sales, gcm_company_listing_sales.id_sales" +
-            " from gcm_master_user " +
-            "inner join gcm_company_listing_sales on gcm_master_user.id = gcm_company_listing_sales.id_sales " +
-            "where gcm_company_listing_sales.seller_id=" + this.state.company_id + " and gcm_company_listing_sales.buyer_id=" + buyer_id)
-        const ressaleshandler = await this.props.getDataDetailedSalesHandlerAPI({ query: passquerysaleshandler }).catch(err => err)
+        const ressaleshandler = await this.props.getDataDetailedSalesHandlerAPI({
+            seller_id: this.state.company_id,
+            buyer_id: buyer_id
+        }).catch(err => err)
         if (ressaleshandler) {
             await this.setState({
                 kode_sales_selected: ressaleshandler.id_sales,
@@ -540,11 +452,11 @@ class ContentPengguna extends Component {
     }
 
     loadSalesHandlerMapping = async (buyer_id) => {
-        let passquerysaleshandler = encrypt("select gcm_master_user.nama, gcm_master_user.kode_sales, gcm_company_listing_sales.id_sales" +
-            " from gcm_master_user " +
-            "inner join gcm_company_listing_sales on gcm_master_user.id = gcm_company_listing_sales.id_sales " +
-            "where gcm_company_listing_sales.seller_id=" + this.state.company_id + " and gcm_company_listing_sales.buyer_id=" + buyer_id)
-        const ressaleshandler = await this.props.getDataDetailedSalesHandlerAPI({ query: passquerysaleshandler }).catch(err => err)
+        const ressaleshandler = await this.props.getDataDetailedSalesHandlerAPI({
+            seller_id: this.state.company_id,
+            buyer_id: buyer_id
+        }).catch(err => err)
+
         if (ressaleshandler) {
             await this.setState({
                 company_mapping_kode_sales_selected: ressaleshandler.id_sales,
@@ -554,19 +466,10 @@ class ContentPengguna extends Component {
     }
 
     loadAlamatAccount = async (id) => {
-        let passqueryalamataccount = encrypt("select gcm_master_alamat.alamat, gcm_master_kelurahan.nama as kelurahan, " +
-            "gcm_master_kecamatan.nama as kecamatan, gcm_master_city.nama as kota, gcm_master_provinsi.nama as provinsi, " +
-            "gcm_master_alamat.kodepos, gcm_master_alamat.no_telp, gcm_master_alamat.shipto_active, gcm_master_alamat.billto_active, " +
-            "gcm_listing_alamat.kode_shipto_customer, gcm_listing_alamat.id,gcm_listing_alamat.kode_billto_customer " +
-            "from gcm_master_alamat " +
-            "inner join gcm_master_kelurahan on gcm_master_alamat.kelurahan = gcm_master_kelurahan.id " +
-            "inner join gcm_master_kecamatan on gcm_master_alamat.kecamatan = gcm_master_kecamatan.id " +
-            "inner join gcm_master_city on gcm_master_alamat.kota = gcm_master_city.id " +
-            "inner join gcm_master_provinsi on gcm_master_alamat.provinsi = gcm_master_provinsi.id " +
-            "inner join gcm_listing_alamat on gcm_listing_alamat.id_master_alamat = gcm_master_alamat.id " +
-            "where gcm_master_alamat.company_id=" + id + " and flag_active='A' and gcm_listing_alamat.id_seller=" + this.state.company_id +
-            " and gcm_listing_alamat.id_buyer=" + id)
-        const resalamataccount = await this.props.getDataAlamatAPI({ query: passqueryalamataccount }).catch(err => err)
+        const resalamataccount = await this.props.getDataAlamatPengguna({
+            id: id,
+            seller_id: this.state.company_id
+        }).catch(err => err)
         if (resalamataccount) {
             resalamataccount.map((user, index) => {
                 return (
@@ -596,31 +499,15 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     handleDetailAlamat = async (e, id) => {
         this.handleModalDetailAlamat()
         e.stopPropagation();
-        let passquerykodedetailalamat = encrypt("select gcm_master_alamat.alamat, gcm_master_kelurahan.nama as kelurahan, gcm_master_kecamatan.nama as kecamatan, " +
-            "gcm_master_city.nama as kota, gcm_master_provinsi.nama as provinsi, gcm_master_alamat.kodepos, gcm_master_alamat.no_telp, " +
-            "gcm_listing_alamat.id, gcm_listing_alamat.kode_shipto_customer, gcm_listing_alamat.kode_billto_customer " +
-            "from gcm_master_alamat " +
-            "inner join gcm_listing_alamat on gcm_master_alamat.id = gcm_listing_alamat.id_master_alamat " +
-            "inner join gcm_master_kelurahan on gcm_master_alamat.kelurahan = gcm_master_kelurahan.id " +
-            "inner join gcm_master_kecamatan on gcm_master_alamat.kecamatan = gcm_master_kecamatan.id " +
-            "inner join gcm_master_city on gcm_master_alamat.kota = gcm_master_city.id " +
-            "inner join gcm_master_provinsi on gcm_master_alamat.provinsi = gcm_master_provinsi.id " +
-            "where gcm_listing_alamat.id = " + id)
 
-        const resdetailalamat = await this.props.getDataDetailedAlamatMappingAPI({ query: passquerykodedetailalamat }).catch(err => err)
+        const resdetailalamat = await this.props.getDataDetailedAlamatMappingAPI({ id: id }).catch(err => err)
         if (resdetailalamat) {
             this.setState({
                 id_alamat: resdetailalamat.id,
@@ -644,13 +531,7 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -679,12 +560,11 @@ class ContentPengguna extends Component {
 
     loadPayment = async (id) => {
         await this.setState({ id_buyer: id })
-        let passquerypayment = await encrypt("select gcm_master_payment.payment_name, gcm_master_payment.deskripsi, gcm_payment_listing.status, gcm_seller_payment_listing.id " +
-            "from gcm_payment_listing " +
-            "inner join gcm_seller_payment_listing on gcm_payment_listing.payment_id = gcm_seller_payment_listing.id " +
-            "inner join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id " +
-            "where gcm_payment_listing.buyer_id =" + id + " and gcm_payment_listing.seller_id =" + this.state.company_id)
-        const respayment = await this.props.getDataPaymentListingAPI({ query: passquerypayment }).catch(err => err)
+        const respayment = await this.props.getDataPaymentListingAPI({
+            buyer_id: id,
+            seller_id: this.state.company_id
+        }).catch(err => err)
+
         if (respayment) {
             respayment.map((user, index) => {
                 return (
@@ -711,25 +591,18 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     handleDetailPaymentListing = async (e, id) => {
         this.handleModalDetailPayment()
         e.stopPropagation()
-        let passquerydetailpayment = encrypt("select gcm_master_payment.payment_name, gcm_master_payment.deskripsi, " +
-            "gcm_payment_listing.status, gcm_payment_listing.id from gcm_payment_listing " +
-            "inner join gcm_seller_payment_listing on gcm_seller_payment_listing.id = gcm_payment_listing.payment_id " +
-            "inner join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id " +
-            "where gcm_payment_listing.payment_id=" + id)
-        const resdetailpayment = await this.props.getDataDetailedPaymentAPI({ query: passquerydetailpayment }).catch(err => err)
+        const resdetailpayment = await this.props.getDataDetailedPaymentAPI({
+            payment_id: id,
+            type: 'pengguna'
+        }).catch(err => err)
+
         if (resdetailpayment) {
             await this.setState({
                 id_payment: resdetailpayment.id,
@@ -746,13 +619,7 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -763,15 +630,8 @@ class ContentPengguna extends Component {
             id_user: id
         })
         e.stopPropagation();
-        let passquerydetailuserregistered = encrypt("select gcm_master_user.nama, gcm_master_user.no_ktp, gcm_master_user.email, " +
-            "gcm_master_user.no_hp, gcm_master_user.username, gcm_master_user.status, gcm_master_user.role, " +
-            "gcm_master_user.is_blacklist, gcm_master_user.id_blacklist, gcm_master_type_blacklist.nama as nama_type_blacklist, " +
-            "gcm_master_user.notes_blacklist, gcm_master_user.blacklist_by, gcm_master_company.nama_perusahaan, to_char(gcm_master_user.create_date, 'DD/MM/YYYY') create_date " +
-            "from gcm_master_user " +
-            "left join gcm_master_type_blacklist on gcm_master_user.id_blacklist = gcm_master_type_blacklist.id " +
-            "left join gcm_master_company on gcm_master_user.blacklist_by = gcm_master_company.id " +
-            "where gcm_master_user.id=" + id)
-        const resdetailuserregistered = await this.props.getDataDetailedUserRegisteredAPI({ query: passquerydetailuserregistered }).catch(err => err)
+
+        const resdetailuserregistered = await this.props.getDataDetailedUserRegisteredAPI({ id: id }).catch(err => err)
         if (resdetailuserregistered) {
             this.setState({
                 nama_user: resdetailuserregistered.nama_user,
@@ -797,19 +657,12 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadTypeBlackList = async () => {
-        let passquerytypeblacklist = encrypt("select * from gcm_master_type_blacklist;")
-        const restypeblacklist = await this.props.getDataTypeBlackList({ query: passquerytypeblacklist }).catch(err => err)
+        const restypeblacklist = await this.props.getDataTypeBlackList().catch(err => err)
         if (restypeblacklist) {
             this.setState({
                 alltypeBlackList: restypeblacklist
@@ -822,13 +675,7 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -921,12 +768,7 @@ class ContentPengguna extends Component {
     }
 
     loadRegisteredAccount = async (id) => {
-        let passqueryregisteredaccount = encrypt("select gcm_master_user.id as id_user, gcm_master_user.username, gcm_master_user.nama, " +
-            "gcm_master_user.status, gcm_master_user.role from gcm_master_user " +
-            "inner join gcm_master_company on gcm_master_company.id = gcm_master_user.company_id " +
-            "where gcm_master_user.company_id=" + id + " group by gcm_master_user.id, gcm_master_user.username, " +
-            "gcm_master_user.nama, gcm_master_user.status, gcm_master_user.role;")
-        const resregisteredaccount = await this.props.getDataRegisteredAPI({ query: passqueryregisteredaccount }).catch(err => err)
+        const resregisteredaccount = await this.props.getDataRegisteredAPI({ id: id }).catch(err => err)
         if (resregisteredaccount) {
             resregisteredaccount.map((user, index) => {
                 return (
@@ -955,13 +797,7 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -1004,9 +840,11 @@ class ContentPengguna extends Component {
     }
 
     loadKodeCustomer = async () => {
-        let passquerykodecust = encrypt("select gcm_company_listing.buyer_number_mapping from gcm_company_listing " +
-            "where gcm_company_listing.buyer_id=" + decrypt(this.state.company_register_id) + " and gcm_company_listing.seller_id=" + this.state.company_id)
-        const reskodecust = await this.props.getDataDetailedKodeCustomerAPI({ query: passquerykodecust }).catch(err => err)
+        const reskodecust = await this.props.getDataDetailedKodeCustomerAPI({
+            buyer_id: decrypt(this.state.company_register_id),
+            seller_id: this.state.company_id
+        }).catch(err => err)
+
         if (reskodecust) {
             await this.setState({
                 kode_customer_selected: reskodecust.buyer_number_mapping
@@ -1019,13 +857,7 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -1048,15 +880,16 @@ class ContentPengguna extends Component {
 
         let company_reg_id = decrypt(this.state.company_register_id)
         if (this.state.company_register_status === activate) {
-            let passqueryupdatestatus = encrypt(
-                "with new_order as (" +
-                "update gcm_company_listing set status='" + reject + "', update_date=now(), is_blacklist=true, id_blacklist=" + this.state.id_blacklist_company +
-                ", notes_blacklist='" + this.state.notes_blacklist_company + "', blacklist_by=" + this.state.company_id + " where buyer_id=" + company_reg_id +
-                " and seller_id=" + this.state.company_id + " returning status) " +
-                "update gcm_company_listing_sales set id_sales='" + this.state.kode_sales_selected + "', status='I' " +
-                "where buyer_id='" + company_reg_id + "' and seller_id='" + this.state.company_id + "' returning status;"
-            )
-            const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+            const resupdatestatus = await this.props.updateUserStatus({
+                status: reject,
+                id_blacklist: this.state.id_blacklist_company,
+                notes_blacklist: this.state.notes_blacklist_company,
+                blacklist_by: this.state.company_id,
+                buyer_id: company_reg_id,
+                seller_id: this.state.company_id,
+                id_sales: this.state.kode_sales_selected,
+                type: 'activate'
+            }).catch(err => err)
             Toast.hide();
             if (resupdatestatus) {
                 swal({
@@ -1076,30 +909,39 @@ class ContentPengguna extends Component {
                     title: "Gagal!",
                     text: "Tidak ada perubahan disimpan!",
                     icon: "error",
-                    button: false,
-                    timer: "2500"
-                }).then(() => {
-                    window.location.reload()
-                });
+                    buttons: {
+                        confirm: "Oke"
+                    }
+                })
             }
         } else if (this.state.company_register_status === reject) {
             await this.loadCheckingKodeCustomer()
             await this.loadCheckingMappingSales(company_reg_id)
             let check_kode_cust = this.state.allCheckedKodeCust.filter(input_kode_cust => { return input_kode_cust.buyer_number_mapping === this.state.kode_customer_selected });
             if (check_kode_cust !== '' && check_kode_cust.length <= 1) {
-                let passqueryupdatestatus = ""
-                if (Number(this.state.allCheckedMapSales) === 1) {
-                    passqueryupdatestatus = encrypt(
-                        "with new_order as (" +
-                        "update gcm_company_listing set status='" + activate + "', update_date=now(), is_blacklist=false, id_blacklist=" + this.state.id_blacklist_company +
-                        ", notes_blacklist='" + this.state.notes_blacklist_company + "', blacklist_by=null, buyer_number_mapping='" + this.state.kode_customer_selected + "', " +
-                        "seller_number_mapping='" + this.state.id_company_registered + "' " +
-                        "where buyer_id=" + company_reg_id + " and seller_id=" + this.state.company_id + " returning status) " +
-                        "update gcm_company_listing_sales set id_sales='" + this.state.kode_sales_selected + "', status='A' " +
-                        "where buyer_id='" + company_reg_id + "' and seller_id='" + this.state.company_id + "' returning status;"
-                    )
-                }
-                const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+                // if (Number(this.state.allCheckedMapSales) === 1) {
+                //     passqueryupdatestatus = encrypt(
+                //         "with new_order as (" +
+                //         "update gcm_company_listing set status='" + activate + "', update_date=now(), is_blacklist=false, id_blacklist=" + this.state.id_blacklist_company +
+                //         ", notes_blacklist='" + this.state.notes_blacklist_company + "', blacklist_by=null, buyer_number_mapping='" + this.state.kode_customer_selected + "', " +
+                //         "seller_number_mapping='" + this.state.id_company_registered + "' " +
+                //         "where buyer_id=" + company_reg_id + " and seller_id=" + this.state.company_id + " returning status) " +
+                //         "update gcm_company_listing_sales set id_sales='" + this.state.kode_sales_selected + "', status='A' " +
+                //         "where buyer_id='" + company_reg_id + "' and seller_id='" + this.state.company_id + "' returning status;"
+                //     )
+                // }
+                const resupdatestatus = await this.props.updateUserStatus({
+                    status: activate,
+                    id_blacklist: this.state.id_blacklist_company,
+                    notes_blacklist: this.state.notes_blacklist_company,
+                    buyer_mapping: this.state.kode_customer_selected,
+                    seller_mapping: this.state.id_company_registered,
+                    buyer_id: company_reg_id,
+                    seller_id: this.state.company_id,
+                    id_sales: this.state.kode_sales_selected,
+                    type: 'reject'
+                }).catch(err => err)
+
                 Toast.hide();
                 if (resupdatestatus) {
                     await this.props.sendEmailToUser(emailData)
@@ -1111,7 +953,7 @@ class ContentPengguna extends Component {
                         timer: "2500"
                     })
                         .then(() => {
-                            this.handleModalDetail()                            
+                            this.handleModalDetail()
                             this.handleModalConfirm()
                             this.loadDataUsers()
                         });
@@ -1133,31 +975,27 @@ class ContentPengguna extends Component {
             await this.loadCheckingKodeCustomer()
             await this.loadCheckingMappingSales(company_reg_id)
             let check_kode_cust = this.state.allCheckedKodeCust.filter(input_kode_cust => { return input_kode_cust.buyer_number_mapping === this.state.kode_customer });
+            let isInsert = false
             if (check_kode_cust !== '' && check_kode_cust.length === 0) {
-                let passqueryupdatestatus = ""
+
                 if (Number(this.state.allCheckedMapSales) > 0) {
-                    passqueryupdatestatus = encrypt(
-                        "with new_order as (" +
-                        "update gcm_company_listing set status='" + activate + "', update_date=now(), is_blacklist=false, id_blacklist=" + this.state.id_blacklist_company +
-                        ", notes_blacklist='" + this.state.notes_blacklist_company + "', blacklist_by=null, buyer_number_mapping='" + this.state.kode_customer + "', " +
-                        "seller_number_mapping='" + this.state.id_company_registered + "' " +
-                        "where buyer_id=" + company_reg_id + " and seller_id=" + this.state.company_id + " returning status) " +
-                        "update gcm_company_listing_sales set id_sales='" + this.state.kode_sales + "', status='A' " +
-                        "where buyer_id='" + company_reg_id + "' and seller_id='" + this.state.company_id + "' returning status;"
-                    )
                 } else {
-                    passqueryupdatestatus = encrypt(
-                        "with new_order as (" +
-                        "update gcm_company_listing set status='" + activate + "', update_date=now(), is_blacklist=false, id_blacklist=" + this.state.id_blacklist_company +
-                        ", notes_blacklist='" + this.state.notes_blacklist_company + "', blacklist_by=null, buyer_number_mapping='" + this.state.kode_customer + "', " +
-                        "seller_number_mapping='" + this.state.id_company_registered + "' " +
-                        "where buyer_id=" + company_reg_id + " and seller_id=" + this.state.company_id + " returning status) " +
-                        "insert into gcm_company_listing_sales (buyer_id, seller_id, id_sales, status) values ('" +
-                        company_reg_id + "', '" + this.state.company_id + "', '" + this.state.kode_sales + "', 'A') returning status;"
-                    )
+                    isInsert = true
                 }
 
-                const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+                const resupdatestatus = await this.props.updateUserStatus({
+                    status: activate,
+                    id_blacklist: this.state.id_blacklist_company,
+                    notes_blacklist: this.state.notes_blacklist_company,
+                    buyer_mapping: this.state.kode_customer,
+                    seller_mapping: this.state.id_company_registered,
+                    buyer_id: company_reg_id,
+                    seller_id: this.state.company_id,
+                    id_sales: this.state.kode_sales,
+                    type: 'check',
+                    isInser: isInsert
+                }).catch(err => err)
+
                 Toast.hide();
                 if (resupdatestatus) {
                     await this.props.sendEmailToUser(emailData)
@@ -1169,7 +1007,7 @@ class ContentPengguna extends Component {
                         timer: "2500"
                     })
                         .then(() => {
-                            this.handleModalDetail()                            
+                            this.handleModalDetail()
                             this.handleModalConfirm()
                             this.loadDataUsers()
                         });
@@ -1191,9 +1029,7 @@ class ContentPengguna extends Component {
     }
 
     loadCheckingKodeCustomer = async () => {
-        let passquerycheckingkodecust = encrypt("select gcm_company_listing.buyer_number_mapping from gcm_company_listing " +
-            "where gcm_company_listing.seller_id=" + this.state.company_id)
-        const reskodecust = await this.props.getDataKodeCustAPI({ query: passquerycheckingkodecust }).catch(err => err)
+        const reskodecust = await this.props.getDataKodeCustAPI({ seller_id: this.state.company_id }).catch(err => err)
         if (reskodecust) {
             await this.setState({
                 allCheckedKodeCust: reskodecust
@@ -1206,20 +1042,17 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadCheckingMappingSales = async (buyer_id) => {
-        let passquerycheckingmapsales = encrypt("select count(gcm_company_listing_sales.id) as total from gcm_company_listing_sales " +
-            "where gcm_company_listing_sales.seller_id=" + this.state.company_id + " and gcm_company_listing_sales.buyer_id=" + buyer_id)
-        const resmapsales = await this.props.getDataCheckedKodeCust({ query: passquerycheckingmapsales }).catch(err => err)
+        const resmapsales = await this.props.getDataCheckedKodeCust({
+            seller_id: this.state.company_id,
+            buyer_id: buyer_id,
+            type: 'load'
+        }).catch(err => err)
+
         if (resmapsales) {
             await this.setState({
                 allCheckedMapSales: Number(resmapsales.total)
@@ -1232,13 +1065,7 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -1665,11 +1492,14 @@ class ContentPengguna extends Component {
         Toast.loading('Loading...');
         await this.loadCheckingMappingAlamat()
         await this.checkCountKodeMappingAlamat(this.state.kode_shipto_mapping)
-        let passquerymappingalamat = encrypt(`update gcm_listing_alamat set kode_shipto_customer='${this.state.kode_shipto_mapping}', kode_billto_customer='${this.state.kode_billto_mapping}'
-            where id=${this.state.id_alamat} returning kode_shipto_customer, kode_billto_customer`)
 
         if (this.state.isConfirmAlamatValid) {
-            const resupdatemappingalamat = await this.props.updateKodeMappingAlamat({ query: passquerymappingalamat }).catch(err => err)
+            const resupdatemappingalamat = await this.props.updateKodeMappingAlamat({
+                kode_shipto_customer: this.state.kode_shipto_mapping,
+                kode_billto_customer: this.state.kode_billto_mapping,
+                id: this.state.id_alamat
+            }).catch(err => err)
+
             Toast.hide();
             if (resupdatemappingalamat) {
                 swal({
@@ -1707,10 +1537,10 @@ class ContentPengguna extends Component {
     }
 
     checkCountKodeMappingAlamat = async (kode_shipto_mapping) => {
-        let passquerycheckingkodealamatmapping = encrypt("select count(gcm_listing_alamat.id) as total from gcm_listing_alamat " +
-            "where gcm_listing_alamat.id_seller=" + this.state.company_id +
-            " and gcm_listing_alamat.kode_shipto_customer='" + kode_shipto_mapping + "'")
-        const resmapkodealamat = await this.props.getDataCheckedKodeAlamatMapping({ query: passquerycheckingkodealamatmapping }).catch(err => err)
+        const resmapkodealamat = await this.props.getDataCheckedKodeAlamatMapping({
+            id_seller: this.state.company_id,
+            kode_shipto_customer: kode_shipto_mapping
+        }).catch(err => err)
         if (resmapkodealamat) {
             await this.setState({
                 allCheckedMapAlamat: Number(resmapkodealamat.total)
@@ -1723,26 +1553,16 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadCheckingMappingAlamat = async () => {
-        let passquerycheckingkodemappingalamat = encrypt(`
-            select a.kode_shipto_customer, a.kode_billto_customer 
-            from gcm_listing_alamat a inner join gcm_master_alamat b  
-            on a.id_master_alamat = b.id
-            where a.id_seller = ${this.state.company_id} and b.flag_active = 'A' and id_buyer=${this.state.id_buyer}
-        `)
+        const reskodemappingalamat = await this.props.getDataKodeMappingAlamatAPI({
+            id_seller: this.state.company_id,
+            id_buyer: this.state.id_buyer
+        }).catch(err => err)
 
-
-        const reskodemappingalamat = await this.props.getDataKodeMappingAlamatAPI({ query: passquerycheckingkodemappingalamat }).catch(err => err)
         if (reskodemappingalamat) {
             await this.setState({
                 allCheckedKodeAlamat: reskodemappingalamat,
@@ -1755,21 +1575,18 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     checkCountKodeCustomer = async (buyer_number_mapping) => {
-        let passquerycheckingkodecust = encrypt("select count(gcm_company_listing.id) as total from gcm_company_listing " +
-            "where gcm_company_listing.seller_id=" + this.state.company_id + " and gcm_company_listing.buyer_id=" + decrypt(this.state.company_mapping_register_id) +
-            " and gcm_company_listing.buyer_number_mapping='" + buyer_number_mapping + "'")
-        const resmapkodecust = await this.props.getDataCheckedKodeCust({ query: passquerycheckingkodecust }).catch(err => err)
+        const resmapkodecust = await this.props.getDataCheckedKodeCust({
+            seller_id: this.state.company_id,
+            buyer_id: decrypt(this.state.company_mapping_register_id),
+            buyer_number_mapping: buyer_number_mapping,
+            type: 'check'
+        }).catch(err => err)
+
         if (resmapkodecust) {
             await this.setState({
                 countKodeCustomer: Number(resmapkodecust.total)
@@ -1782,13 +1599,7 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -1883,17 +1694,15 @@ class ContentPengguna extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
     showBlacklistBy = async (id) => {
-        let passqueryblacklistcompanybywho = encrypt("select nama_perusahaan from gcm_master_company where id=" + id)
-        const showblacklistcompanybywho = await this.props.showBlacklistBy({ query: passqueryblacklistcompanybywho }).catch(err => err)
+        const showblacklistcompanybywho = await this.props.showBlacklistBy({ id: id }).catch(err => err)
         if (showblacklistcompanybywho) {
             this.setState({ company_register_blacklist_by: showblacklistcompanybywho.nama_perusahaan })
         } else {
@@ -1904,19 +1713,12 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     showBlacklistType = async (id) => {
-        let passqueryshowblacklisttye = encrypt("select nama from gcm_master_type_blacklist where id=" + id)
-        const showblacklisttype = await this.props.showJenisBlacklist({ query: passqueryshowblacklisttye }).catch(err => err)
+        const showblacklisttype = await this.props.showJenisBlacklist({ id: id }).catch(err => err)
         if (showblacklisttype) {
             this.setState({ company_register_jenis_blacklist: showblacklisttype.nama })
         } else {
@@ -1927,13 +1729,7 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -1984,11 +1780,10 @@ class ContentPengguna extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
@@ -2033,13 +1828,7 @@ class ContentPengguna extends Component {
                     buttons: {
                         confirm: "Oke"
                     }
-                }).then(() => {
-                    // const res = this.props.logoutAPI();
-                    // if (res) {
-                    //     this.props.history.push('/admin')
-                    //     window.location.reload()
-                    // }
-                });
+                })
             }
         }
     }
@@ -2088,13 +1877,7 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -2124,13 +1907,7 @@ class ContentPengguna extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         await this.checkCountPayment(this.state.id_buyer)
         await this.checkCountAlamatMapped(this.state.id_buyer)
@@ -2181,11 +1958,10 @@ class ContentPengguna extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
@@ -3174,8 +2950,12 @@ const reduxDispatch = (dispatch) => ({
     updateKodeMappingAlamat: (data) => dispatch(updateKodeMappingAlamat(data)),
     getDataCheckedKodeAlamatMapping: (data) => dispatch(getDataCheckedKodeAlamatMapping(data)),
     totalBeranda: (data) => dispatch(totalBeranda(data)),
+    getDataCategoryAdminPengguna: (data) => dispatch(getDataCategoryAdminPengguna(data)),
     logoutAPI: () => dispatch(logoutUserAPI()),
     sendEmailToUser: (data) => dispatch(sendEmailAktivasi(data)),
+    getDokumenPengguna: (data) => dispatch(getDokumenPengguna(data)),
+    getTotalCountPengguna: (data) => dispatch(getTotalCountPengguna(data)),
+    getDataAlamatPengguna: (data) => dispatch(getDataAlamatPengguna(data)),
     postQuery: (data) => dispatch(postQuery(data))
 })
 

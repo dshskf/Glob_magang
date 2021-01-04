@@ -50,16 +50,7 @@ class ContentPaymentSuperAdmin extends Component {
     }
 
     loadPaymentListing = async () => {
-        let passquerypaymentlisting = encrypt("select gcm_master_company.nama_perusahaan," +
-            "gcm_master_payment.payment_name, gcm_seller_payment_listing.status, " +
-            "gcm_seller_payment_listing.id " +
-            "from gcm_seller_payment_listing " +
-            "inner join gcm_master_payment on gcm_seller_payment_listing.payment_id = gcm_master_payment.id " +
-            "inner join gcm_master_company on gcm_seller_payment_listing.seller_id = gcm_master_company.id " +
-            // "where gcm_seller_payment_listing.status='C' or gcm_seller_payment_listing.status='R'")
-            "order by gcm_master_company.nama_perusahaan, gcm_master_payment.payment_name")
-
-        const respaymentlisting = await this.props.getDataPaymentAdminAPI({ query: passquerypaymentlisting }).catch(err => err)
+        const respaymentlisting = await this.props.getDataPaymentAdminAPI().catch(err => err)
         if (respaymentlisting) {
             respaymentlisting.map((user, index) => {
                 return (
@@ -94,13 +85,7 @@ class ContentPaymentSuperAdmin extends Component {
     handleDetailPayment = async (e, id) => {
         this.handleModalDetailPayment()
         e.stopPropagation()
-        let passquerydetailpayment = encrypt("select gcm_master_payment.payment_name, gcm_master_payment.deskripsi, " +
-            "gcm_seller_payment_listing.status, gcm_seller_payment_listing.id, gcm_master_company.nama_perusahaan " +
-            "from gcm_seller_payment_listing " +
-            "inner join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id " +
-            "inner join gcm_master_company on gcm_seller_payment_listing.seller_id = gcm_master_company.id " +
-            "where gcm_seller_payment_listing.id=" + id)
-        const resdetailpayment = await this.props.getDataDetailedPaymentSuperAdminAPI({ query: passquerydetailpayment }).catch(err => err)
+        const resdetailpayment = await this.props.getDataDetailedPaymentSuperAdminAPI({ id: id }).catch(err => err)
         if (resdetailpayment) {
             await this.setState({
                 nama_company_payment: resdetailpayment.nama_perusahaan,
@@ -147,10 +132,11 @@ class ContentPaymentSuperAdmin extends Component {
     }
 
     confirmActionChangeStatusPayment = async () => {
-        Toast.loading('Loading...');
-        let passquerychangestatuspayment = encrypt("update gcm_seller_payment_listing set status='" + this.state.status_payment_updated + "' " +
-            "where id=" + this.state.id_payment + " returning status")
-        const resupdatestatuspayment = await this.props.updateStatusPayment({ query: passquerychangestatuspayment }).catch(err => err)
+        Toast.loading('Loading...');        
+        const resupdatestatuspayment = await this.props.updateStatusPayment({
+            status: this.state.status_payment_updated,
+            id: this.state.id_payment
+        }).catch(err => err)
         Toast.hide();
 
         if (resupdatestatuspayment) {
@@ -169,11 +155,10 @@ class ContentPaymentSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 

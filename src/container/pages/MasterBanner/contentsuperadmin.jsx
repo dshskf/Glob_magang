@@ -3,7 +3,7 @@ import { MDBDataTable } from 'mdbreact';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { encrypt } from '../../../config/lib';
-import { uploadGambarBanner, postQuery } from '../../../config/redux/action';
+import { uploadGambarBanner, getMasterBannerData, postMasterBannerData } from '../../../config/redux/action';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup } from 'reactstrap'
 import Resizer from './react-file-image-resizer';
 import swal from 'sweetalert';
@@ -25,8 +25,7 @@ class ContentMasterBanner extends Component {
     }
 
     loadMasterBannerData = async () => {
-        const passquery = encrypt(`select * from gcm_master_banner`)
-        const banner = await this.props.postData({ query: passquery }).catch(err => err)
+        const banner = await this.props.getMasterBannerData().catch(err => err)
 
         const bannerList = banner.map(data => ({
             id: data.id,
@@ -122,6 +121,7 @@ class ContentMasterBanner extends Component {
         // C-> Create, U-> Update, D-> Delete
 
         if (resupload || method === "D") {
+            const fileName = this.state.imageData.tmpPict
             if (method === "C") {
                 const fileName = this.state.imageData.tmpPict
                 passQuery = encrypt(`insert into gcm_master_banner(foto,nama) values('${resupload}','${fileName}') returning *`)
@@ -132,7 +132,12 @@ class ContentMasterBanner extends Component {
                 passQuery = encrypt(`delete from gcm_master_banner where id=${this.state.selectedBannerData.id} returning *`)
             }
 
-            const insertBanner = await this.props.postData({ query: passQuery }).catch(err => err)
+            const insertBanner = await this.props.postMasterBannerData({
+                foto_uri: resupload,
+                nama: this.state.imageData,
+                id: this.state.selectedBannerData.id,
+                action: method
+            }).catch(err => err)
 
             if (insertBanner) {
                 swal({
@@ -156,22 +161,20 @@ class ContentMasterBanner extends Component {
                     title: "Gagal!",
                     text: "Tidak ada perubahan disimpan!",
                     icon: "error",
-                    button: false,
-                    timer: "2500"
-                }).then(() => {
-                    window.location.reload()
-                });
+                    buttons: {
+                        confirm: "Oke"
+                    }
+                })
             }
         } else {
             swal({
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
 
         Toast.hide();
@@ -305,7 +308,8 @@ const reduxState = (state) => ({
 
 const reduxDispatch = (dispatch) => ({
     uploadGambarBanner: (data) => dispatch(uploadGambarBanner(data)),
-    postData: (data) => dispatch(postQuery(data))
+    getMasterBannerData: data => dispatch(getMasterBannerData(data)),
+    postMasterBannerData: (data) => dispatch(postMasterBannerData(data))
 })
 
 export default withRouter(connect(reduxState, reduxDispatch)(ContentMasterBanner));

@@ -41,8 +41,7 @@ class ContentMasterKategoriSuperAdmin extends Component {
     }
 
     loadCategory = async () => {
-        let passquerycategory = encrypt("select * from gcm_master_category order by gcm_master_category.id;")
-        const rescategory = await this.props.getDataCategoryAPI({ query: passquerycategory }).catch(err => err)
+        const rescategory = await this.props.getDataCategoryAPI().catch(err => err)
         if (rescategory) {
             rescategory.map((user, index) => {
                 return (
@@ -64,13 +63,7 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -132,9 +125,7 @@ class ContentMasterKategoriSuperAdmin extends Component {
 
     confirmActionInsertCategory = async () => {
         Toast.loading('Loading...');
-        let passqueryinsertcategory = encrypt("insert into gcm_master_category (nama) values ('" + this.state.nama_kategori_inserted + "') " +
-            " returning nama;")
-        const resinsertMasterCategory = await this.props.insertMasterCategory({ query: passqueryinsertcategory }).catch(err => err)
+        const resinsertMasterCategory = await this.props.insertMasterCategory({ nama: this.state.nama_kategori_inserted }).catch(err => err)
         Toast.hide();
 
         if (resinsertMasterCategory) {
@@ -154,20 +145,17 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
     handleDetailCategory = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation()
-        let passquerydetail = encrypt("select gcm_master_category.id, gcm_master_category.nama from gcm_master_category " +
-            "where gcm_master_category.id=" + id)
-        const resdetail = await this.props.getDataDetailedMasterCategoryAPI({ query: passquerydetail }).catch(err => err)
+        const resdetail = await this.props.getDataDetailedMasterCategoryAPI({ id: id }).catch(err => err)
         if (resdetail) {
             this.setState({
                 id_kategori_selected: id,
@@ -182,13 +170,7 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -211,9 +193,10 @@ class ContentMasterKategoriSuperAdmin extends Component {
 
     confirmActionUpdateCategory = async () => {
         Toast.loading('Loading...');
-        let passqueryupdatemastercategory = encrypt("update gcm_master_category set nama='" + this.state.nama_kategori_selected + "' " +
-            " where id=" + this.state.id_kategori_selected + " returning nama;")
-        const resupdateMasterCategory = await this.props.updateMasterCategory({ query: passqueryupdatemastercategory }).catch(err => err)
+        const resupdateMasterCategory = await this.props.updateMasterCategory({
+            nama: this.state.nama_kategori_selected,
+            id: this.state.id_kategori_selected
+        }).catch(err => err)
         Toast.hide();
 
         if (resupdateMasterCategory) {
@@ -233,11 +216,10 @@ class ContentMasterKategoriSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 

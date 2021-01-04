@@ -132,8 +132,7 @@ class ContentBarangSuperAdmin extends Component {
     }
 
     loadKursManual = async () => {
-        let passquerykurs = encrypt("select * from gcm_master_kurs")
-        const reskurs = await this.props.getKursAPIManual({ query: passquerykurs }).catch(err => err)
+        const reskurs = await this.props.getKursAPIManual().catch(err => err)
         if (reskurs) {
             this.setState({
                 kurs_now_manual: reskurs.nominal
@@ -146,19 +145,12 @@ class ContentBarangSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadCompanySeller = async () => {
-        let passqueryseller = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan from gcm_master_company where gcm_master_company.type='S';")
-        const resseller = await this.props.getDataSellerAPI({ query: passqueryseller }).catch(err => err)
+        const resseller = await this.props.getDataSellerAPI().catch(err => err)
         if (resseller) {
             this.setState({
                 allCompanySeller: resseller,
@@ -171,19 +163,12 @@ class ContentBarangSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadCategory = async () => {
-        let passquerycategory = encrypt("select * from gcm_master_category;")
-        const rescategory = await this.props.getDataCategoryAPI({ query: passquerycategory }).catch(err => err)
+        const rescategory = await this.props.getDataCategoryAPI().catch(err => err)
         if (rescategory) {
             this.setState({
                 allCategory: rescategory
@@ -196,34 +181,13 @@ class ContentBarangSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadDataBarangSeller = async (id) => {
         this.setState({ statusFilter: false, selectedFilter: 'Semua' })
-        let passquerybarangseller = encrypt("select	gcm_list_barang.id, gcm_master_barang.status as status_master, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, " +
-            "gcm_list_barang.company_id," +
-            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('assets/images/product', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
-            "else 'assets/images/no_image.png' end as foto, " +
-            "gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
-            "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, gcm_master_barang.volume, " +
-            "gcm_master_user.nama as nama_update, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias, gcm_listing_kurs.nominal " +
-            "from gcm_list_barang " +
-            "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-            "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
-            "inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-            "inner join gcm_listing_kurs on gcm_list_barang.company_id = gcm_listing_kurs.company_id " +
-            "left join gcm_master_user on gcm_list_barang.update_by = gcm_master_user.id " +
-            "where gcm_list_barang.company_id =" + id + " and gcm_list_barang.status != 'C' and now() between gcm_listing_kurs.tgl_start and gcm_listing_kurs.tgl_end " +
-            "order by gcm_list_barang.update_date desc, gcm_master_barang.category_id asc, gcm_master_barang.nama asc")
-        const res = await this.props.getDataBarangAPI({ query: passquerybarangseller }).catch(err => err)
+        const res = await this.props.getDataBarangAPI({ id: id }).catch(err => err)
         if (res) {
             this.setState({
                 allDataBarang: res,
@@ -234,23 +198,7 @@ class ContentBarangSuperAdmin extends Component {
 
     loadDataBarangSellerOnConfirm = async (id) => {
         this.setState({ statusFilter: false, selectedFilter: 'Semua' })
-        let passquerybarangselleronconfirm = encrypt("select gcm_list_barang.id, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, " +
-            "gcm_list_barang.company_id," +
-            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('assets/images/product', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
-            "else 'assets/images/no_image.png' end as foto, " +
-            "gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
-            "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, gcm_master_barang.volume, " +
-            "gcm_master_user.nama as nama_update, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias, gcm_listing_kurs.nominal " +
-            "from gcm_list_barang " +
-            "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-            "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
-            "inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-            "inner join gcm_listing_kurs on gcm_list_barang.company_id = gcm_listing_kurs.company_id " +
-            "left join gcm_master_user on gcm_list_barang.update_by = gcm_master_user.id " +
-            "where gcm_list_barang.company_id =" + id + " and (gcm_list_barang.status = 'C' or gcm_list_barang.status = 'R') " +
-            "and now() between gcm_listing_kurs.tgl_start and gcm_listing_kurs.tgl_end " +
-            "order by gcm_list_barang.update_date desc, gcm_master_barang.category_id asc, gcm_master_barang.nama asc")
-        const resonconfirm = await this.props.getDataBarangSellerAPI({ query: passquerybarangselleronconfirm }).catch(err => err)
+        const resonconfirm = await this.props.getDataBarangSellerAPI({ id: id }).catch(err => err)
         if (resonconfirm) {
             this.setState({
                 allDataBarangOnConfirm: resonconfirm,
@@ -264,35 +212,14 @@ class ContentBarangSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         // and gcm_master_barang.status='A' 
     }
 
     loadDataBarangSellerOnConfirmWithoutId = async () => {
         this.setState({ statusFilter: false, selectedFilter: 'Semua' })
-        let passquerybarangselleronconfirmwithoutid = encrypt("select gcm_list_barang.id, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, " +
-            "gcm_list_barang.company_id, " +
-            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
-            "else 'assets/images/no_image.png' end as foto, " +
-            " gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
-            "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, gcm_master_barang.volume, " +
-            "gcm_master_user.nama as nama_update, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias, gcm_listing_kurs.nominal " +
-            "from gcm_list_barang " +
-            "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-            "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
-            "inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-            "inner join gcm_listing_kurs on gcm_list_barang.company_id = gcm_listing_kurs.company_id " +
-            "left join gcm_master_user on gcm_list_barang.update_by = gcm_master_user.id " +
-            "where (gcm_list_barang.status = 'C' or gcm_list_barang.status = 'R') and now() between gcm_listing_kurs.tgl_start and gcm_listing_kurs.tgl_end " +
-            "order by gcm_list_barang.update_date desc, gcm_master_barang.category_id asc, gcm_master_barang.nama asc")
-        const resonconfirmwithoutid = await this.props.getDataBarangSellerAPI({ query: passquerybarangselleronconfirmwithoutid }).catch(err => err)        
+        const resonconfirmwithoutid = await this.props.getDataBarangSellerAPI().catch(err => err)
         if (resonconfirmwithoutid) {
             this.setState({
                 allDataBarangOnConfirmWithoutId: resonconfirmwithoutid,
@@ -306,15 +233,8 @@ class ContentBarangSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
-        // and gcm_master_barang.status='A' 
     }
 
     filterSeller = (event) => {
@@ -379,21 +299,7 @@ class ContentBarangSuperAdmin extends Component {
 
     handleDetailBarang = async (id) => {
         this.handleModalDetail()
-        let passquerydetail = encrypt("select gcm_list_barang.id, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, gcm_list_barang.price_terendah," +
-            "gcm_list_barang.company_id, " +
-            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('assets/images/product', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
-            "else 'assets/images/no_image.png' end as foto, " +
-            " gcm_list_barang.deskripsi, gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
-            "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, " +
-            "gcm_master_barang.volume, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias, gcm_list_barang.jumlah_min_beli, gcm_list_barang.jumlah_min_nego, gcm_master_barang.status as status_master, " +
-            "gcm_list_barang.persen_nego_1, gcm_list_barang.persen_nego_2, gcm_list_barang.persen_nego_3, gcm_list_barang.kode_barang, gcm_listing_kurs.nominal " +
-            "from gcm_list_barang " +
-            "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-            "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
-            "inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-            "inner join gcm_listing_kurs on gcm_list_barang.company_id = gcm_listing_kurs.company_id " +
-            " where gcm_list_barang.id=" + id + " and now() between gcm_listing_kurs.tgl_start and gcm_listing_kurs.tgl_end")
-        const resdetail = await this.props.getDataDetailedBarangAPI({ query: passquerydetail }).catch(err => err)
+        const resdetail = await this.props.getDataDetailedBarangAPI({ id: id }).catch(err => err)
         if (resdetail) {
             this.setState({
                 detailed_id_list_barang: decrypt(resdetail.id),
@@ -428,35 +334,13 @@ class ContentBarangSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     handleDetailBarangOnConfirm = async (id) => {
         this.handleModalDetailOnConfirm()
-        let passquerydetailonconfirm = encrypt("select gcm_list_barang.id, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, gcm_list_barang.price_terendah, " +
-            "gcm_list_barang.company_id, gcm_master_company.nama_perusahaan, " +
-            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('assets/images/product', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
-            "else 'assets/images/no_image.png' end as foto, " +
-            " gcm_list_barang.deskripsi, gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
-            "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, " +
-            "gcm_master_barang.volume, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias, gcm_list_barang.jumlah_min_beli, gcm_list_barang.jumlah_min_nego, " +
-            "gcm_master_barang.id as id_from_master, gcm_master_barang.status as status_master, gcm_listing_kurs.nominal, " +
-            "gcm_list_barang.persen_nego_1, gcm_list_barang.persen_nego_2, gcm_list_barang.persen_nego_3, gcm_list_barang.kode_barang " +
-            "from gcm_list_barang " +
-            "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-            "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
-            "inner join gcm_master_company on gcm_list_barang.company_id = gcm_master_company.id " +
-            "inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-            "inner join gcm_listing_kurs on gcm_list_barang.company_id = gcm_listing_kurs.company_id " +
-            " where gcm_list_barang.id=" + id + " and now() between gcm_listing_kurs.tgl_start and gcm_listing_kurs.tgl_end")
-        const resdetailonconfirm = await this.props.getDataDetailedBarangSuperAdminOnConfirmAPI({ query: passquerydetailonconfirm }).catch(err => err)
+        const resdetailonconfirm = await this.props.getDataDetailedBarangSuperAdminOnConfirmAPI({ id: id }).catch(err => err)
         if (resdetailonconfirm) {
             this.setState({
                 detailed_id_list_barang_onconfirm_from_master: decrypt(resdetailonconfirm.id_from_master),
@@ -493,13 +377,7 @@ class ContentBarangSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -572,49 +450,17 @@ class ContentBarangSuperAdmin extends Component {
         }
     }
 
-    // checkStatusMasterBarang = async() => {
-    //     let passcheckstatusmaster = encrypt("select gcm_master_barang.status as status_master from gcm_master_barang where id="+this.state.detailed_id_list_barang_onconfirm_from_master)
-    //     const rescheckstatusmaster = await this.props.getDataStatusMasterBarangAPI({query:passcheckstatusmaster}).catch(err => err)
-    //     if(rescheckstatusmaster) {
-    //         this.setState({pembanding_status_master_barang:rescheckstatusmaster.status_master})
-    //     } else {
-    //         swal({
-    //             title: "Kesalahan 503!",
-    //             text: "Harap periksa koneksi internet!",
-    //             icon: "error",
-    //             buttons: {
-    //                 confirm: "Oke"
-    //                 }
-    //             }).then(()=> {
-    //                 const res = this.props.logoutAPI();
-    //                 if (res) {
-    //                     this.props.history.push('/admin')
-    //                     window.location.reload()
-    //                 }
-    //             });
-    //     }
-    // }
 
     confirmActionForPengajuan = async () => {
         Toast.loading('Loading...');
-        let passquerypertama = ""
-        let passquerykedua = ""
-        if (this.state.flag_from_master_barang === 'C') {
-            if (this.state.status_for_confirm === 'R') {
-                passquerykedua = "update gcm_list_barang set status='" + this.state.status_for_confirm + "', update_by='" +
-                    this.state.id_pengguna_login + "', update_date=now() where id=" + this.state.detailed_id_list_barang_onconfirm + " returning update_date;"
-            } else {
-                passquerypertama = "with new_order as (update gcm_master_barang set status='A', update_by='" + this.state.id_pengguna_login +
-                    "', update_date=now() where id=" + this.state.detailed_id_list_barang_onconfirm_from_master + ") "
-                passquerykedua = "update gcm_list_barang set status='" + this.state.status_for_confirm + "', update_by='" +
-                    this.state.id_pengguna_login + "', update_date=now() where id=" + this.state.detailed_id_list_barang_onconfirm + " returning update_date;"
-            }
-        } else {
-            passquerykedua = "update gcm_list_barang set status='" + this.state.status_for_confirm + "', update_by='" +
-                this.state.id_pengguna_login + "', update_date=now() where id=" + this.state.detailed_id_list_barang_onconfirm + " returning update_date;"
-        }
-        let passqueryupdatepengajuan = encrypt(passquerypertama.concat(passquerykedua))
-        const resupdatepengajuan = await this.props.updateBarangStatus({ query: passqueryupdatepengajuan }).catch(err => err)
+        const resupdatepengajuan = await this.props.updateBarangStatus({
+            flag: this.state.flag_from_master_barang,
+            status: this.state.status_for_confirm,
+            userId: this.state.id_pengguna_login,
+            barangId: this.state.detailed_id_list_barang_onconfirm,
+            barangIdMaster: this.state.detailed_id_list_barang_onconfirm_from_master
+        }).catch(err => err)
+
         Toast.hide();
         if (resupdatepengajuan) {
             swal({
@@ -633,11 +479,10 @@ class ContentBarangSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 

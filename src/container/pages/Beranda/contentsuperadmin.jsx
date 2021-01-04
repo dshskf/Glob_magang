@@ -57,9 +57,10 @@ class ContentBerandaSuperAdmin extends Component {
         isOpenModalKurs: false,
         isOpenConfirmUpdate: false,
         tmp_kurs_now_manual: '',
-        startDate: moment().startOf('month'),
+        startDate: moment().subtract(3, 'year'),
         endDate: moment(),                              // now
         ranges: {
+            'All': [moment().subtract(3, 'year'), moment()],
             'Today': [moment(), moment()],
             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
             'Last 7 Days': [moment().subtract(6, 'days'), moment()],
@@ -110,13 +111,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycountmasterbarangaktif = encrypt("select count(gcm_master_barang.id) as total " +
             "from gcm_master_barang where gcm_master_barang.status='A'")
@@ -133,13 +128,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycountmasterbaranginaktif = encrypt("select count(gcm_master_barang.id) as total " +
             "from gcm_master_barang where gcm_master_barang.status='C'")
@@ -156,13 +145,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycountmasterbarangnonaktif = encrypt("select count(gcm_master_barang.id) as total " +
             "from gcm_master_barang where gcm_master_barang.status='I'")
@@ -179,13 +162,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -205,13 +182,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -231,13 +202,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -257,13 +222,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -283,13 +242,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -309,13 +262,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -335,13 +282,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycountbarangonconfirm = encrypt("select count(gcm_list_barang.id) as total " +
             "from gcm_list_barang where gcm_list_barang.status = 'C'")
@@ -358,13 +299,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycountbarangrejected = encrypt("select count(gcm_list_barang.id) as total " +
             "from gcm_list_barang where gcm_list_barang.status = 'R'")
@@ -381,13 +316,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -423,13 +352,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycountnegosiasiaktif = ""
         if (this.state.startDate.format('YYYY-MM-DD') === this.state.endDate.format('YYYY-MM-DD')) {
@@ -462,13 +385,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycountnegosiasinonaktif = ""
         if (this.state.startDate.format('YYYY-MM-DD') === this.state.endDate.format('YYYY-MM-DD')) {
@@ -501,13 +418,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -540,13 +451,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycounttransaksimenunggu = ""
         if (this.state.startDate.format('YYYY-MM-DD') === this.state.endDate.format('YYYY-MM-DD')) {
@@ -576,13 +481,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycounttransaksidiproses = ""
         if (this.state.startDate.format('YYYY-MM-DD') === this.state.endDate.format('YYYY-MM-DD')) {
@@ -612,13 +511,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycounttransaksiditerima = ""
         if (this.state.startDate.format('YYYY-MM-DD') === this.state.endDate.format('YYYY-MM-DD')) {
@@ -648,13 +541,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycounttransaksidikeluhkan = ""
         if (this.state.startDate.format('YYYY-MM-DD') === this.state.endDate.format('YYYY-MM-DD')) {
@@ -684,13 +571,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycounttransaksiselesai = ""
         if (this.state.startDate.format('YYYY-MM-DD') === this.state.endDate.format('YYYY-MM-DD')) {
@@ -720,13 +601,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycounttransaksidibatalkan = ""
         if (this.state.startDate.format('YYYY-MM-DD') === this.state.endDate.format('YYYY-MM-DD')) {
@@ -756,13 +631,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycounttransaksidikirim = ""
         if (this.state.startDate.format('YYYY-MM-DD') === this.state.endDate.format('YYYY-MM-DD')) {
@@ -792,13 +661,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -819,13 +682,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycountpenjualaktif = encrypt("select count(gcm_master_company.id) as total " +
             "from gcm_master_company " +
@@ -843,13 +700,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycountpenjualinaktif = encrypt("select count(gcm_master_company.id) as total " +
             "from gcm_master_company " +
@@ -867,13 +718,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycountpenjualnonaktif = encrypt("select count(gcm_master_company.id) as total " +
             "from gcm_master_company " +
@@ -891,13 +736,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -917,13 +756,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycountpaymentonconfirm = encrypt("select count(gcm_seller_payment_listing.id) as total " +
             "from gcm_seller_payment_listing where gcm_seller_payment_listing.status='C'")
@@ -940,13 +773,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         let passquerycountpaymentrejected = encrypt("select count(gcm_seller_payment_listing.id) as total " +
             "from gcm_seller_payment_listing where gcm_seller_payment_listing.status='R'")
@@ -963,13 +790,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -990,13 +811,7 @@ class ContentBerandaSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -1061,11 +876,10 @@ class ContentBerandaSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 

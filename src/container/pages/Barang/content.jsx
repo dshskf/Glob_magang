@@ -5,9 +5,9 @@ import Select from 'react-select';
 import { decrypt, encrypt } from '../../../config/lib';
 import swal from 'sweetalert';
 import {
-    getDataBarangAPI, getDataDetailedBarangAPI, getKursAPI, getKursAPIManual, getKursActiveAPIManual, getDataCheckedBarang, getDataCategoryAPI, getDataSatuanAPI, insertMasterBarangFromSeller,
-    getDivisi, uploadGambarBarang, updateBarangStatus, getDataBarangCanInsert, getDataCheckedNego, getDataCheckedKodeBarang,
-    getPPNBarang, insertListBarang, logoutUserAPI, postQuery
+    getDataBarangAPI, getDataDetailedBarangAdmin, getKursAPI, getKursAPIManual, getKursActiveAPIManual, getDataCheckedBarang, getDataCategoryAPI, getDataSatuanAPI, insertMasterBarangFromSeller,
+    getDivisi, uploadGambarBarang, updateBarangStatus, getDataBarangCanInsert, getDataCheckedNego, getDataCheckedKodeBarang, getKategoriUmum, getDepartmentSales, getDataBarangOnClose,
+    getPPNBarang, insertListBarang, logoutUserAPI, postQuery, updateBarangPPNStatus, getDataSelectedCategoryAPI, getDataBarangAdmin, getRiwayatHarga, insertBarangAdmin, postHargaBarangExcel
 } from '../../../config/redux/action';
 import BarangComponent from '../../../component/molecules/BarangComponent';
 import NumberFormat from 'react-number-format';
@@ -334,8 +334,7 @@ class ContentBarang extends Component {
 
 
     loadPPNBarang = async () => {
-        let passqueryppn = encrypt("select ppn_seller from gcm_master_company where id =" + this.state.company_id)
-        const resppn = await this.props.getPPNBarang({ query: passqueryppn }).catch(err => err)
+        const resppn = await this.props.getPPNBarang({ id: this.state.company_id }).catch(err => err)
         if (resppn) {
             this.setState({
                 company_info_ppn: Number(resppn.ppn_seller),
@@ -349,13 +348,7 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -382,9 +375,10 @@ class ContentBarang extends Component {
 
     confirmActionUpdatePPN = async () => {
         Toast.loading('Loading...');
-        let passqueryupdateppn = encrypt("update gcm_master_company set ppn_seller='" + this.state.updated_ppn + "' " +
-            " where id=" + this.state.company_id + " returning ppn_seller;")
-        const resupdateppn = await this.props.updateBarangStatus({ query: passqueryupdateppn }).catch(err => err)
+        const resupdateppn = await this.props.updateBarangPPNStatus({
+            ppn: this.state.updated_ppn,
+            id: this.state.company_id
+        }).catch(err => err)
         Toast.hide();
         if (resupdateppn) {
             swal({
@@ -394,24 +388,22 @@ class ContentBarang extends Component {
                 button: false,
                 timer: "2500"
             }).then(() => {
-                window.location.reload()
+                // window.location.reload()
             });
         } else {
             swal({
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
     loadCategory = async () => {
-        let passquerycategory = encrypt("select * from gcm_master_category;")
-        const rescategory = await this.props.getDataCategoryAPI({ query: passquerycategory }).catch(err => err)
+        const rescategory = await this.props.getDataCategoryAPI().catch(err => err)
         if (rescategory) {
             this.setState({
                 allCategory: rescategory
@@ -424,19 +416,12 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadCategoryKhusus = async () => {
-        let passquerycategorykhusus = encrypt("select * from gcm_master_category where id=" + this.state.sa_divisi + " or id=5")
-        const rescategorykhusus = await this.props.getDataCategoryAPI({ query: passquerycategorykhusus }).catch(err => err)
+        const rescategorykhusus = await this.props.getDataSelectedCategoryAPI({ id: this.state.sa_divisi }).catch(err => err)
         if (rescategorykhusus) {
             this.setState({
                 allCategoryKhusus: rescategorykhusus
@@ -449,19 +434,12 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadSatuan = async () => {
-        let passquerysatuan = encrypt("select * from gcm_master_satuan;")
-        const ressatuan = await this.props.getDataSatuanAPI({ query: passquerysatuan }).catch(err => err)
+        const ressatuan = await this.props.getDataSatuanAPI().catch(err => err)
         if (ressatuan) {
             this.setState({
                 allSatuan: ressatuan
@@ -474,49 +452,32 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadRegisteredBarang = async () => {
         Toast.loading('Loading...');
-        let passqueryregisteredbarang = ""
+        let resregisteredbarang
         if (this.state.tipe_bisnis === '1' && this.state.sa_divisi === '1') {
-            passqueryregisteredbarang = encrypt("select gcm_master_barang.id, gcm_master_barang.nama, gcm_master_barang.berat, " +
-                "gcm_master_barang.volume, gcm_master_category.nama as nama_kategori, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias " +
-                "from gcm_master_barang inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-                "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
-                "where " +
-                "not exists (select * from gcm_list_barang " +
-                "where gcm_master_barang.id = gcm_list_barang.barang_id and gcm_list_barang.company_id="
-                + this.state.company_id + " and gcm_master_barang.category_id != 5 and gcm_master_barang.status='A') and gcm_master_barang.status='A'")
+            resregisteredbarang = await this.props.getDataBarangCanInsert({
+                company_id: this.state.company_id,
+                action: 1
+            }).catch(err => err)
         } else if (this.state.tipe_bisnis === '1' && this.state.sa_divisi !== '1') {
-            passqueryregisteredbarang = encrypt("select gcm_master_barang.id, gcm_master_barang.nama, gcm_master_barang.berat, " +
-                "gcm_master_barang.volume, gcm_master_category.nama as nama_kategori, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias " +
-                "from gcm_master_barang inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-                "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
-                "where (gcm_master_barang.category_id=" + this.state.sa_divisi + " or gcm_master_barang.category_id=5) " +
-                "and not exists (select * from gcm_list_barang " +
-                "where gcm_master_barang.id = gcm_list_barang.barang_id and gcm_list_barang.company_id="
-                + this.state.company_id + " and gcm_master_barang.category_id != 5 and gcm_master_barang.status='A') and gcm_master_barang.status='A'")
+            resregisteredbarang = await this.props.getDataBarangCanInsert({
+                company_id: this.state.company_id,
+                category_id: this.state.sa_divisi,
+                action: 2
+            }).catch(err => err)
         } else {
-            passqueryregisteredbarang = encrypt("select gcm_master_barang.id, gcm_master_barang.nama, gcm_master_barang.berat, " +
-                "gcm_master_barang.volume, gcm_master_category.id as id_kategori, gcm_master_category.nama as nama_kategori, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias " +
-                "from gcm_master_barang inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-                "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
-                "where (gcm_master_barang.category_id=" + this.state.tipe_bisnis + " or gcm_master_barang.category_id=5) " +
-                "and not exists (select * from gcm_list_barang " +
-                "where gcm_master_barang.id = gcm_list_barang.barang_id and gcm_list_barang.company_id="
-                + this.state.company_id + " and gcm_master_barang.category_id != 5 and gcm_master_barang.status='A') and gcm_master_barang.status='A'")
+            resregisteredbarang = await this.props.getDataBarangCanInsert({
+                company_id: this.state.company_id,
+                category_id: this.state.tipe_bisnis,
+                action: 3
+            }).catch(err => err)
         }
 
-        const resregisteredbarang = await this.props.getDataBarangCanInsert({ query: passqueryregisteredbarang }).catch(err => err)
         Toast.hide();
 
 
@@ -550,13 +511,7 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -574,22 +529,12 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadKursManual = async () => {
-        // let passquerykurs = encrypt("select * from gcm_master_kurs")
-        // const reskurs = await this.props.getKursAPIManual({query:passquerykurs}).catch(err => err)
-        let passquerykurs = encrypt("select * from gcm_listing_kurs where company_id=" + this.state.company_id +
-            " and (now() >= gcm_listing_kurs.tgl_start and now() <= gcm_listing_kurs.tgl_end);")
-        const reskurs = await this.props.getKursActiveAPIManual({ query: passquerykurs }).catch(err => err)
+        const reskurs = await this.props.getKursActiveAPIManual({ id: this.state.company_id }).catch(err => err)
         if (reskurs) {
             this.setState({
                 kurs_now_manual: reskurs.nominal
@@ -602,19 +547,12 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadDivisi = async () => {
-        let passquerydivisi = encrypt("select gcm_master_category.nama as nama_divisi from gcm_master_category where id=" + this.state.sa_divisi)
-        const resdivisi = await this.props.getDivisi({ query: passquerydivisi }).catch(err => err)
+        const resdivisi = await this.props.getDivisi({ id: this.state.sa_divisi }).catch(err => err)
         if (resdivisi) {
             this.setState({
                 nama_divisi: resdivisi.nama_divisi
@@ -627,52 +565,17 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadDataBarang = async () => {
         let passquery = ""
+        const res = await this.props.getDataBarangAdmin({
+            company_id: this.state.company_id,
+            sa_divisi: this.state.sa_divisi
+        }).catch(err => err)
 
-        if (this.state.sa_divisi !== '1') {
-            passquery = encrypt("select	gcm_list_barang.id, gcm_list_barang.status, gcm_master_barang.status as status_master, gcm_list_barang.barang_id, gcm_list_barang.price, " +
-                "gcm_list_barang.company_id, " +
-                "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
-                "else 'assets/images/no_image.png' end as foto, " +
-                "gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
-                "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, gcm_master_barang.volume, " +
-                "gcm_master_user.nama as nama_alias, gcm_master_satuan.alias " +
-                "from gcm_list_barang " +
-                "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-                "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
-                "inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-                "left join gcm_master_user on gcm_list_barang.update_by = gcm_master_user.id " +
-                "where gcm_list_barang.company_id = " + this.state.company_id + " " +
-                "and (gcm_master_barang.category_id = " + this.state.sa_divisi + " or gcm_master_barang.category_id = 5) " +
-                "order by gcm_list_barang.update_date desc, gcm_master_barang.category_id asc, gcm_master_barang.nama asc")
-        } else {
-            passquery = encrypt("select	gcm_list_barang.id, gcm_list_barang.status, gcm_master_barang.status as status_master, gcm_list_barang.barang_id, gcm_list_barang.price, " +
-                "gcm_list_barang.company_id," +
-                "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
-                "else 'assets/images/no_image.png' end as foto, " +
-                "gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
-                "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, gcm_master_barang.volume, " +
-                "gcm_master_user.nama as nama_alias, gcm_master_satuan.alias " +
-                "from gcm_list_barang " +
-                "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-                "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
-                "inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-                "left join gcm_master_user on gcm_list_barang.update_by = gcm_master_user.id " +
-                "where gcm_list_barang.company_id = " + this.state.company_id + " " +
-                "order by gcm_list_barang.update_date desc, gcm_master_barang.category_id asc, gcm_master_barang.nama asc")
-        }
-        let res = await this.props.getDataBarangAPI({ query: passquery }).catch(err => err)
         if (res) {
             this.setState({
                 allDataBarang: res,
@@ -686,13 +589,7 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -876,33 +773,19 @@ class ContentBarang extends Component {
 
     handleDetailBarang = async (id) => {
         this.handleModalDetail()
-
-        let passquerydetail = encrypt("select gcm_list_barang.id, gcm_list_barang.status, gcm_list_barang.barang_id, gcm_list_barang.price, gcm_list_barang.price_terendah, " +
-            "gcm_list_barang.company_id, gcm_list_barang.deskripsi, gcm_list_barang.update_by, to_char(gcm_list_barang.update_date, 'DD/MM/YYYY') update_date, " +
-            "gcm_master_barang.nama, gcm_master_category.nama as kategori, gcm_master_barang.category_id, gcm_master_barang.berat, " +
-            "gcm_master_barang.volume, gcm_list_barang.jumlah_min_beli, gcm_list_barang.jumlah_min_nego, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias, gcm_master_barang.status as status_master, " +
-            "gcm_list_barang.persen_nego_1, gcm_list_barang.persen_nego_2, gcm_list_barang.persen_nego_3, gcm_list_barang.kode_barang,gcm_departemen_sales.departemen, " +
-            "case when gcm_list_barang.flag_foto = 'Y' then  (select concat('https://glob.co.id/admin/assets/images/product/', gcm_list_barang.company_id,'/',gcm_list_barang.kode_barang,'.png'))" +
-            "else 'assets/images/no_image.png' end as foto " +
-            "from gcm_list_barang " +
-            "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-            "inner join gcm_master_satuan on gcm_master_barang.satuan = gcm_master_satuan.id " +
-            "inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-            "inner join gcm_departemen_sales on gcm_list_barang.departmen_sales = gcm_departemen_sales.id " +
-            "where gcm_list_barang.company_id =" + this.state.company_id + " and gcm_list_barang.id=" + id)
-
         Toast.loading('Loading...');
+        const resdetail = await this.props.getDataDetailedBarangAdmin({
+            company_id: this.state.company_id,
+            id: id
+        }).catch(err => err)
 
-        const resdetail = await this.props.getDataDetailedBarangAPI({ query: passquerydetail }).catch(err => err)
-
-        let riwayatHargaQuery = encrypt(`select * from gcm_listing_harga_barang where barang_id='${decrypt(resdetail.id)}' order by id asc`)
-        const reqRiwayatHarga = await this.props.getDataBarangAPI({ query: riwayatHargaQuery }).catch(err => err)
+        const reqRiwayatHarga = await this.props.getRiwayatHarga({ id: decrypt(resdetail.id) }).catch(err => err)
 
         Toast.hide();
         const riwayatHargaRow = reqRiwayatHarga.map((data, index) => {
             return {
                 id: data.id,
-                harga: data.price.props.value,
+                harga: data.price,
                 harga_terendah: data.price_terendah,
                 start_date: data.start_date.split("T")[0],
                 end_date: data.end_date ?
@@ -911,7 +794,6 @@ class ContentBarang extends Component {
                     "Berlaku Sekarang"
             }
         })
-        // hahah
 
         if (resdetail) {
             this.setState({
@@ -923,18 +805,10 @@ class ContentBarang extends Component {
                 detailed_barang_id: decrypt(resdetail.barang_id),
                 detailed_price: Number(resdetail.price),
                 show_detailed_price: Number(resdetail.price),
-                // detailed_price_in_rupiah: parseInt(resdetail.price * this.state.kurs_now).toFixed(0),
-                // show_detailed_price_in_rupiah: parseInt(resdetail.price * this.state.kurs_now).toFixed(0),
-                // detailed_price_in_rupiah: parseInt(resdetail.price * this.state.kurs_now_manual).toFixed(0),
-                // show_detailed_price_in_rupiah: parseInt(resdetail.price * this.state.kurs_now_manual).toFixed(0),
                 detailed_price_in_rupiah: Number(Math.ceil(resdetail.price * this.state.kurs_now_manual)),
                 show_detailed_price_in_rupiah: Number(Math.ceil(resdetail.price * this.state.kurs_now_manual)),
                 detailed_price_terendah: Number(resdetail.price_terendah),
                 show_detailed_price_terendah: Number(resdetail.price_terendah),
-                // detailed_price_in_rupiah_terendah: parseInt(resdetail.price_terendah * this.state.kurs_now).toFixed(0),
-                // show_detailed_price_in_rupiah_terendah: parseInt(resdetail.price_terendah * this.state.kurs_now).toFixed(0),
-                // detailed_price_in_rupiah_terendah: parseInt(resdetail.price_terendah * this.state.kurs_now_manual).toFixed(0),
-                // show_detailed_price_in_rupiah_terendah: parseInt(resdetail.price_terendah * this.state.kurs_now_manual).toFixed(0),
                 detailed_price_in_rupiah_terendah: Number(Math.ceil(resdetail.price_terendah * this.state.kurs_now_manual)),
                 show_detailed_price_in_rupiah_terendah: Number(Math.ceil(resdetail.price_terendah * this.state.kurs_now_manual)),
                 detailed_foto: resdetail.foto,
@@ -971,13 +845,7 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -3549,11 +3417,9 @@ class ContentBarang extends Component {
     }
 
     loadCheckingNego = async () => {
-        let passquerycheckingnego = encrypt("select count(gcm_master_cart.id) as total from gcm_master_cart " +
-            "inner join gcm_history_nego on gcm_master_cart.history_nego_id = gcm_history_nego.id " +
-            "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 " +
-            "and gcm_master_cart.barang_id=" + this.state.detailed_id_list_barang)
-        const residchecked = await this.props.getDataCheckedNego({ query: passquerycheckingnego }).catch(err => err)
+        const residchecked = await this.props.getDataCheckedNego({
+            id: this.state.detailed_id_list_barang
+        }).catch(err => err)
         if (residchecked) {
             await this.setState({
                 allCheckedNego: Number(residchecked.total)
@@ -3566,13 +3432,7 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -3581,9 +3441,10 @@ class ContentBarang extends Component {
     }
 
     loadCheckingKodeBarang = async (kd_brg) => {
-        let passquerycheckingkodebarang = encrypt("select count(gcm_list_barang.id) as total from gcm_list_barang " +
-            "where gcm_list_barang.company_id=" + this.state.company_id + " and gcm_list_barang.kode_barang='" + kd_brg + "'")
-        const reskodebarang = await this.props.getDataCheckedKodeBarang({ query: passquerycheckingkodebarang }).catch(err => err)
+        const reskodebarang = await this.props.getDataCheckedKodeBarang({
+            id: this.state.company_id,
+            kode_barang: kd_brg
+        }).catch(err => err)
         if (reskodebarang) {
             await this.setState({
                 allCheckedKodeBarang: Number(reskodebarang.total)
@@ -3596,13 +3457,7 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -3814,8 +3669,7 @@ class ContentBarang extends Component {
     }
 
     loadCheckingBarang = async () => {
-        let passquerycheckingbarang = encrypt("select gcm_list_barang.barang_id from gcm_list_barang where gcm_list_barang.company_id=" + this.state.company_id)
-        const residchecked = await this.props.getDataCheckedBarang({ query: passquerycheckingbarang }).catch(err => err)
+        const residchecked = await this.props.getDataCheckedBarang({ company_id: this.state.company_id }).catch(err => err)
         if (residchecked) {
             this.setState({
                 allCheckedRegisteredBarang: residchecked
@@ -3828,13 +3682,7 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -3939,35 +3787,45 @@ class ContentBarang extends Component {
         formData.append("company_id", this.state.company_id)
 
         if (this.state.editGambarBarang) {
+            // const ext = this.state.detailed_foto_baru.name.split('.')[1]
+            // const imgName = this.state.detailed_kode_barang_distributor + "." + ext
+            // const oldPicture = this.state.detailedEditOldFoto.split(`${this.state.company_id}/`)[1]
 
-            const ext = this.state.detailed_foto_baru.name.split('.')[1]
-            const imgName = this.state.detailed_kode_barang_distributor + "." + ext
-            const oldPicture = this.state.detailedEditOldFoto.split(`${this.state.company_id}/`)[1]
 
+            // formData.append('oldPictureName', oldPicture)
+            // formData.append('imageName', imgName)
+            // formData.append('image', this.state.detailed_foto_baru)
 
-            formData.append('oldPictureName', oldPicture)
-            formData.append('imageName', imgName)
-            formData.append('image', this.state.detailed_foto_baru)
+            // const resupload = await axios.post("https://glob.co.id/image/update", formData)
 
-            const resupload = await axios.post("https://glob.co.id/image/update", formData)
-
+            // S3 Upload
+            console.log({
+                fileContent: this.state.detailed_foto,
+                fileName: this.state.detailed_foto_baru.name
+            })
+            const resupload = await axios.post("http://localhost:4000/api/upload_s3", {
+                fileContent: this.state.detailed_foto,
+                fileName: this.state.detailed_foto_baru.name
+            })
+            console.log(resupload)
             // Toast.hide();
-            if (resupload) {
-                await this.setState({
-                    detailed_foto_baru_url: resupload.data.path
-                })
-                this.updateBarang()
-            } else {
-                swal({
-                    title: "Gagal!",
-                    text: "Tidak ada perubahan disimpan!",
-                    icon: "error",
-                    button: false,
-                    timer: "2500"
-                }).then(() => {
-                    window.location.reload()
-                });
-            }
+
+
+            // if (resupload) {
+            //     await this.setState({
+            //         detailed_foto_baru_url: resupload.data.path
+            //     })
+            //     this.updateBarang()
+            // } else {
+            //     swal({
+            //         title: "Gagal!",
+            //         text: "Tidak ada perubahan disimpan!",
+            //         icon: "error",
+            //         buttons: {
+            //             confirm: "Oke"
+            //         }
+            //     })
+            // }
         } else if (this.state.insertGambarBarang) {
             if (this.state.kategori_barang_registered_insert === 'Umum') {
                 this.insertBarang()
@@ -3990,11 +3848,10 @@ class ContentBarang extends Component {
                     title: "Gagal!",
                     text: "Tidak ada perubahan disimpan!",
                     icon: "error",
-                    button: false,
-                    timer: "2500"
-                }).then(() => {
-                    window.location.reload()
-                });
+                    buttons: {
+                        confirm: "Oke"
+                    }
+                })
             }
         } else {
             const ext = this.state.insert_foto_master_baru.name.split('.')[1]
@@ -4015,96 +3872,77 @@ class ContentBarang extends Component {
                     title: "Gagal!",
                     text: "Tidak ada perubahan disimpan!",
                     icon: "error",
-                    button: false,
-                    timer: "2500"
-                }).then(() => {
-                    window.location.reload()
-                });
+                    buttons: {
+                        confirm: "Oke"
+                    }
+                })
             }
         }
     }
 
     insertBarang = async () => {
         Toast.loading('Loading...');
+        const addDepartmentValue = this.state.isShowDepartmentSales ? this.state.selected_department_sales.value : this.state.id_kategori_barang_registered_insert
 
-        let passqueryinsertlistbarang = ""
-        const addDepartmentValue = this.state.isShowDepartmentSales ? `, ${this.state.selected_department_sales.value}` : `, ${this.state.id_kategori_barang_registered_insert}`
+        let dataToSubmit = {
+            barang_id: this.state.id_barang_registered_insert,
+            company_id: this.state.company_id,
+            foto: this.state.insert_foto_baru_url,
+            deskripsi: this.state.insert_deskripsi,
+            user_id: this.state.id_pengguna_login,
+            jumlah_min_beli: this.state.insert_minimum_pembelian,
+            jumlah_min_nego: this.state.insert_minimum_nego,
+            persen_nego_1: this.state.insert_nominal_persen_nego_pertama,
+            persen_nego_2: this.state.insert_nominal_persen_nego_kedua,
+            persen_nego_3: this.state.insert_nominal_persen_nego_ketiga,
+            kode_barang: this.state.insert_kode_barang_distributor,
+            department_sales: addDepartmentValue
+        }
+
         if (this.state.default_currency === 'IDR') {
             let x = this.state.insert_price.split('.').join('')
             let y = Math.round(x.split(',').join('.'))
-            // let harga = Math.ceil(y / this.state.kurs_now)
-            // let harga = Math.ceil(y / this.state.kurs_now_manual)
             let harga = (y / this.state.kurs_now_manual).toFixed(2)
             let a = this.state.insert_price_terendah.split('.').join('')
             let b = Math.round(a.split(',').join('.'))
-            // let harga_terendah = Math.ceil(b / this.state.kurs_now)
-            // let harga_terendah = Math.ceil(b / this.state.kurs_now_manual)
             let harga_terendah = (b / this.state.kurs_now_manual).toFixed(2)
+
+
             if (this.state.default_currency_terendah === 'IDR') { // default_currency_terendah = IDR
-                passqueryinsertlistbarang = "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto , departmen_sales) values ('` + this.state.id_barang_registered_insert + "', '" +
-                    harga + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
-                    this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + harga_terendah + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
-                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y' ${addDepartmentValue}) returning id)`
-                    +
-                    `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
-                    values ((select id from new insert),${this.state.company_id},${harga},
-                    ${harga_terendah},${this.state.id_pengguna_login},
-                    ${this.state.id_pengguna_login},to_timestamp(${Date.now()} / 1000.0),${null}) RETURNING *
-                    `
-
+                // dataToSubmit ={...dataToSubmit,}
+                dataToSubmit = {
+                    ...dataToSubmit,
+                    price: harga,
+                    price_terendah: harga_terendah,
+                }
             } else { // default_currency_terendah = USD
-                passqueryinsertlistbarang =
-                    "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto , departmen_sales) values ('` + this.state.id_barang_registered_insert + "', '" +
-                    harga + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
-                    this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + this.state.insert_price_terendah.split(',').join('') + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
-                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y' ${addDepartmentValue}) returning id)`
-                    +
-                    `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
-                    values ((select id from new insert),${this.state.company_id},${harga},
-                    ${this.state.insert_price_terendah.split(',').join('')},${this.state.id_pengguna_login},
-                    ${this.state.id_pengguna_login},to_timestamp(${Date.now()} / 1000.0),${null}) RETURNING *
-                    `
-
+                dataToSubmit = {
+                    ...dataToSubmit,
+                    price: harga,
+                    price_terendah: this.state.insert_price_terendah.split(',').join(''),
+                }
             }
         } else { // default_currency = USD
             let a = this.state.insert_price_terendah.split('.').join('')
             let b = Math.round(a.split(',').join('.'))
-            // let harga_terendah = Math.ceil(b / this.state.kurs_now)
-            // let harga_terendah = Math.ceil(b / this.state.kurs_now_manual)
             let harga_terendah = (b / this.state.kurs_now_manual).toFixed(2)
-            if (this.state.default_currency_terendah === 'USD') { // default_currency_terendah = USD
-                passqueryinsertlistbarang =
-                    "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto , departmen_sales) values ('` + this.state.id_barang_registered_insert + "', '" +
-                    (this.state.insert_price.split(',').join('')) + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
-                    this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + (this.state.insert_price_terendah.split(',').join('')) + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
-                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y' ${addDepartmentValue}) returning id)`
-                    +
-                    `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
-                    values ((select id from new_insert),${this.state.company_id},${(this.state.insert_price.split(',').join(''))},
-                    ${(this.state.insert_price_terendah.split(',').join(''))},${this.state.id_pengguna_login},
-                    ${this.state.id_pengguna_login},to_timestamp(${Date.now()} / 1000.0),${null}) RETURNING *
-                    `
 
+            if (this.state.default_currency_terendah === 'USD') { // default_currency_terendah = USD
+                dataToSubmit = {
+                    ...dataToSubmit,
+                    price: this.state.insert_price.split(',').join(''),
+                    price_terendah: this.state.insert_price_terendah.split(',').join(''),
+                }
             } else { // default_currency_terendah = IDR
-                passqueryinsertlistbarang =
-                    "with new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
-                    `foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang, flag_foto , departmen_sales) values ('` + this.state.id_barang_registered_insert + "', '" +
-                    (this.state.insert_price.split(',').join('')) + "', '" + this.state.company_id + "', '" + this.state.insert_foto_baru_url + "', '" +
-                    this.state.insert_deskripsi + "', 'C', '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', '" + harga_terendah + "', '" + this.state.insert_minimum_pembelian + "', '" + this.state.insert_minimum_nego + "', '" +
-                    this.state.insert_nominal_persen_nego_pertama + "', '" + this.state.insert_nominal_persen_nego_kedua + "', '" + this.state.insert_nominal_persen_nego_ketiga + "', '" + this.state.insert_kode_barang_distributor + `', 'Y' ${addDepartmentValue}) returning id)`
-                    +
-                    `insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
-                    values ((select id from new_insert),${this.state.company_id},${(this.state.insert_price.split(',').join(''))},
-                    ${harga_terendah},${this.state.id_pengguna_login},
-                    ${this.state.id_pengguna_login},to_timestamp(${Date.now()} / 1000.0),${null}) RETURNING *
-                    `
+                dataToSubmit = {
+                    ...dataToSubmit,
+                    price: this.state.insert_price.split(',').join(''),
+                    price_terendah: harga_terendah
+                }
             }
         }
 
-        const resinsertlistbarang = await this.props.postQuery({ query: encrypt(passqueryinsertlistbarang) }).catch(err => err)
+        const resinsertlistbarang = await this.props.insertBarangAdmin({ ...dataToSubmit }).catch(err => err)
         Toast.hide();
         if (resinsertlistbarang) {
             swal({
@@ -4121,11 +3959,10 @@ class ContentBarang extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
@@ -4223,6 +4060,30 @@ class ContentBarang extends Component {
         //     id_hasil_insert_master_barang: resinsertMasterBarang.id
         // })        
 
+        let dataToSubmit = {
+            nama: this.state.nama_barang_inserted,
+            category_id: this.state.id_category_barang_inserted,
+            berat: this.state.berat_barang_inserted,
+            volume: this.state.volume_barang_inserted,
+            ex: this.state.ex_barang_inserted,
+            satuan: this.state.id_satuan_barang_inserted,
+
+            company_id: this.state.company_id,
+            foto: this.state.insert_foto_master_baru_url,
+            deskripsi: this.state.insert_deskripsi_master_barang,
+            status: 'C',
+            user_id: this.state.id_pengguna_login,
+            jumlahg_min_beli: this.state.insert_master_minimum_pembelian,
+            jumlah_min_nego: this.state.insert_master_minimum_nego,
+            persen_nego_1: this.state.insert_master_nominal_persen_nego_pertama,
+            persen_nego_2: this.state.insert_master_nominal_persen_nego_kedua,
+            persen_nego_3: this.state.insert_master_nominal_persen_nego_ketiga,
+            kode_barang: this.state.insert_master_kode_barang_distributor,
+            flag_foto: 'Y',
+            departmen_sales: this.state.id_category_barang_inserted,
+            is_irisan: this.state.isShowDepartemenList !== null
+        }
+
         if (this.state.default_currency_master_barang === 'IDR') {
             let x = this.state.insert_price_master_barang.split('.').join('')
             let y = Math.round(x.split(',').join('.'))
@@ -4230,7 +4091,13 @@ class ContentBarang extends Component {
             let a = this.state.insert_price_master_barang_terendah.split('.').join('')
             let b = Math.round(a.split(',').join('.'))
             let harga_terendah = (b / this.state.kurs_now_manual).toFixed(2)
+
             if (this.state.default_currency_master_barang_terendah === 'IDR') { // jika semua IDR
+                dataToSubmit = {
+                    ...dataToSubmit,
+                    price: harga,
+                    price_terendah: harga_terendah,
+                }
                 passqueryinsertlistbarang += this.state.isShowDepartemenList ? this.handelInsertMasterBarangQuery(true, true) :
                     "new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
                     "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto,departmen_sales) values ((select id from master_insert), '" +
@@ -4245,6 +4112,11 @@ class ContentBarang extends Component {
                         ${this.state.id_pengguna_login},to_timestamp(${Date.now()} / 1000.0),${null}) RETURNING *
                         `
             } else { // jika default_currency_master_barang = IDR dan default_currency_master_barang_terendah = USD
+                dataToSubmit = {
+                    ...dataToSubmit,
+                    price: harga,
+                    price_terendah: this.state.insert_price_master_barang_terendah.split(',').join(''),
+                }
                 passqueryinsertlistbarang += this.state.isShowDepartemenList ? this.handelInsertMasterBarangQuery(false, true) :
                     "new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
                     "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto,departmen_sales) values ((select id from master_insert), '" +
@@ -4265,6 +4137,12 @@ class ContentBarang extends Component {
             let b = Math.round(a.split(',').join('.'))
             let harga_terendah = (b / this.state.kurs_now_manual).toFixed(2)
             if (this.state.default_currency_master_barang_terendah === 'USD') { // default_currency_master_barang_terendah = USD
+                dataToSubmit = {
+                    ...dataToSubmit,
+                    price: this.state.insert_price_master_barang.split(',').join(''),
+                    price_terendah: this.state.insert_price_master_barang_terendah.split(',').join(''),
+                }
+
                 passqueryinsertlistbarang += this.state.isShowDepartemenList ? this.handelInsertMasterBarangQuery(true, true) :
                     "new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
                     "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto,departmen_sales) values ((select id from master_insert), '" +
@@ -4280,6 +4158,11 @@ class ContentBarang extends Component {
                         `
 
             } else { // default_currency_master_barang_terendah = IDR
+                dataToSubmit = {
+                    ...dataToSubmit,
+                    price: this.state.insert_price_master_barang.split(',').join(''),
+                    price_terendah: harga_terendah,
+                }
                 passqueryinsertlistbarang += this.state.isShowDepartemenList ? this.handelInsertMasterBarangQuery(true, false) :
                     "new_insert as ( insert into gcm_list_barang (barang_id, price, company_id, " +
                     "foto, deskripsi, status, create_by, update_by, price_terendah, jumlah_min_beli, jumlah_min_nego, persen_nego_1, persen_nego_2, persen_nego_3, kode_barang,flag_foto,departmen_sales) values ('" + this.state.id_hasil_insert_master_barang + "', '" +
@@ -4314,11 +4197,10 @@ class ContentBarang extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
@@ -4592,11 +4474,10 @@ class ContentBarang extends Component {
                     title: "Gagal!",
                     text: "Tidak ada perubahan disimpan!",
                     icon: "error",
-                    button: false,
-                    timer: "2500"
-                }).then(() => {
-                    window.location.reload()
-                });
+                    buttons: {
+                        confirm: "Oke"
+                    }
+                })
             }
         } else {
             if (this.state.detailed_status_for_reject === 'R') {
@@ -4816,11 +4697,10 @@ class ContentBarang extends Component {
                     title: "Gagal!",
                     text: "Tidak ada perubahan disimpan!",
                     icon: "error",
-                    button: false,
-                    timer: "2500"
-                }).then(() => {
-                    window.location.reload()
-                });
+                    buttons: {
+                        confirm: "Oke"
+                    }
+                })
             }
         }
     }
@@ -4839,10 +4719,7 @@ class ContentBarang extends Component {
     }
 
     loadOnKategoriUmum = async (barang) => {
-        const query = encrypt(`select kode_barang, deskripsi,foto, string_agg(''||departmen_sales||'' , ',') as departmen_sales 
-        from gcm_list_barang where barang_id=${barang.value} group by kode_barang,deskripsi,foto`)
-
-        let getBarangData = await this.props.postQuery({ query: query }).catch(err => err)
+        let getBarangData = await this.props.getKategoriUmum({ barang_id: barang.value }).catch(err => err)
         getBarangData = getBarangData[0]
 
         const filter_department = this.state.department_list.filter(depart => {
@@ -4874,11 +4751,10 @@ class ContentBarang extends Component {
                 title: "Gagal!",
                 text: "Gagal mengambil data!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
@@ -5192,8 +5068,7 @@ class ContentBarang extends Component {
     }
 
     getDepartemenSalesData = async () => {
-        const query = encrypt(`select * from gcm_departemen_sales`)
-        let getDepartemenData = await this.props.postQuery({ query: query }).catch(err => err)
+        let getDepartemenData = await this.props.getDepartmentSales().catch(err => err)
         if (!getDepartemenData) {
             swal({
                 title: "Kesalahan 503!",
@@ -5202,9 +5077,7 @@ class ContentBarang extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                window.location.reload()
-            });
+            })
         }
         return getDepartemenData
 
@@ -5213,7 +5086,7 @@ class ContentBarang extends Component {
     handleModalInsertMasterBarang = async () => {
         this.handleModalInsert()
         let getDepartemenData = await this.getDepartemenSalesData()
-
+        console.log(getDepartemenData)
         getDepartemenData = getDepartemenData.map(dept => ({
             label: dept.departemen,
             value: dept.id
@@ -5999,15 +5872,9 @@ class ContentBarang extends Component {
 
 
     handleCloseUpdateHargaBarang = async () => {
-        const query = encrypt(`
-                select a.*, b.nama as "Nama Barang", c.departemen as "department"                
-                from gcm_list_barang a 
-                inner join gcm_master_barang b on a.barang_id = b.id 
-                inner join gcm_departemen_sales c on c.id=a.departmen_sales                
-                where company_id = ${this.state.company_id} order by "Nama Barang" asc
-        `)
-
-        let getDataBarang = await this.props.postQuery({ query: query }).catch(err => err)
+        let getDataBarang = await this.props.getDataBarangOnClose({
+            company_id: this.state.company_id
+        }).catch(err => err)
 
         this.setState({
             isOpenUpdateHargaBarang: !this.state.isOpenUpdateHargaBarang,
@@ -6016,76 +5883,102 @@ class ContentBarang extends Component {
         })
     }
 
-    updateHargaBarang = () => {
+    updateHargaBarang = async () => {
         const { updateHargaBarangData, updateHargaBarangExcel } = this.state
-        let count_data = 0
-        let count_success = 0
 
-        updateHargaBarangExcel.filter(async (harga, i) => {
-            const find_data = updateHargaBarangData.filter(d => harga.Id === d.id)
-            const harga_terendah = harga["Harga Terendah"]
-            const harga_tertinggi = harga["Harga Tertinggi"]
+        const post_update = await this.props.postHargaBarangExcel({
+            company_id: this.state.company_id,
+            excel_data: updateHargaBarangExcel,
+            barang_data: updateHargaBarangData
+        }).catch(err => err)
 
-
-            if (find_data && (find_data[0] && (harga_terendah !== find_data[0].price_terendah || harga_tertinggi !== find_data[0].price) && i > 2)) {
-                const u = find_data[0]
-
-                const query = encrypt(`with new_insert as ( insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
-                    values (${u.id},${this.state.company_id},${harga_tertinggi},${harga_terendah},${this.state.id_pengguna_login},${this.state.id_pengguna_login},
-                    to_timestamp(${Date.now()} / 1000.0),${null}) RETURNING *),                    
-
-                    update_barang as (update gcm_list_barang set price=${harga_tertinggi}, price_terendah=${harga_terendah} 
-                    where company_id=${this.state.company_id} and id=${u.id} returning update_date),                    
-
-                    update_harga as(update gcm_listing_harga_barang set end_date=(select start_date from new_insert)
-                    where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning *)
-
-                    select * from gcm_list_barang where id=${u.id} and company_id=${this.state.company_id}
-                    `)
-
-                const post_update = await this.props.postQuery({ query: query }).catch(err => err)
-                if (post_update) {
-                    count_success += 1
+        if (post_update.status === 'error' && post_update.failed > 0) {
+            swal({
+                title: "Sukses!",
+                text: `Success: ${post_update.success} item, Failed: ${post_update.failed}`,
+                icon: "success",
+                buttons: {
+                    confirm: "Oke"
                 }
-                count_data += 1
-            }
-
-            if (i < updateHargaBarangExcel.length) {
-                if (count_success > 0) {
-                    swal({
-                        title: "Sukses!",
-                        text: `Success: ${count_success} item, Failed: ${count_data - count_success}`,
-                        icon: "success",
-                        buttons: {
-                            confirm: "Oke"
-                        }
-                    }).then(() => {
-                        // window.location.reload()
-                    });
-                } else if (count_success === 0) {
-                    swal({
-                        title: "Sukses!",
-                        text: `Perubahan disimpan!`,
-                        icon: "success",
-                        buttons: {
-                            confirm: "Oke"
-                        }
-                    }).then(() => {
-                        // window.location.reload()
-                    });
-                } else if (count_data === 0) {
-                    swal({
-                        title: "Gagal!",
-                        text: "Tidak ada perubahan disimpan!",
-                        icon: "error",
-                        button: false,
-                        timer: "2500"
-                    }).then(() => {
-                        // window.location.reload()
-                    });
+            })
+        } else if (post_update.status === 'error') {
+            swal({
+                title: "Gagal!",
+                text: "Tidak ada perubahan disimpan!",
+                icon: "error",
+                button: false,
+                timer: "2500"
+            })
+        } else if (post_update.status === 'success') {
+            swal({
+                title: "Sukses!",
+                text: `Perubahan disimpan!`,
+                icon: "success",
+                buttons: {
+                    confirm: "Oke"
                 }
-            }
-        })
+            })
+        }
+
+        // updateHargaBarangExcel.filter(async (harga, i) => {
+        //     const find_data = updateHargaBarangData.filter(d => harga.Id === d.id)
+        //     const harga_terendah = harga["Harga Terendah"]
+        //     const harga_tertinggi = harga["Harga Tertinggi"]
+
+
+        //     if (find_data && (find_data[0] && (harga_terendah !== find_data[0].price_terendah || harga_tertinggi !== find_data[0].price) && i > 2)) {
+        //         const u = find_data[0]
+
+        //         const query = encrypt(`with new_insert as ( insert into gcm_listing_harga_barang (barang_id, company_id, price, price_terendah, create_by, update_by, start_date, end_date) 
+        //             values (${u.id},${this.state.company_id},${harga_tertinggi},${harga_terendah},${this.state.id_pengguna_login},${this.state.id_pengguna_login},
+        //             to_timestamp(${Date.now()} / 1000.0),${null}) RETURNING *),                    
+
+        //             update_barang as (update gcm_list_barang set price=${harga_tertinggi}, price_terendah=${harga_terendah} 
+        //             where company_id=${this.state.company_id} and id=${u.id} returning update_date),                    
+
+        //             update_harga as(update gcm_listing_harga_barang set end_date=(select start_date from new_insert)
+        //             where id=(select id from gcm_listing_harga_barang where company_id =${this.state.company_id} and barang_id=(select barang_id from new_insert) and end_date is null) returning *)
+
+        //             select * from gcm_list_barang where id=${u.id} and company_id=${this.state.company_id}
+        //             `)
+
+        //         const post_update = await this.props.postHargaBarangExcel({ query: query }).catch(err => err)
+        //         if (post_update) {
+        //             count_success += 1
+        //         }
+        //         count_data += 1
+        //     }
+
+        //     if (i < updateHargaBarangExcel.length) {
+        //         if (count_success > 0) {
+        //             swal({
+        //                 title: "Sukses!",
+        //                 text: `Success: ${count_success} item, Failed: ${count_data - count_success}`,
+        //                 icon: "success",
+        //                 buttons: {
+        //                     confirm: "Oke"
+        //                 }
+        //             })
+        //         } else if (count_success === 0) {
+        //             swal({
+        //                 title: "Sukses!",
+        //                 text: `Perubahan disimpan!`,
+        //                 icon: "success",
+        //                 buttons: {
+        //                     confirm: "Oke"
+        //                 }
+        //             })
+        //         } else if (count_data === 0) {
+        //             swal({
+        //                 title: "Gagal!",
+        //                 text: "Tidak ada perubahan disimpan!",
+        //                 icon: "error",
+        //                 button: false,
+        //                 timer: "2500"
+        //             })
+        //         }
+        //     }
+        // })
 
 
     }
@@ -7139,8 +7032,8 @@ class ContentBarang extends Component {
                                                         <DropdownMenu>
                                                             <DropdownItem disabled>Pilih kategori</DropdownItem>
                                                             {
-                                                                this.state.allCategoryKhusus.map(allCategoryKhusus => {
-                                                                    return <DropdownItem onClick={() => this.changeCategoryInserted(allCategoryKhusus.id, allCategoryKhusus.nama)}>{allCategoryKhusus.nama}</DropdownItem>
+                                                                this.state.allCategoryKhusus.map((allCategoryKhusus, index) => {
+                                                                    return <DropdownItem key={index} onClick={() => this.changeCategoryInserted(allCategoryKhusus.id, allCategoryKhusus.nama)}>{allCategoryKhusus.nama}</DropdownItem>
                                                                 })
                                                             }
                                                         </DropdownMenu>
@@ -7198,7 +7091,7 @@ class ContentBarang extends Component {
                                     <p style={{ position: 'absolute', top: '-2rem', left: 0, fontWeight: 'bold' }}>Harga Barang</p>
                                     <div style={{ margin: '8px 0' }}>
                                         {
-                                            this.state.jumlah_form_kosong_department > 0 && <p style={{ margin: '4px 0',color: 'red' }}>{this.state.jumlah_form_kosong_department} data department kosong</p>
+                                            this.state.jumlah_form_kosong_department > 0 && <p style={{ margin: '4px 0', color: 'red' }}>{this.state.jumlah_form_kosong_department} data department kosong</p>
                                         }
                                         <p className="mb-0" style={{ fontWeight: 'bold' }}>Department Sales</p>
                                         {
@@ -7525,7 +7418,7 @@ const reduxDispatch = (dispatch) => ({
     getKursAPIManual: (data) => dispatch(getKursAPIManual(data)),
     getKursActiveAPIManual: (data) => dispatch(getKursActiveAPIManual(data)),
     getDataBarangAPI: (data) => dispatch(getDataBarangAPI(data)),
-    getDataDetailedBarangAPI: (data) => dispatch(getDataDetailedBarangAPI(data)),
+    getDataDetailedBarangAdmin: (data) => dispatch(getDataDetailedBarangAdmin(data)),
     getDataCheckedBarang: (data) => dispatch(getDataCheckedBarang(data)),
     getDataCheckedNego: (data) => dispatch(getDataCheckedNego(data)),
     getDataCheckedKodeBarang: (data) => dispatch(getDataCheckedKodeBarang(data)),
@@ -7533,13 +7426,22 @@ const reduxDispatch = (dispatch) => ({
     getDataSatuanAPI: (data) => dispatch(getDataSatuanAPI(data)),
     uploadGambarBarang: (data) => dispatch(uploadGambarBarang(data)),
     updateBarangStatus: (data) => dispatch(updateBarangStatus(data)),
+    updateBarangPPNStatus: (data) => dispatch(updateBarangPPNStatus(data)),
     insertListBarang: (data) => dispatch(insertListBarang(data)),
     insertMasterBarangFromSeller: (data) => dispatch(insertMasterBarangFromSeller(data)),
     getDataBarangCanInsert: (data) => dispatch(getDataBarangCanInsert(data)),
     getKursAPI: () => dispatch(getKursAPI()),
     getDivisi: (data) => dispatch(getDivisi(data)),
     getPPNBarang: (data) => dispatch(getPPNBarang(data)),
+    getKategoriUmum: (data) => dispatch(getKategoriUmum(data)),
     postQuery: (data) => dispatch(postQuery(data)),
+    getDepartmentSales: (data) => dispatch(getDepartmentSales(data)),
+    getDataSelectedCategoryAPI: data => dispatch(getDataSelectedCategoryAPI(data)),
+    getDataBarangAdmin: data => dispatch(getDataBarangAdmin(data)),
+    getRiwayatHarga: data => dispatch(getRiwayatHarga(data)),
+    insertBarangAdmin: data => dispatch(insertBarangAdmin(data)),
+    getDataBarangOnClose: data => dispatch(getDataBarangOnClose(data)),
+    postHargaBarangExcel: data => dispatch(postHargaBarangExcel(data)),
     logoutAPI: () => dispatch(logoutUserAPI())
 })
 

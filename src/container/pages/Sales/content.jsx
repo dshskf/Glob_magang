@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { encrypt, decrypt } from '../../../config/lib';
 import { MDBDataTable } from 'mdbreact';
 import {
-    getDataSalesAPI, getDataDetailedSalesAPI, getDataCheckedKodeSales, getDataCategoryAPI, getDataUsernameAPI,
+    getDataSalesAPI, getDataDetailedSalesAPI, getDataCheckedKodeSales, getDataCategorySales, getDataUsernameAPI,
     insertMasterAkun, updateMasterUser, getDataCompanyHandledBySales, checkFieldInsertAkun, logoutUserAPI
 }
     from '../../../config/redux/action';
@@ -154,11 +154,7 @@ class ContentSales extends Component {
     }
 
     loadSales = async () => {
-        let passquerysales = encrypt("select gcm_master_user.id, gcm_master_user.nama, gcm_master_user.username, gcm_master_user.status, " +
-            "gcm_master_category.nama as nama_kategori, gcm_master_user.kode_sales from gcm_master_user " +
-            "inner join gcm_master_category on gcm_master_user.sa_divisi = gcm_master_category.id where gcm_master_user.company_id=" + this.state.company_id +
-            " and gcm_master_user.sa_role = 'sales'")
-        const ressales = await this.props.getDataSalesAPI({ query: passquerysales }).catch(err => err)
+        const ressales = await this.props.getDataSalesAPI({ company_id: this.state.company_id }).catch(err => err)
         if (ressales) {
             ressales.map((user, index) => {
                 return (
@@ -180,19 +176,12 @@ class ContentSales extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadCategory = async () => {
-        let passquerycategory = encrypt("select * from gcm_master_category where id != 5 order by id;")
-        const rescategory = await this.props.getDataCategoryAPI({ query: passquerycategory }).catch(err => err)
+        const rescategory = await this.props.getDataCategorySales().catch(err => err)
         if (rescategory) {
             this.setState({
                 allCategory: rescategory
@@ -205,19 +194,12 @@ class ContentSales extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadUsernameAccount = async () => {
-        let passqueryusername = encrypt("select gcm_master_user.username from gcm_master_user")
-        const resusername = await this.props.getDataUsernameAPI({ query: passqueryusername }).catch(err => err)
+        const resusername = await this.props.getDataUsernameAPI().catch(err => err)
         if (resusername) {
             this.setState({
                 allUsername: resusername
@@ -230,13 +212,7 @@ class ContentSales extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -353,17 +329,7 @@ class ContentSales extends Component {
     handleDetailSales = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation()
-        // let passquerydetail = encrypt("select gcm_master_user.nama, gcm_master_user.no_ktp, gcm_master_user.email, gcm_master_user.no_hp, "+
-        //         "gcm_master_user.username, gcm_master_user.status, gcm_master_user.sa_divisi, gcm_master_user.password, gcm_master_user.id, "+
-        //         "gcm_master_category.nama as nama_kategori, gcm_master_user.sa_role from gcm_master_user "+
-        //     "inner join gcm_master_category on gcm_master_user.sa_divisi = gcm_master_category.id "+
-        //     "where gcm_master_user.id ="+id)
-        let passquerydetail = encrypt("select gcm_master_user.nama, gcm_master_user.no_nik, gcm_master_user.email, gcm_master_user.no_hp, " +
-            "gcm_master_user.username, gcm_master_user.status, gcm_master_user.sa_divisi, gcm_master_user.password, gcm_master_user.id, " +
-            "gcm_master_category.nama as nama_kategori, gcm_master_user.sa_role, gcm_master_user.kode_sales from gcm_master_user " +
-            "inner join gcm_master_category on gcm_master_user.sa_divisi = gcm_master_category.id " +
-            "where gcm_master_user.id =" + id)
-        const resdetail = await this.props.getDataDetailedSalesAPI({ query: passquerydetail }).catch(err => err)
+        const resdetail = await this.props.getDataDetailedSalesAPI({ id: id }).catch(err => err)
         if (resdetail) {
             await this.setState({
                 id_sales: resdetail.id_sales,
@@ -393,26 +359,17 @@ class ContentSales extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         this.loadCompanyHandlerBySales(this.state.id_sales)
     }
 
     loadCompanyHandlerBySales = async (id_sales) => {
-        let passquerycompanybysales = encrypt("select gcm_master_company.nama_perusahaan, " +
-            "gcm_master_category.nama as nama_kategori, gcm_company_listing_sales.status " +
-            "from gcm_company_listing_sales " +
-            "inner join gcm_master_company on gcm_company_listing_sales.buyer_id = gcm_master_company.id " +
-            "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
-            "where gcm_company_listing_sales.seller_id=" + this.state.company_id +
-            " and gcm_company_listing_sales.id_sales=" + this.state.id_sales)
-        const rescompanyhandled = await this.props.getDataCompanyHandledBySales({ query: passquerycompanybysales }).catch(err => err)
+        const rescompanyhandled = await this.props.getDataCompanyHandledBySales({
+            company_id: this.state.company_id,
+            id_sales: this.state.id_sales
+        }).catch(err => err)
+
         if (rescompanyhandled) {
             rescompanyhandled.map((user, index) => {
                 return (
@@ -432,13 +389,7 @@ class ContentSales extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -528,9 +479,10 @@ class ContentSales extends Component {
     }
 
     loadCheckingKodeSales = async (kd_sales) => {
-        let passquerycheckingkodesales = encrypt("select count(gcm_master_user.id) as total from gcm_master_user " +
-            "where gcm_master_user.company_id=" + this.state.company_id + " and gcm_master_user.kode_sales='" + kd_sales + "'")
-        const reskodesales = await this.props.getDataCheckedKodeSales({ query: passquerycheckingkodesales }).catch(err => err)
+        const reskodesales = await this.props.getDataCheckedKodeSales({
+            company_id: this.state.company_id,
+            kode_sales: kd_sales
+        }).catch(err => err)
         if (reskodesales) {
             await this.setState({
                 allCheckedKodeSales: Number(reskodesales.total)
@@ -543,13 +495,7 @@ class ContentSales extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -1005,9 +951,21 @@ class ContentSales extends Component {
     confirmActionInsertAkun = async () => {
         Toast.loading('Loading...');
         let encryptpassword = encrypt(this.state.password_sales_inserted)
-        let passqueryinsertakun = ""
+
+        let dataToSubmit = {
+            nama: this.state.nama_sales_inserted,
+            no_nik: this.state.no_nik_sales_inserted,
+            no_hp: this.state.no_hp_sales_inserted,
+            email: this.state.email_sales_inserted,
+            username: this.state.username_sales_inserted,
+            password: encryptpassword,
+            company_id: this.state.company_id,
+            kode_sales: this.state.kode_sales_inserted
+        }
+
         await this.checkFinalFieldInsert()
         await this.loadCheckingKodeSales(this.state.kode_sales_inserted)
+
         if (Number(this.state.allCheckedKodeSales) > 0) {
             this.handleModalAttentionKodeSalesConfirmKedua()
         } else {
@@ -1016,45 +974,18 @@ class ContentSales extends Component {
                 Number(this.state.check_email_insert) === 0 &&
                 Number(this.state.check_nik_insert) === 0) {
                 if (this.state.tipe_bisnis === '1') {
-                    // passqueryinsertakun = encrypt("insert into gcm_master_user (nama, no_ktp, no_hp, email, username, password, status, "+
-                    //     "role, company_id, create_by, create_date, update_by, update_date, sa_role, sa_divisi, email_verif, no_hp_verif, "+
-                    //     "id_blacklist, is_blacklist, notes_blacklist) values ("+
-                    //         "'"+this.state.nama_sales_inserted+"', '"+this.state.no_ktp_sales_inserted+"', '"+this.state.no_hp_sales_inserted+"', "+
-                    //         "'"+this.state.email_sales_inserted+"', '"+this.state.username_sales_inserted+"', '"+encryptpassword+"', "+
-                    //         "'I', 'admin', '"+this.state.company_id+"', "+
-                    //         "'"+this.state.id_pengguna_login+"', now(), '"+this.state.id_pengguna_login+"', "+
-                    //         "now(), 'sales', '"+this.state.id_kategori_sales_inserted+"', "+
-                    //         "false, false, '0', false, '') returning update_date")
-                    passqueryinsertakun = encrypt("insert into gcm_master_user (nama, no_nik, no_hp, email, username, password, status, " +
-                        "role, company_id, create_by, create_date, update_by, update_date, sa_role, sa_divisi, email_verif, no_hp_verif, " +
-                        "id_blacklist, is_blacklist, notes_blacklist, kode_sales) values (" +
-                        "'" + this.state.nama_sales_inserted + "', '" + this.state.no_nik_sales_inserted + "', '" + this.state.no_hp_sales_inserted + "', " +
-                        "'" + this.state.email_sales_inserted + "', '" + this.state.username_sales_inserted + "', '" + encryptpassword + "', " +
-                        "'I', 'admin', '" + this.state.company_id + "', " +
-                        "'" + this.state.id_pengguna_login + "', now(), '" + this.state.id_pengguna_login + "', " +
-                        "now(), 'sales', '" + this.state.id_kategori_sales_inserted + "', " +
-                        "false, false, '0', false, '', '" + this.state.kode_sales_inserted + "') returning update_date")
+                    dataToSubmit = {
+                        ...dataToSubmit,
+                        sa_divisi: this.state.id_kategori_sales_inserted,
+                    }
                 } else {
-                    // passqueryinsertakun = encrypt("insert into gcm_master_user (nama, no_ktp, no_hp, email, username, password, status, "+
-                    //     "role, company_id, create_by, create_date, update_by, update_date, sa_role, sa_divisi, email_verif, no_hp_verif, "+
-                    //     "id_blacklist, is_blacklist, notes_blacklist) values ("+
-                    //         "'"+this.state.nama_sales_inserted+"', '"+this.state.no_ktp_sales_inserted+"', '"+this.state.no_hp_sales_inserted+"', "+
-                    //         "'"+this.state.email_sales_inserted+"', '"+this.state.username_sales_inserted+"', '"+encryptpassword+"', "+
-                    //         "'I', 'admin', '"+this.state.company_id+"', "+
-                    //         "'"+this.state.id_pengguna_login+"', now(), '"+this.state.id_pengguna_login+"', "+
-                    //         "now(), 'sales', '"+this.state.sa_divisi+"', "+
-                    //         "false, false, '0', false, '') returning update_date")
-                    passqueryinsertakun = encrypt("insert into gcm_master_user (nama, no_nik, no_hp, email, username, password, status, " +
-                        "role, company_id, create_by, create_date, update_by, update_date, sa_role, sa_divisi, email_verif, no_hp_verif, " +
-                        "id_blacklist, is_blacklist, notes_blacklist, kode_sales) values (" +
-                        "'" + this.state.nama_sales_inserted + "', '" + this.state.no_nik_sales_inserted + "', '" + this.state.no_hp_sales_inserted + "', " +
-                        "'" + this.state.email_sales_inserted + "', '" + this.state.username_sales_inserted + "', '" + encryptpassword + "', " +
-                        "'I', 'admin', '" + this.state.company_id + "', " +
-                        "'" + this.state.id_pengguna_login + "', now(), '" + this.state.id_pengguna_login + "', " +
-                        "now(), 'sales', '" + this.state.sa_divisi + "', " +
-                        "false, false, '0', false, '', '" + this.state.kode_sales_inserted + "') returning update_date")
+                    dataToSubmit = {
+                        ...dataToSubmit,
+                        sa_divisi: this.state.sa_divisi
+                    }
                 }
-                const resinsertakun = await this.props.insertMasterAkun({ query: passqueryinsertakun }).catch(err => err)
+                const resinsertakun = await this.props.insertMasterAkun({ ...dataToSubmit }).catch(err => err)
+
                 Toast.hide();
                 if (resinsertakun) {
                     swal({
@@ -1063,7 +994,7 @@ class ContentSales extends Component {
                         icon: "success",
                         button: false,
                         timer: "2500"
-                    }).then(() => {                        
+                    }).then(() => {
                         this.setState({ isOpenConfirmInsert: false })
                         this.handleModalInsert()
                         this.loadSales()
@@ -1084,11 +1015,10 @@ class ContentSales extends Component {
                     title: "Gagal!",
                     text: "Tidak ada perubahan disimpan!",
                     icon: "error",
-                    button: false,
-                    timer: "2500"
-                }).then(() => {
-                    window.location.reload()
-                });
+                    buttons: {
+                        confirm: "Oke"
+                    }
+                })
             }
         }
     }
@@ -1284,11 +1214,7 @@ class ContentSales extends Component {
                 validation_password_sales: false,
                 feedback_password_sales: 'Kolom ini wajib diisi',
                 isBtnUpdate: true,
-                // disable_confirm_password_edited: true,
-                // feedback_confirm_password_sales:'',
-                // empty_confirm_password_sales:false,
-                // validation_confirm_password_sales:false,
-                // confirm_password_sales:''
+
             })
             document.getElementById('errorpasswordedited').style.display = 'block'
             // document.getElementById('errorpasswordeditedkedua').style.display='block'
@@ -1301,15 +1227,7 @@ class ContentSales extends Component {
                     empty_password_sales: false,
                     feedback_password_sales: '',
                 })
-                // if (this.state.confirm_password_sales_inserted !== '') {
-                //     if (e === this.state.confirm_password_sales_inserted) {
-                //         await this.setState({
-                //             validation_confirm_password_sales_inserted: true, 
-                //             empty_confirm_password_sales_inserted: false, 
-                //             feedback_confirm_password_sales_inserted:'',
-                //         })
-                // handle button
-                // if (this.state.nama_sales !== '' && this.state.no_ktp_sales.length === 16 &&
+
                 if (this.state.nama_sales !== '' && this.state.no_nik_sales !== '' &&
                     (this.state.kode_sales !== '' && this.state.kode_sales !== null) &&
                     (this.state.no_hp_sales !== '' && this.state.no_hp_sales.length <= 15) &&
@@ -1317,16 +1235,7 @@ class ContentSales extends Component {
                     (this.state.username_sales !== '' || this.state.validation_username_sales === true)) {
                     this.setState({ isBtnUpdate: false })
                 }
-                //     } else {
-                //         this.setState({
-                //             validation_confirm_password_sales_inserted: false, 
-                //             empty_confirm_password_sales_inserted: true,
-                //             feedback_confirm_password_sales_inserted: 'Kata sandi tidak cocok',
-                //             isBtnInsert: true
-                //         })
-                //         document.getElementById('errorpasswordkedua').style.display='block'
-                //     }
-                // }
+
                 document.getElementById('errorpasswordedited').style.display = 'none'
             } else {
                 if (e !== '') {
@@ -1563,7 +1472,17 @@ class ContentSales extends Component {
     confirmActionUpdateAkun = async () => {
         Toast.loading('Loading...');
         let passencrypt = encrypt(this.state.password_sales)
-        let passqueryupdateakun = ""
+        let dataToSubmit = {
+            username: this.state.username_sales,
+            nama: this.state.nama_sales,
+            no_nik: this.state.no_nik_sales,
+            no_hp: this.state.no_hp_sales,
+            email: this.state.email_sales,
+            password: passencrypt,
+            kode_sales: this.state.kode_sales,
+            id: this.state.id_sales
+        }
+
         await this.checkFinalFieldUpdate()
         if (Number(this.state.check_username_update) === 0 &&
             Number(this.state.check_nohp_update) === 0 &&
@@ -1571,16 +1490,11 @@ class ContentSales extends Component {
             Number(this.state.check_nik_update) === 0) {
             if (this.state.tipe_bisnis === '1') {
                 if (this.state.status_sales === 'Belum Aktif') {
-                    // passqueryupdateakun = encrypt("update gcm_master_user set username='"+this.state.username_sales+"', "+
-                    //     "nama='"+this.state.nama_sales+"', no_ktp='"+this.state.no_ktp_sales+"', no_hp='"+this.state.no_hp_sales+"', "+
-                    //     "email='"+this.state.email_sales+"', sa_divisi='"+this.state.id_kategori_sales+"', password='"+passencrypt+"', "+
-                    //     "status='I', update_by='"+this.state.id_pengguna_login+"', update_date=now() "+
-                    //         "where id="+this.state.id_sales+" returning nama;")
-                    passqueryupdateakun = encrypt("update gcm_master_user set username='" + this.state.username_sales + "', " +
-                        "nama='" + this.state.nama_sales + "', no_nik='" + this.state.no_nik_sales + "', no_hp='" + this.state.no_hp_sales + "', " +
-                        "email='" + this.state.email_sales + "', sa_divisi='" + this.state.id_kategori_sales + "', password='" + passencrypt + "', " +
-                        "status='I', update_by='" + this.state.id_pengguna_login + "', update_date=now(), kode_sales='" + this.state.kode_sales + "' " +
-                        "where id=" + this.state.id_sales + " returning nama;")
+                    dataToSubmit = {
+                        ...dataToSubmit,
+                        sa_divisi: this.state.id_kategori_sales,
+                        status: 'I',
+                    }
                 } else {
                     let pushstatusakun = ""
                     if (this.state.status_akun_default === 'Aktif') {
@@ -1588,29 +1502,20 @@ class ContentSales extends Component {
                     } else {
                         pushstatusakun = "R"
                     }
-                    // passqueryupdateakun = encrypt("update gcm_master_user set username='"+this.state.username_sales+"', "+
-                    //     "nama='"+this.state.nama_sales+"', no_ktp='"+this.state.no_ktp_sales+"', no_hp='"+this.state.no_hp_sales+"', "+
-                    //     "email='"+this.state.email_sales+"', sa_divisi='"+this.state.id_kategori_sales+"', password='"+passencrypt+"', "+
-                    //     "status='"+pushstatusakun+"', update_by='"+this.state.id_pengguna_login+"', update_date=now() "+
-                    //         "where id="+this.state.id_sales+" returning nama;")
-                    passqueryupdateakun = encrypt("update gcm_master_user set username='" + this.state.username_sales + "', " +
-                        "nama='" + this.state.nama_sales + "', no_nik='" + this.state.no_nik_sales + "', no_hp='" + this.state.no_hp_sales + "', " +
-                        "email='" + this.state.email_sales + "', sa_divisi='" + this.state.id_kategori_sales + "', password='" + passencrypt + "', " +
-                        "status='" + pushstatusakun + "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), kode_sales='" + this.state.kode_sales + "' " +
-                        "where id=" + this.state.id_sales + " returning nama;")
+
+                    dataToSubmit = {
+                        ...dataToSubmit,
+                        sa_divisi: this.state.id_kategori_sales,
+                        status: pushstatusakun
+                    }
                 }
             } else {
                 if (this.state.status_sales === 'Belum Aktif') {
-                    // passqueryupdateakun = encrypt("update gcm_master_user set username='"+this.state.username_sales+"', "+
-                    //     "nama='"+this.state.nama_sales+"', no_ktp='"+this.state.no_ktp_sales+"', no_hp='"+this.state.no_hp_sales+"', "+
-                    //     "email='"+this.state.email_sales+"', sa_divisi='"+this.state.sa_divisi+"', password='"+passencrypt+"', "+
-                    //     "status='I', update_by='"+this.state.id_pengguna_login+"', update_date=now() "+
-                    //         "where id="+this.state.id_sales+" returning nama;")
-                    passqueryupdateakun = encrypt("update gcm_master_user set username='" + this.state.username_sales + "', " +
-                        "nama='" + this.state.nama_sales + "', no_nik='" + this.state.no_nik_sales + "', no_hp='" + this.state.no_hp_sales + "', " +
-                        "email='" + this.state.email_sales + "', sa_divisi='" + this.state.sa_divisi + "', password='" + passencrypt + "', " +
-                        "status='I', update_by='" + this.state.id_pengguna_login + "', update_date=now(), kode_sales='" + this.state.kode_sales + "' " +
-                        "where id=" + this.state.id_sales + " returning nama;")
+                    dataToSubmit = {
+                        ...dataToSubmit,
+                        sa_divisi: this.state.sa_divisi,
+                        status: 'I',
+                    }
                 } else {
                     let pushstatusakun = ""
                     if (this.state.status_akun_default === 'Aktif') {
@@ -1618,19 +1523,14 @@ class ContentSales extends Component {
                     } else {
                         pushstatusakun = "R"
                     }
-                    // passqueryupdateakun = encrypt("update gcm_master_user set username='"+this.state.username_sales+"', "+
-                    //     "nama='"+this.state.nama_sales+"', no_ktp='"+this.state.no_ktp_sales+"', no_hp='"+this.state.no_hp_sales+"', "+
-                    //     "email='"+this.state.email_sales+"', sa_divisi='"+this.state.sa_divisi+"', password='"+passencrypt+"', "+
-                    //     "status='"+pushstatusakun+"', update_by='"+this.state.id_pengguna_login+"', update_date=now() "+
-                    //         "where id="+this.state.id_sales+" returning nama;")
-                    passqueryupdateakun = encrypt("update gcm_master_user set username='" + this.state.username_sales + "', " +
-                        "nama='" + this.state.nama_sales + "', no_nik='" + this.state.no_nik_sales + "', no_hp='" + this.state.no_hp_sales + "', " +
-                        "email='" + this.state.email_sales + "', sa_divisi='" + this.state.sa_divisi + "', password='" + passencrypt + "', " +
-                        "status='" + pushstatusakun + "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), kode_sales='" + this.state.kode_sales + "' " +
-                        "where id=" + this.state.id_sales + " returning nama;")
+                    dataToSubmit = {
+                        ...dataToSubmit,
+                        sa_divisi: this.state.sa_divisi,
+                        status: pushstatusakun
+                    }
                 }
             }
-            const resupdateAkun = await this.props.updateMasterUser({ query: passqueryupdateakun }).catch(err => err)
+            const resupdateAkun = await this.props.updateMasterUser({ ...dataToSubmit }).catch(err => err)
             Toast.hide();
             if (resupdateAkun) {
                 swal({
@@ -1650,22 +1550,20 @@ class ContentSales extends Component {
                     title: "Gagal!",
                     text: "Tidak ada perubahan disimpan!",
                     icon: "error",
-                    button: false,
-                    timer: "2500"
-                }).then(() => {
-                    window.location.reload()
-                });
+                    buttons: {
+                        confirm: "Oke"
+                    }
+                })
             }
         } else {
             swal({
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
@@ -1678,13 +1576,15 @@ class ContentSales extends Component {
     }
 
     checkFinalFieldInsert = async () => {
-        let passquerycheckfieldinsert = encrypt("select * from " +
-            "(select count (username) as check_username from gcm_master_user where username like '" + this.state.username_sales_inserted + "') a, " +
-            "(select count (no_hp) check_nohp from gcm_master_user where no_hp like '" + this.state.no_hp_sales_inserted + "') b, " +
-            "(select count (email) check_email from gcm_master_user where email like '" + this.state.email_sales_inserted + "') c, " +
-            "(select count (no_nik) check_nik from gcm_master_user where no_nik like '" + this.state.no_nik_sales_inserted + "' " +
-            "and company_id=" + this.state.company_id + ") d ")
-        const rescheckfieldinsert = await this.props.checkFieldInsertAkun({ query: passquerycheckfieldinsert }).catch(err => err)
+        const rescheckfieldinsert = await this.props.checkFieldInsertAkun({
+            username: this.state.username_sales_inserted,
+            no_hp: this.state.no_hp_sales_inserted,
+            email: this.state.email_sales_inserted,
+            no_nik: this.state.no_nik_sales_inserted,
+            company_id: this.state.company_id,
+            type: 'checkFinalFieldInsert'
+        }).catch(err => err)
+
         if (rescheckfieldinsert) {
             await this.setState({
                 check_username_insert: rescheckfieldinsert.check_username,
@@ -1700,24 +1600,20 @@ class ContentSales extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     checkFinalFieldUpdate = async () => {
-        let passquerycheckfieldupdate = encrypt("select * from " +
-            "(select count (username) as check_username from gcm_master_user where username like '" + this.state.username_sales + "' and id !=" + this.state.id_sales + ") a, " +
-            "(select count (no_hp) check_nohp from gcm_master_user where no_hp like '" + this.state.no_hp_sales + "' and id !=" + this.state.id_sales + ") b, " +
-            "(select count (email) check_email from gcm_master_user where email like '" + this.state.email_sales + "' and id !=" + this.state.id_sales + ") c, " +
-            "(select count (no_nik) check_nik from gcm_master_user where no_nik like '" + this.state.no_nik_sales + "' " +
-            "and company_id=" + this.state.company_id + " and id !=" + this.state.id_sales + ") d ")
-        const rescheckfieldupdate = await this.props.checkFieldInsertAkun({ query: passquerycheckfieldupdate }).catch(err => err)
+        const rescheckfieldupdate = await this.props.checkFieldInsertAkun({
+            username: this.state.username_sales_inserted,
+            no_hp: this.state.no_hp_sales_inserted,
+            email: this.state.email_sales_inserted,
+            no_nik: this.state.no_nik_sales_inserted,
+            company_id: this.state.company_id,
+            id_sales: this.state.id_sales,
+            type: 'checkFinalFieldUpdate'
+        }).catch(err => err)
         if (rescheckfieldupdate) {
             await this.setState({
                 check_username_update: rescheckfieldupdate.check_username,
@@ -1733,13 +1629,7 @@ class ContentSales extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -2199,7 +2089,7 @@ const reduxDispatch = (dispatch) => ({
     getDataSalesAPI: (data) => dispatch(getDataSalesAPI(data)),
     getDataDetailedSalesAPI: (data) => dispatch(getDataDetailedSalesAPI(data)),
     getDataCheckedKodeSales: (data) => dispatch(getDataCheckedKodeSales(data)),
-    getDataCategoryAPI: (data) => dispatch(getDataCategoryAPI(data)),
+    getDataCategorySales: (data) => dispatch(getDataCategorySales(data)),
     getDataUsernameAPI: (data) => dispatch(getDataUsernameAPI(data)),
     insertMasterAkun: (data) => dispatch(insertMasterAkun(data)),
     updateMasterUser: (data) => dispatch(updateMasterUser(data)),

@@ -3,5 +3,5 @@ export const RootPathInsert = 'https://jrs65kbpo5.execute-api.ap-southeast-1.ama
 export const RootKurs = 'https://api.exchangeratesapi.io/latest?base=USD';
 export const RootSendOtp = 'https://www.emos.id/sendmessage/message/sendmessage';
 export const RootGetOtp = 'https://www.emos.id/sendmessage/message/getmessage';
-export const RootAdmin = 'http://localhost:4000/api/'
+export const RootAdmin = 'http://localhost:4000/api/private/'
 export const RootSuperAdmin = 'http://localhost:4000/api/private/'

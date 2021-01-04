@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { decrypt, encrypt } from '../../../config/lib';
 import {
     getDataBarangSuperAdminAPI, getDataDetailedBarangSuperAdminAPI, getKursAPI, getDataSatuanAPI, getDataCategoryAPI,
-    uploadGambarBarang, updateBarangStatus, insertMasterBarang, logoutUserAPI
+    uploadGambarBarang, updateMasterBarangStatus, insertMasterBarang, logoutUserAPI
 } from '../../../config/redux/action';
 import { MDBDataTable } from 'mdbreact';
 import swal from 'sweetalert'
@@ -94,8 +94,7 @@ class ContentMasterBarangSuperAdmin extends Component {
     }
 
     loadCategory = async () => {
-        let passquerycategory = encrypt("select * from gcm_master_category;")
-        const rescategory = await this.props.getDataCategoryAPI({ query: passquerycategory }).catch(err => err)
+        const rescategory = await this.props.getDataCategoryAPI().catch(err => err)
         if (rescategory) {
             this.setState({
                 allCategory: rescategory
@@ -108,19 +107,12 @@ class ContentMasterBarangSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadSatuan = async () => {
-        let passquerysatuan = encrypt("select * from gcm_master_satuan;")
-        const ressatuan = await this.props.getDataSatuanAPI({ query: passquerysatuan }).catch(err => err)
+        const ressatuan = await this.props.getDataSatuanAPI().catch(err => err)
         if (ressatuan) {
             this.setState({
                 allSatuan: ressatuan
@@ -133,13 +125,7 @@ class ContentMasterBarangSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -166,12 +152,7 @@ class ContentMasterBarangSuperAdmin extends Component {
     }
 
     loadDataBarang = async () => {
-        let passquery = encrypt("select gcm_master_barang.id, gcm_master_barang.nama, gcm_master_barang.category_id, " +
-            "gcm_master_category.nama as nama_kategori, gcm_master_barang.status, gcm_master_barang.ex " +
-            "from gcm_master_barang " +
-            "inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-            "order by gcm_master_barang.id")
-        const res = await this.props.getDataBarangSuperAdminAPI({ query: passquery }).catch(err => err)
+        const res = await this.props.getDataBarangSuperAdminAPI().catch(err => err)
         if (res) {
             res.map((user, index) => {
                 return (
@@ -194,26 +175,14 @@ class ContentMasterBarangSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     handleDetailBarang = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation()
-        let passquerydetail = encrypt("select gcm_master_barang.nama, gcm_master_barang.category_id, gcm_master_category.nama as nama_kategori, " +
-            "gcm_master_barang.berat, gcm_master_barang.volume, gcm_master_barang.ex, gcm_master_barang.status, " +
-            "gcm_master_barang.create_date, gcm_master_barang.update_date, gcm_master_barang.satuan, gcm_master_satuan.nama as nama_alias, gcm_master_satuan.alias from gcm_master_barang " +
-            "inner join gcm_master_category on gcm_master_barang.category_id = gcm_master_category.id " +
-            "inner join gcm_master_satuan on gcm_master_satuan.id = gcm_master_barang.satuan " +
-            "where gcm_master_barang.id=" + id)
-        const resdetail = await this.props.getDataDetailedBarangSuperAdminAPI({ query: passquerydetail }).catch(err => err)
+        const resdetail = await this.props.getDataDetailedBarangSuperAdminAPI({ id: id }).catch(err => err)
         if (resdetail) {
             this.setState({
                 id_barang_selected: id,
@@ -238,13 +207,7 @@ class ContentMasterBarangSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -573,12 +536,18 @@ class ContentMasterBarangSuperAdmin extends Component {
     }
 
     confirmActionUpdateBarang = async () => {
-        let passqueryupdatemasterbarang = encrypt("update gcm_master_barang set nama='" + this.state.nama_barang_selected + "', " +
-            "category_id='" + this.state.id_category_barang_selected + "', berat='" + this.state.berat_barang_selected + "', " +
-            "volume='" + this.state.volume_barang_selected + "', ex='" + this.state.ex_barang_selected + "', update_by=" + this.state.id_pengguna_login +
-            ", update_date=now(), status='" + this.state.status_barang_selected + "', satuan='" + this.state.id_satuan_barang_selected + "' where id=" + this.state.id_barang_selected + " returning update_date;")
         Toast.loading('Loading...');
-        const resupdateMasterBarang = await this.props.updateBarangStatus({ query: passqueryupdatemasterbarang }).catch(err => err)
+        const resupdateMasterBarang = await this.props.updateMasterBarangStatus({
+            nama: this.state.nama_barang_selected,
+            category_id: this.state.id_category_barang_selected,
+            berat: this.state.berat_barang_selected,
+            volume: this.state.volume_barang_selected,
+            ex: this.state.ex_barang_selected,
+            update_by: this.state.id_pengguna_login,
+            status: this.state.status_barang_selected,
+            satuan: this.state.id_satuan_barang_selected,
+            id: this.state.id_barang_selected
+        }).catch(err => err)
         Toast.hide();
         if (resupdateMasterBarang) {
             swal({
@@ -597,11 +566,10 @@ class ContentMasterBarangSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
@@ -619,14 +587,19 @@ class ContentMasterBarangSuperAdmin extends Component {
         }
     }
 
-    confirmActionInsertBarang = async () => {
-        let passqueryinsertmasterbarang = encrypt("insert into gcm_master_barang (nama, category_id, berat, " +
-            "volume, ex, create_by, create_date, update_by, update_date, status, satuan) values ('" + this.state.nama_barang_inserted + "', " +
-            "'" + this.state.id_category_barang_inserted + "', '" + this.state.berat_barang_inserted + "', '" + this.state.volume_barang_inserted + "', " +
-            "'" + this.state.ex_barang_inserted + "', '" + this.state.id_pengguna_login + "', now(), '" + this.state.id_pengguna_login + "', " +
-            "now(), '" + this.state.status_barang_inserted + "', '" + this.state.id_satuan_barang_inserted + "') returning create_date;")
+    confirmActionInsertBarang = async () => {        
         Toast.loading('Loading...');
-        const resinsertMasterBarang = await this.props.insertMasterBarang({ query: passqueryinsertmasterbarang }).catch(err => err)
+        const resinsertMasterBarang = await this.props.insertMasterBarang({
+            nama: this.state.nama_barang_inserted,
+            category_id: this.state.id_category_barang_inserted,
+            berat: this.state.berat_barang_inserted,
+            volume: this.state.volume_barang_inserted,
+            ex: this.state.ex_barang_inserted,
+            create_by: this.state.id_pengguna_login,
+            update_by: this.state.id_pengguna_login,
+            status: this.state.status_barang_inserted,
+            satuan: this.state.id_satuan_barang_inserted
+        }).catch(err => err)
         Toast.hide();
         if (resinsertMasterBarang) {
             swal({
@@ -645,11 +618,10 @@ class ContentMasterBarangSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
@@ -1000,7 +972,7 @@ const reduxDispatch = (dispatch) => ({
     getDataSatuanAPI: (data) => dispatch(getDataSatuanAPI(data)),
     insertMasterBarang: (data) => dispatch(insertMasterBarang(data)),
     uploadGambarBarang: (data) => dispatch(uploadGambarBarang(data)),
-    updateBarangStatus: (data) => dispatch(updateBarangStatus(data)),
+    updateMasterBarangStatus: (data) => dispatch(updateMasterBarangStatus(data)),
     getKursAPI: () => dispatch(getKursAPI()),
     logoutAPI: () => dispatch(logoutUserAPI())
 })

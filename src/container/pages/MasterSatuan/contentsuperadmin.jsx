@@ -46,8 +46,7 @@ class ContentMasterSatuanSuperAdmin extends Component {
     }
 
     loadSatuan = async () => {
-        let passquerysatuan = encrypt("select * from gcm_master_satuan order by gcm_master_satuan.id;")
-        const ressatuan = await this.props.getDataSatuanAPI({ query: passquerysatuan }).catch(err => err)
+        const ressatuan = await this.props.getDataSatuanAPI().catch(err => err)
         if (ressatuan) {
             ressatuan.map((user, index) => {
                 return (
@@ -167,9 +166,10 @@ class ContentMasterSatuanSuperAdmin extends Component {
 
     confirmActionInsertSatuan = async () => {
         Toast.loading('Loading...');
-        let passqueryinsertsatuan = encrypt("insert into gcm_master_satuan (nama, alias) values ('" + this.state.nama_satuan_inserted + "', '" + this.state.nama_alias_satuan_inserted + "') " +
-            " returning nama;")
-        const resinsertMasterSatuan = await this.props.insertMasterSatuan({ query: passqueryinsertsatuan }).catch(err => err)
+        const resinsertMasterSatuan = await this.props.insertMasterSatuan({
+            nama: this.state.nama_satuan_inserted,
+            alias: this.state.nama_alias_satuan_inserted
+        }).catch(err => err)
         Toast.hide();
 
         if (resinsertMasterSatuan) {
@@ -189,20 +189,17 @@ class ContentMasterSatuanSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
     handleDetailSatuan = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation()
-        let passquerydetail = encrypt("select gcm_master_satuan.id, gcm_master_satuan.nama, gcm_master_satuan.alias from gcm_master_satuan " +
-            "where gcm_master_satuan.id=" + id)
-        const resdetail = await this.props.getDataDetailedMasterSatuanAPI({ query: passquerydetail }).catch(err => err)
+        const resdetail = await this.props.getDataDetailedMasterSatuanAPI({ id: id }).catch(err => err)
         if (resdetail) {
             this.setState({
                 id_satuan_selected: id,
@@ -248,10 +245,12 @@ class ContentMasterSatuanSuperAdmin extends Component {
     }
 
     confirmActionUpdateCategory = async () => {
-        Toast.loading('Loading...');
-        let passqueryupdatemastersatuan = encrypt("update gcm_master_satuan set nama='" + this.state.nama_satuan_selected + "', alias='" + this.state.nama_alias_satuan_selected + "' " +
-            " where id=" + this.state.id_satuan_selected + " returning nama;")
-        const resupdateMasterSatuan = await this.props.updateMasterSatuan({ query: passqueryupdatemastersatuan }).catch(err => err)
+        Toast.loading('Loading...');        
+        const resupdateMasterSatuan = await this.props.updateMasterSatuan({
+            id: this.state.id_satuan_selected,
+            nama: this.state.nama_satuan_selected,
+            alias: this.state.nama_alias_satuan_selected
+        }).catch(err => err)
         Toast.hide();
 
         if (resupdateMasterSatuan) {
@@ -271,11 +270,10 @@ class ContentMasterSatuanSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 

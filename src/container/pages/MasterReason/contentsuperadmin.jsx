@@ -38,8 +38,7 @@ class ContentMasterReasonSuperAdmin extends Component {
     }
 
     loadReason = async () => {
-        let passqueryreason = encrypt("select * from gcm_master_reason order by gcm_master_reason.id;")
-        const resreason = await this.props.getDataReasonAPI({ query: passqueryreason }).catch(err => err)
+        const resreason = await this.props.getDataReasonAPI().catch(err => err)
         if (resreason) {
             resreason.map((user, index) => {
                 return (
@@ -61,13 +60,7 @@ class ContentMasterReasonSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -129,9 +122,9 @@ class ContentMasterReasonSuperAdmin extends Component {
 
     confirmActionInsertReason = async () => {
         Toast.loading('Loading...');
-        let passqueryinsertreason = encrypt("insert into gcm_master_reason(nama) values ('" + this.state.nama_reason_inserted + "') " +
-            " returning nama;")
-        const resinsertMasterReason = await this.props.insertMasterReason({ query: passqueryinsertreason }).catch(err => err)
+        const resinsertMasterReason = await this.props.insertMasterReason({
+            nama: this.state.nama_reason_inserted
+        }).catch(err => err)
         Toast.hide();
 
         if (resinsertMasterReason) {
@@ -147,24 +140,21 @@ class ContentMasterReasonSuperAdmin extends Component {
                 this.loadReason()
             });
         } else {
-            swal({
+           swal({
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
     handleDetailReason = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation()
-        let passquerydetail = encrypt("select gcm_master_reason.id, gcm_master_reason.nama from gcm_master_reason " +
-            "where gcm_master_reason.id=" + id)
-        const resdetail = await this.props.getDataDetailedMasterReasonAPI({ query: passquerydetail }).catch(err => err)
+        const resdetail = await this.props.getDataDetailedMasterReasonAPI({ id: id }).catch(err => err)
         if (resdetail) {
             this.setState({
                 id_reason_selected: id,
@@ -179,13 +169,7 @@ class ContentMasterReasonSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -207,9 +191,10 @@ class ContentMasterReasonSuperAdmin extends Component {
 
     confirmActionUpdateReason = async () => {
         Toast.loading('Loading...');
-        let passqueryupdatemasterreason = encrypt("update gcm_master_reason set nama='" + this.state.nama_reason_selected + "' " +
-            " where id=" + this.state.id_reason_selected + " returning nama;")
-        const resupdateMasterReason = await this.props.updateMasterReason({ query: passqueryupdatemasterreason }).catch(err => err)
+        const resupdateMasterReason = await this.props.updateMasterReason({
+            nama: this.state.nama_reason_selected,
+            id: this.state.id_reason_selected
+        }).catch(err => err)
         Toast.hide();
 
         if (resupdateMasterReason) {
@@ -225,15 +210,14 @@ class ContentMasterReasonSuperAdmin extends Component {
                 this.loadReason()
             });
         } else {
-            swal({
+           swal({
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 

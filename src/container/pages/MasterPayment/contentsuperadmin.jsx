@@ -49,8 +49,7 @@ class ContentMasterPaymentSuperAdmin extends Component {
     }
 
     loadPayment = async () => {
-        let passquerypayment = encrypt("select * from gcm_master_payment order by gcm_master_payment.id;")
-        const respayment = await this.props.getDataPaymentAPI({ query: passquerypayment }).catch(err => err)
+        const respayment = await this.props.getDataPaymentAPI().catch(err => err)
         if (respayment) {
             respayment.map((user, index) => {
                 return (
@@ -74,13 +73,7 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -191,9 +184,11 @@ class ContentMasterPaymentSuperAdmin extends Component {
 
     confirmActionInsertPayment = async () => {
         Toast.loading('Loading...');
-        let passqueryinsertpayment = encrypt("insert into gcm_master_payment(payment_name, deskripsi, durasi) values ('" + this.state.nama_payment_inserted + "', '" +
-            this.state.deskripsi_payment_inserted + "', '" + this.state.durasi_payment_inserted + "') returning payment_name;")
-        const resinsertMasterPayment = await this.props.insertMasterPayment({ query: passqueryinsertpayment }).catch(err => err)
+        const resinsertMasterPayment = await this.props.insertMasterPayment({
+            payment_name: this.state.nama_payment_inserted,
+            description: this.state.deskripsi_payment_inserted,
+            duration: this.state.durasi_payment_inserted
+        }).catch(err => err)
         Toast.hide();
         if (resinsertMasterPayment) {
             swal({
@@ -212,19 +207,17 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
     handleDetailPayment = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation()
-        let passquerydetail = encrypt("select * from gcm_master_payment where gcm_master_payment.id=" + id)
-        const resdetail = await this.props.getDataDetailedMasterPaymentAPI({ query: passquerydetail }).catch(err => err)
+        const resdetail = await this.props.getDataDetailedMasterPaymentAPI({ id: id }).catch(err => err)
         if (resdetail) {
             this.setState({
                 id_payment_selected: id,
@@ -240,13 +233,7 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -267,10 +254,12 @@ class ContentMasterPaymentSuperAdmin extends Component {
     }
 
     confirmActionUpdatePayment = async () => {
-        Toast.loading('Loading...');
-        let passqueryupdatemasterpayment = encrypt("update gcm_master_payment set payment_name='" + this.state.nama_payment_selected + "', " +
-            "deskripsi='" + this.state.deskripsi_payment_selected + "' where id=" + this.state.id_payment_selected + " returning payment_name;")
-        const resupdateMasterPayment = await this.props.updateMasterPayment({ query: passqueryupdatemasterpayment }).catch(err => err)
+        Toast.loading('Loading...');        
+        const resupdateMasterPayment = await this.props.updateMasterPayment({
+            payment_name: this.state.nama_payment_selected,
+            description: this.state.deskripsi_payment_selected,
+            id: this.state.id_payment_selected
+        }).catch(err => err)
         Toast.hide();
         if (resupdateMasterPayment) {
             swal({
@@ -289,11 +278,10 @@ class ContentMasterPaymentSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 

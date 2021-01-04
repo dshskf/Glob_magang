@@ -101,9 +101,10 @@ class ContentNegosiasi extends Component {
         color_card_inactive: 'rgb(51, 51, 51)',
         errormessage: '',
         errormessagehargafinal: '',
-        startDate: moment().startOf('month'),
+        startDate: moment().subtract(3, 'year'),
         endDate: moment(),                              // now
         ranges: {
+            'All': [moment().subtract(3, 'year'), moment()],
             'Today': [moment(), moment()],
             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
             'Last 7 Days': [moment().subtract(6, 'days'), moment()],
@@ -165,13 +166,7 @@ class ContentNegosiasi extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -313,13 +308,7 @@ class ContentNegosiasi extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -460,13 +449,7 @@ class ContentNegosiasi extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -603,13 +586,7 @@ class ContentNegosiasi extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -651,13 +628,7 @@ class ContentNegosiasi extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -777,7 +748,7 @@ class ContentNegosiasi extends Component {
         }
     }
 
-    sendNotificationFCM = async (token, stat) => {        
+    sendNotificationFCM = async (token, stat) => {
         const array_token = []
         for (var i = 0; i < token.length; i++) {
             array_token.push(token[i])
@@ -786,11 +757,11 @@ class ContentNegosiasi extends Component {
         const fetchOptions = {
             "registration_ids": array_token,
             "data": {
-                "key": stat === 'Nego' ? "nego" : "nego_approved",
+                "key": stat === 'Nego' ? "nego" : "nego_seller_approved",
                 "notification": {
                     "title": "GLOB",
                     "body": "Balasan negosisasi dari penjual",
-                    "sound" : "default"
+                    "sound": "default"
                 },
             }
         }
@@ -848,11 +819,10 @@ class ContentNegosiasi extends Component {
                         title: "Gagal!",
                         text: "Tidak ada perubahan disimpan!",
                         icon: "error",
-                        button: false,
-                        timer: "2500"
-                    }).then(() => {
-                        window.location.reload()
-                    });
+                        buttons: {
+                            confirm: "Oke"
+                        }
+                    })
                 }
             } else {
                 swal({
@@ -890,7 +860,7 @@ class ContentNegosiasi extends Component {
                 if (this.state.cart_user_token != null) {
                     postNotification = await this.sendNotificationFCM(this.state.cart_user_token, stat)
                 }
-                if (resupdatemastercart ) {
+                if (resupdatemastercart) {
                     swal({
                         title: "Sukses!",
                         text: "Perubahan disimpan!",
@@ -905,11 +875,10 @@ class ContentNegosiasi extends Component {
                         title: "Gagal!",
                         text: "Tidak ada perubahan disimpan!",
                         icon: "error",
-                        button: false,
-                        timer: "2500"
-                    }).then(() => {
-                        window.location.reload()
-                    });
+                        buttons: {
+                            confirm: "Oke"
+                        }
+                    })
                 }
             } else {
                 swal({
@@ -939,7 +908,7 @@ class ContentNegosiasi extends Component {
                 if (this.state.cart_user_token != null) {
                     postNotification = await this.sendNotificationFCM(this.state.cart_user_token, stat)
                 }
-                if (resupdatemastercart ) {
+                if (resupdatemastercart) {
                     swal({
                         title: "Sukses!",
                         text: "Perubahan disimpan!",
@@ -954,11 +923,10 @@ class ContentNegosiasi extends Component {
                         title: "Gagal!",
                         text: "Tidak ada perubahan disimpan!",
                         icon: "error",
-                        button: false,
-                        timer: "2500"
-                    }).then(() => {
-                        window.location.reload()
-                    });
+                        buttons: {
+                            confirm: "Oke"
+                        }
+                    })
                 }
             } else {
                 swal({

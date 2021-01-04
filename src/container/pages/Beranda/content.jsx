@@ -55,9 +55,10 @@ class ContentBeranda extends Component {
         total_payment_onconfirm_ditolak: '',
         isOpenModalNotify: false,
         openModalNotify: null,
-        startDate: moment().startOf('month'),
+        startDate: moment().subtract(3, 'year'),
         endDate: moment(),                              // now
         ranges: {
+            'All': [moment().subtract(3, 'year'), moment()],
             'Today': [moment(), moment()],
             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
             'Last 7 Days': [moment().subtract(6, 'days'), moment()],

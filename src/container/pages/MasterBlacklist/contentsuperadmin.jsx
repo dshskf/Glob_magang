@@ -38,8 +38,7 @@ class ContentMasterBlacklistSuperAdmin extends Component {
     }
 
     loadBlacklist = async () => {
-        let passqueryblacklist = encrypt("select * from gcm_master_type_blacklist order by gcm_master_type_blacklist.id;")
-        const resblacklist = await this.props.getDataBlacklistAPI({ query: passqueryblacklist }).catch(err => err)
+        const resblacklist = await this.props.getDataBlacklistAPI().catch(err => err)
         if (resblacklist) {
             resblacklist.map((user, index) => {
                 return (
@@ -61,13 +60,7 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -129,9 +122,7 @@ class ContentMasterBlacklistSuperAdmin extends Component {
 
     confirmActionInsertBlacklist = async () => {
         Toast.loading('Loading...');
-        let passqueryinsertblacklist = encrypt("insert into gcm_master_type_blacklist (nama) values ('" + this.state.nama_blacklist_inserted + "') " +
-            " returning nama;")
-        const resinsertMasterblacklist = await this.props.insertMasterBlacklist({ query: passqueryinsertblacklist }).catch(err => err)
+        const resinsertMasterblacklist = await this.props.insertMasterBlacklist({ nama: this.state.nama_blacklist_inserted }).catch(err => err)
         Toast.hide();
         if (resinsertMasterblacklist) {
             swal({
@@ -150,20 +141,17 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
     handleDetailBlacklist = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation()
-        let passquerydetail = encrypt("select gcm_master_type_blacklist.id, gcm_master_type_blacklist.nama from gcm_master_type_blacklist " +
-            "where gcm_master_type_blacklist.id=" + id)
-        const resdetail = await this.props.getDataDetailedMasterBlacklistAPI({ query: passquerydetail }).catch(err => err)
+        const resdetail = await this.props.getDataDetailedMasterBlacklistAPI({ id: id }).catch(err => err)
         if (resdetail) {
             this.setState({
                 id_blacklist_selected: id,
@@ -178,13 +166,7 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -206,9 +188,10 @@ class ContentMasterBlacklistSuperAdmin extends Component {
 
     confirmActionUpdateBlacklist = async () => {
         Toast.loading('Loading...');
-        let passqueryupdatemasterblacklist = encrypt("update gcm_master_type_blacklist set nama='" + this.state.nama_blacklist_selected + "' " +
-            " where id=" + this.state.id_blacklist_selected + " returning nama;")
-        const resupdateMasterblacklist = await this.props.updateMasterBlacklist({ query: passqueryupdatemasterblacklist }).catch(err => err)
+        const resupdateMasterblacklist = await this.props.updateMasterBlacklist({
+            nama: this.state.nama_blacklist_selected,
+            id: this.state.id_blacklist_selected
+        }).catch(err => err)
         Toast.hide();
         if (resupdateMasterblacklist) {
             swal({
@@ -227,11 +210,10 @@ class ContentMasterBlacklistSuperAdmin extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 

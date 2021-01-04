@@ -102,51 +102,23 @@ class ContentTransaksiSuperAdmin extends Component {
     }
 
     loadDataTransactions = async (flag) => {
-        let passquery = ""
+        let res
         if (this.state.startDate.format('YYYY-MM-DD') === this.state.endDate.format('YYYY-MM-DD')) {
             let datetemp = this.state.endDate.add(1, "days")
-            passquery = encrypt("select gcm_master_transaction.id_transaction, gcm_master_company.nama_perusahaan, " +
-                "gcm_master_transaction.status, to_char(gcm_master_transaction.create_date, 'DD/MM/YYYY HH24:MI:SS') create_date, " +
-                "to_char(gcm_master_transaction.update_date, 'DD/MM/YYYY HH24:MI:SS') update_date, gcm_master_transaction.status_payment, " +
-                "to_char(gcm_master_transaction.date_ongoing, 'DD/MM/YYYY HH24:MI:SS') date_ongoing, " +
-                "to_char(gcm_master_transaction.date_shipped, 'DD/MM/YYYY HH24:MI:SS') date_shipped, " +
-                "to_char(gcm_master_transaction.date_received, 'DD/MM/YYYY HH24:MI:SS') date_received, " +
-                "to_char(gcm_master_transaction.date_complained, 'DD/MM/YYYY HH24:MI:SS') date_complained, " +
-                "to_char(gcm_master_transaction.date_finished, 'DD/MM/YYYY HH24:MI:SS') date_finished, " +
-                "to_char(gcm_master_transaction.date_canceled, 'DD/MM/YYYY HH24:MI:SS') date_canceled " +
-                "from gcm_transaction_detail " +
-                "inner join gcm_master_transaction on gcm_transaction_detail.transaction_id = gcm_master_transaction.id_transaction " +
-                "inner join gcm_list_barang on gcm_transaction_detail.barang_id = gcm_list_barang.id " +
-                "inner join gcm_master_company on gcm_transaction_detail.buyer_id = gcm_master_company.id " +
-                "where gcm_master_transaction.create_date >= '" + this.state.startDate.format('YYYY-MM-DD') +
-                "' and gcm_master_transaction.create_date < '" + datetemp.format('YYYY-MM-DD') + "'" +
-                "group by gcm_master_transaction.id_transaction, gcm_master_company.nama_perusahaan, gcm_master_transaction.status, gcm_master_transaction.create_date, " +
-                "gcm_master_transaction.date_ongoing, gcm_master_transaction.date_shipped, gcm_master_transaction.date_received, gcm_master_transaction.date_complained, " +
-                "gcm_master_transaction.date_finished, gcm_master_transaction.date_canceled, " +
-                "gcm_master_transaction.update_date, gcm_master_transaction.status_payment order by gcm_master_transaction.create_date desc;")
+            res = await this.props.getDataTransactionsAPI({
+                sameDate: true,
+                startDate: this.state.startDate.format('YYYY-MM-DD'),
+                endDate: datetemp.format('YYYY-MM-DD')
+            }).catch(err => err)
             this.setState({ endDate: this.state.endDate.subtract(1, 'days') })
         } else {
-            passquery = encrypt("select gcm_master_transaction.id_transaction, gcm_master_company.nama_perusahaan, " +
-                "gcm_master_transaction.status, to_char(gcm_master_transaction.create_date, 'DD/MM/YYYY HH24:MI:SS') create_date, " +
-                "to_char(gcm_master_transaction.update_date, 'DD/MM/YYYY HH24:MI:SS') update_date, gcm_master_transaction.status_payment, " +
-                "to_char(gcm_master_transaction.date_ongoing, 'DD/MM/YYYY HH24:MI:SS') date_ongoing, " +
-                "to_char(gcm_master_transaction.date_shipped, 'DD/MM/YYYY HH24:MI:SS') date_shipped, " +
-                "to_char(gcm_master_transaction.date_received, 'DD/MM/YYYY HH24:MI:SS') date_received, " +
-                "to_char(gcm_master_transaction.date_complained, 'DD/MM/YYYY HH24:MI:SS') date_complained, " +
-                "to_char(gcm_master_transaction.date_finished, 'DD/MM/YYYY HH24:MI:SS') date_finished, " +
-                "to_char(gcm_master_transaction.date_canceled, 'DD/MM/YYYY HH24:MI:SS') date_canceled " +
-                "from gcm_transaction_detail " +
-                "inner join gcm_master_transaction on gcm_transaction_detail.transaction_id = gcm_master_transaction.id_transaction " +
-                "inner join gcm_list_barang on gcm_transaction_detail.barang_id = gcm_list_barang.id " +
-                "inner join gcm_master_company on gcm_transaction_detail.buyer_id = gcm_master_company.id " +
-                "where gcm_master_transaction.create_date between '" +
-                this.state.startDate.format('YYYY-MM-DD') + "' and '" + this.state.endDate.format('YYYY-MM-DD') + "'::TIMESTAMP + '1 days'::INTERVAL " +
-                "group by gcm_master_transaction.id_transaction, gcm_master_company.nama_perusahaan, gcm_master_transaction.status, gcm_master_transaction.create_date, " +
-                "gcm_master_transaction.date_ongoing, gcm_master_transaction.date_shipped, gcm_master_transaction.date_received, gcm_master_transaction.date_complained, " +
-                "gcm_master_transaction.date_finished, gcm_master_transaction.date_canceled, " +
-                "gcm_master_transaction.update_date, gcm_master_transaction.status_payment order by gcm_master_transaction.create_date desc;")
+            res = await this.props.getDataTransactionsAPI({
+                sameDate: false,
+                startDate: this.state.startDate.format('YYYY-MM-DD'),
+                endDate: this.state.endDate.format('YYYY-MM-DD')
+            }).catch(err => err)
         }
-        const res = await this.props.getDataTransactionsAPI({ query: passquery }).catch(err => err)
+
         if (res) {
             res.map((user, index) => {
                 return (
@@ -196,13 +168,7 @@ class ContentTransaksiSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         this.setState({
             allFilteredDataTransaction: this.state.tmpfilteredDataTransaction.filter(tmpfilteredDataTransaction =>
@@ -251,24 +217,7 @@ class ContentTransaksiSuperAdmin extends Component {
     handleDetailTransaction = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation();
-        let passquerydetailtransaction = encrypt("select gcm_master_transaction.id, gcm_master_transaction.id_transaction, " +
-            "gcm_master_company.nama_perusahaan, gcm_master_company.email as company_email, gcm_master_company.no_telp, " +
-            "gcm_master_transaction.status, gcm_master_transaction.status_payment, gcm_master_transaction.cancel_reason, " +
-            "to_char(gcm_master_transaction.create_date, 'DD/MM/YYYY HH24:MI:SS') create_date, to_char(gcm_master_transaction.update_date, 'DD/MM/YYYY HH24:MI:SS') update_date, " +
-            "gcm_master_user.nama, gcm_master_user.username, gcm_master_user.email, gcm_master_user.no_hp, " +
-            "gcm_master_category.nama as tipe_bisnis_buyer, gcm_master_transaction.shipto_id, gcm_master_transaction.billto_id " +
-            "from gcm_master_transaction " +
-            "inner join gcm_master_company on gcm_master_transaction.company_id=gcm_master_company.id " +
-            "inner join gcm_master_user on gcm_master_transaction.create_by=gcm_master_user.id " +
-            "inner join gcm_transaction_detail on gcm_master_transaction.id_transaction=gcm_transaction_detail.transaction_id " +
-            "inner join gcm_master_category on gcm_master_category.id = gcm_master_company.tipe_bisnis " +
-            "where gcm_master_transaction.id_transaction='" + id + "'" +
-            " group by gcm_master_transaction.id, gcm_master_transaction.id_transaction, gcm_master_transaction.cancel_reason, " +
-            "gcm_master_company.nama_perusahaan, gcm_master_company.email, gcm_master_company.no_telp, " +
-            "gcm_master_transaction.status, gcm_master_transaction.status_payment, gcm_master_transaction.create_date, " +
-            "gcm_master_transaction.update_date, gcm_master_user.nama, gcm_master_user.username, gcm_master_user.email, " +
-            "gcm_master_user.no_hp, gcm_master_category.nama, gcm_master_transaction.shipto_id, gcm_master_transaction.billto_id;")
-        const resdetail = await this.props.getDataDetailedTransactionBuyerSuperAdminAPI({ query: passquerydetailtransaction }).catch(err => err)
+        const resdetail = await this.props.getDataDetailedTransactionBuyerSuperAdminAPI({ id: id }).catch(err => err)
         if (resdetail) {
             await this.setState({
                 id_transaction: resdetail.id_transaction,
@@ -296,13 +245,7 @@ class ContentTransaksiSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         this.loadSellerOrder(this.state.id_transaction)
         this.loadDetailedOrder(this.state.id_transaction, this.state.status)
@@ -311,16 +254,7 @@ class ContentTransaksiSuperAdmin extends Component {
     }
 
     loadSellerOrder = async (id) => {
-        let passquerydetailsellertransaction = encrypt("select gcm_master_company.nama_perusahaan, gcm_master_company.email as company_email, " +
-            "gcm_master_company.no_telp, gcm_master_category.nama as tipe_bisnis_seller, gcm_master_company.id, gcm_master_company.kode_seller " +
-            "from gcm_list_barang " +
-            "inner join gcm_transaction_detail on gcm_transaction_detail.barang_id = gcm_list_barang.id " +
-            "inner join gcm_master_company on gcm_master_company.id = gcm_list_barang.company_id " +
-            "inner join gcm_master_category on gcm_master_category.id = gcm_master_company.tipe_bisnis " +
-            "where gcm_transaction_detail.transaction_id='" + id + "' and gcm_master_company.type='S'" +
-            "group by gcm_master_company.nama_perusahaan, gcm_master_company.email, gcm_master_company.no_telp, gcm_master_category.nama, " +
-            "gcm_master_company.kode_seller, gcm_master_company.id")
-        const resdetailseller = await this.props.getDataDetailedTransactionSellerSuperAdminAPI({ query: passquerydetailsellertransaction }).catch(err => err)
+        const resdetailseller = await this.props.getDataDetailedTransactionSellerSuperAdminAPI({ id: id }).catch(err => err)
         this.loadAlamatSeller(resdetailseller.company_id_seller_transaction)
         if (resdetailseller) {
             this.setState({
@@ -339,27 +273,12 @@ class ContentTransaksiSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadAlamatSeller = async (id) => {
-        let passqueryalamatseller = encrypt("select gcm_master_alamat.alamat, gcm_master_kelurahan.nama as kelurahan, " +
-            "gcm_master_kecamatan.nama as kecamatan, gcm_master_city.nama as kota, gcm_master_provinsi.nama as provinsi, " +
-            "gcm_master_alamat.kodepos, gcm_master_alamat.no_telp, gcm_master_alamat.shipto_active, gcm_master_alamat.billto_active " +
-            "from gcm_master_alamat " +
-            "inner join gcm_master_kelurahan on gcm_master_alamat.kelurahan = gcm_master_kelurahan.id " +
-            "inner join gcm_master_kecamatan on gcm_master_alamat.kecamatan = gcm_master_kecamatan.id " +
-            "inner join gcm_master_city on gcm_master_alamat.kota = gcm_master_city.id " +
-            "inner join gcm_master_provinsi on gcm_master_alamat.provinsi = gcm_master_provinsi.id " +
-            "where gcm_master_alamat.company_id=" + id)
-        const resalamatseller = await this.props.getDataAlamatAPI({ query: passqueryalamatseller }).catch(err => err)
+        const resalamatseller = await this.props.getDataAlamatAPI({ id: id }).catch(err => err)
         if (resalamatseller) {
             this.setState({
                 allAlamatSeller: resalamatseller
@@ -372,27 +291,16 @@ class ContentTransaksiSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadAlamatShipTo = async (id_shipto, id_transaction) => {
-        let passqueryalamatshipto = encrypt("select gcm_master_alamat.alamat, gcm_master_kelurahan.nama as kelurahan, gcm_master_kecamatan.nama as kecamatan, " +
-            "gcm_master_city.nama as kota, gcm_master_provinsi.nama as provinsi, gcm_master_alamat.kodepos, gcm_master_alamat.no_telp " +
-            "from gcm_master_alamat " +
-            "inner join gcm_master_kelurahan on gcm_master_alamat.kelurahan = gcm_master_kelurahan.id " +
-            "inner join gcm_master_kecamatan on gcm_master_alamat.kecamatan = gcm_master_kecamatan.id " +
-            "inner join gcm_master_city on gcm_master_alamat.kota = gcm_master_city.id " +
-            "inner join gcm_master_provinsi on gcm_master_alamat.provinsi = gcm_master_provinsi.id " +
-            "inner join gcm_master_transaction on gcm_master_transaction.shipto_id = gcm_master_alamat.id " +
-            "where gcm_master_transaction.shipto_id = " + id_shipto + " and gcm_master_transaction.id_transaction = '" + id_transaction + "'")
-        const resalamatshipto = await this.props.getDataDetailedAlamatTransactionAPI({ query: passqueryalamatshipto }).catch(err => err)
+        const resalamatshipto = await this.props.getDataDetailedAlamatTransactionAPI({
+            isBill: false,
+            id_shipto: id_shipto,
+            id_transaction: id_transaction
+        }).catch(err => err)
         if (resalamatshipto) {
             this.setState({
                 alamat_shipto: resalamatshipto.alamat,
@@ -411,27 +319,16 @@ class ContentTransaksiSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
-    loadAlamatBillTo = async (id_shipto, id_transaction) => {
-        let passqueryalamatbillto = encrypt("select gcm_master_alamat.alamat, gcm_master_kelurahan.nama as kelurahan, gcm_master_kecamatan.nama as kecamatan, " +
-            "gcm_master_city.nama as kota, gcm_master_provinsi.nama as provinsi, gcm_master_alamat.kodepos, gcm_master_alamat.no_telp " +
-            "from gcm_master_alamat " +
-            "inner join gcm_master_kelurahan on gcm_master_alamat.kelurahan = gcm_master_kelurahan.id " +
-            "inner join gcm_master_kecamatan on gcm_master_alamat.kecamatan = gcm_master_kecamatan.id " +
-            "inner join gcm_master_city on gcm_master_alamat.kota = gcm_master_city.id " +
-            "inner join gcm_master_provinsi on gcm_master_alamat.provinsi = gcm_master_provinsi.id " +
-            "inner join gcm_master_transaction on gcm_master_transaction.billto_id = gcm_master_alamat.id " +
-            "where gcm_master_transaction.billto_id = " + id_shipto + " and gcm_master_transaction.id_transaction = '" + id_transaction + "'")
-        const resalamatbillto = await this.props.getDataDetailedAlamatTransactionAPI({ query: passqueryalamatbillto }).catch(err => err)
+    loadAlamatBillTo = async (id_shipto, id_transaction) => {        
+        const resalamatbillto = await this.props.getDataDetailedAlamatTransactionAPI({
+            isBill: true,
+            id_shipto: id_shipto,
+            id_transaction: id_transaction
+        }).catch(err => err)
         if (resalamatbillto) {
             this.setState({
                 alamat_billto: resalamatbillto.alamat,
@@ -450,23 +347,11 @@ class ContentTransaksiSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
-    loadDetailedOrder = async (id_transaction, status) => {
-        // let passquerydetailedorder =  encrypt("select gcm_transaction_detail.id, gcm_master_barang.nama, concat(gcm_transaction_detail.qty, ' x ', cast(gcm_list_barang.jumlah_min_beli as int), ' ', gcm_master_satuan.alias) as qty "+
-        //     "from gcm_transaction_detail "+ 
-        //         "inner join gcm_list_barang on gcm_transaction_detail.barang_id=gcm_list_barang.id "+
-        //         "inner join gcm_master_barang on gcm_list_barang.barang_id=gcm_master_barang.id "+
-        //         "inner join gcm_master_satuan on gcm_master_barang.satuan=gcm_master_satuan.id "+
-        //     "where gcm_transaction_detail.transaction_id= '"+id_transaction+"' order by gcm_master_barang.nama asc")
+    loadDetailedOrder = async (id_transaction, status) => {        
         let passquerydetailedorder = ""
         if (status === 'WAITING' || status === 'CANCELED') {
             passquerydetailedorder = encrypt("select gcm_transaction_detail.id,gcm_transaction_detail.note, gcm_master_barang.nama, concat(gcm_transaction_detail.qty, ' x ', cast(gcm_master_barang.berat as int), ' ', gcm_master_satuan.alias) as show_qty " +
@@ -534,13 +419,7 @@ class ContentTransaksiSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -592,13 +471,7 @@ class ContentTransaksiSuperAdmin extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 

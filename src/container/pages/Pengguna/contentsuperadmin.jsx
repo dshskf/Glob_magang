@@ -601,11 +601,10 @@ class ContentPenggunaSuperAdmin extends Component {
                     title: "Gagal!",
                     text: "Tidak ada perubahan disimpan!",
                     icon: "error",
-                    button: false,
-                    timer: "2500"
-                }).then(() => {
-                    window.location.reload()
-                });
+                    buttons: {
+                        confirm: "Oke"
+                    }
+                })
             }
         } else if (this.state.company_register_status === reject) {
             await this.loadCheckingKodeSeller()
@@ -632,7 +631,7 @@ class ContentPenggunaSuperAdmin extends Component {
                         icon: "success",
                         button: false,
                         timer: "2500"
-                    }).then(() => {                        
+                    }).then(() => {
                         this.handleModalConfirm()
                         this.handleModalDetail()
                         this.loadDataUsers()
@@ -679,7 +678,7 @@ class ContentPenggunaSuperAdmin extends Component {
                         icon: "success",
                         button: false,
                         timer: "2500"
-                    }).then(() => {                        
+                    }).then(() => {
                         this.handleModalConfirm()
                         this.handleModalDetail()
                         this.loadDataUsers()

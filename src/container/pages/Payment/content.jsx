@@ -3,8 +3,9 @@ import { connect } from 'react-redux';
 import { encrypt, decrypt } from '../../../config/lib';
 import { MDBDataTable } from 'mdbreact';
 import {
-    getDataPaymentAdminAPI, getDataPaymentAPI, insertPaymentListingSeller, getDataDetailedPaymentAPI,
-    getDataCheckedIdPayment, updateStatusPayment, logoutUserAPI, postQuery
+    getDataPaymentAdminAPI, getDataPaymentAdmin, insertPaymentListingSeller, getDataDetailedPaymentAPI,
+    getDataCheckedIdPayment, updateStatusPaymentAdmin, logoutUserAPI, postQuery, getPaymentList, getPaymentListing,
+    deactivateRekeningBank, insertRekening
 }
     from '../../../config/redux/action';
 import swal from 'sweetalert';
@@ -80,19 +81,12 @@ class ContentPayment extends Component {
     }
 
     loadPaymentListing = async () => {
-        let passquerypaymentlisting = encrypt("select gcm_master_payment.payment_name, gcm_seller_payment_listing.status, gcm_seller_payment_listing.id " +
-            "from gcm_seller_payment_listing " +
-            "inner join gcm_master_payment on gcm_seller_payment_listing.payment_id = gcm_master_payment.id " +
-            "where seller_id=" + this.state.company_id)
-        const respaymentlisting = await this.props.getDataPaymentAdminAPI({ query: passquerypaymentlisting }).catch(err => err)
+        const respaymentlisting = await this.props.getPaymentList({ id: this.state.company_id }).catch(err => err)
 
-
-        let queryRekening = encrypt(`
-            select a.*,b.nama as nama_bank from gcm_listing_bank a
-            inner join gcm_master_bank b on a.id_bank=b.id
-            where company_id=${this.state.company_id} and a.status='A'
-        `)
-        let getRekening = await this.props.postQuery({ query: queryRekening }).catch(err => err)
+        let getRekening = await this.props.getPaymentListing({
+            company_id: this.state.company_id,
+            type: 'getRekening'
+        }).catch(err => err)
 
         getRekening = getRekening.map(data => ({
             ...data,
@@ -101,8 +95,7 @@ class ContentPayment extends Component {
             </center>
         }))
 
-        queryRekening = encrypt(`select * from gcm_master_bank`)
-        const getBank = await this.props.postQuery({ query: queryRekening }).catch(err => err)
+        const getBank = await this.props.getPaymentListing({ type: 'getBank' }).catch(err => err)
 
         if (respaymentlisting && getRekening && getBank) {
             this.setState({
@@ -134,13 +127,7 @@ class ContentPayment extends Component {
     }
 
     loadPaymentFromMaster = async () => {
-        let passquerypaymentmaster = encrypt("select gcm_master_payment.id, gcm_master_payment.payment_name, gcm_master_payment.deskripsi " +
-            "from gcm_master_payment " +
-            "where not exists " +
-            "(select * from gcm_seller_payment_listing " +
-            "where gcm_seller_payment_listing.payment_id = gcm_master_payment.id and gcm_seller_payment_listing.seller_id=" +
-            this.state.company_id + ")")
-        const respaymentmaster = await this.props.getDataPaymentAPI({ query: passquerypaymentmaster }).catch(err => err)
+        const respaymentmaster = await this.props.getDataPaymentAdmin({ company_id: this.state.company_id }).catch(err => err)
         if (respaymentmaster) {
             this.setState({
                 allPaymentFromMaster: respaymentmaster
@@ -153,15 +140,12 @@ class ContentPayment extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-
-            });
+            })
         }
     }
 
     loadCheckingPayment = async () => {
-        let passqueryidpayment = encrypt("select gcm_seller_payment_listing.payment_id from gcm_seller_payment_listing where seller_id=" + this.state.company_id)
-        const residpaymentchecked = await this.props.getDataCheckedIdPayment({ query: passqueryidpayment }).catch(err => err)
+        const residpaymentchecked = await this.props.getDataCheckedIdPayment({ company_id: this.state.company_id }).catch(err => err)
         if (residpaymentchecked) {
             this.setState({
                 allPaymentChecked: residpaymentchecked
@@ -174,9 +158,7 @@ class ContentPayment extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-
-            });
+            })
         }
     }
 
@@ -226,9 +208,7 @@ class ContentPayment extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // window.location.reload()
-            });
+            })
         }
     }
 
@@ -236,30 +216,13 @@ class ContentPayment extends Component {
 
     confirmActionInsertPayment = async () => {
         Toast.loading('Loading...');
+        const resinsertpayment = await this.props.insertPaymentListingSeller({
+            seller_id: this.state.company_id,
+            payment_id: this.state.id_payment_inserted,
+            rekening_data: this.state.rekeningData,
+            type: this.state.payment_inserted_name
+        }).catch(err => err)
 
-        let passqueryinsertpayment = `insert into gcm_seller_payment_listing (seller_id, payment_id, status)
-            values ('${this.state.company_id}', '${this.state.id_payment_inserted}', 'A') returning status           
-            `
-
-        if (this.state.payment_inserted_name === 'Advance Payment') {
-            passqueryinsertpayment = `
-                with new_payment as(insert into gcm_seller_payment_listing (seller_id, payment_id, status)
-                values ('${this.state.company_id}', '${this.state.id_payment_inserted}', 'A') returning status)
-                insert into gcm_listing_bank(company_id,id_bank,no_rekening,pemilik_rekening,status,create_by,create_date,update_by,update_date)
-                values 
-            `
-            this.state.rekeningData.map((data, i) => {
-                if (i < this.state.rekeningData.length - 1) {
-                    passqueryinsertpayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.id_pengguna_login},now(),${this.state.id_pengguna_login},now()), `
-                    return
-                }
-                passqueryinsertpayment += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.id_pengguna_login},now(),${this.state.id_pengguna_login},now()) returning * `
-                return
-            })
-        }
-
-
-        const resinsertpayment = await this.props.insertPaymentListingSeller({ query: encrypt(passqueryinsertpayment) }).catch(err => err)
         Toast.hide();
         if (resinsertpayment) {
             swal({
@@ -285,21 +248,14 @@ class ContentPayment extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-
-            });
+            })
         }
     }
 
     handleDetailPayment = async (e, id) => {
         this.handleModalDetailPayment()
         e.stopPropagation()
-        let passquerydetailpayment = encrypt(`select gcm_master_payment.payment_name, gcm_master_payment.deskripsi, gcm_seller_payment_listing.status, gcm_seller_payment_listing.id
-            from gcm_seller_payment_listing
-            inner join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id
-            where gcm_seller_payment_listing.id=${id}`
-        )
-        const resdetailpayment = await this.props.getDataDetailedPaymentAPI({ query: passquerydetailpayment }).catch(err => err)
+        const resdetailpayment = await this.props.getDataDetailedPaymentAPI({ listing_id: id }).catch(err => err)
         if (resdetailpayment) {
             await this.setState({
                 id_payment: resdetailpayment.id,
@@ -316,9 +272,7 @@ class ContentPayment extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-
-            });
+            })
         }
 
     }
@@ -358,29 +312,13 @@ class ContentPayment extends Component {
     }
 
     confirmActionChangeStatusPayment = async () => {
-        let passquerychangestatuspayment = ""
+        const resupdatestatuspaymentAdmin = await this.props.updateStatusPaymentAdmin({
+            id_payment: this.state.id_payment,
+            status: this.state.status_payment,
+            seller_id: this.state.company_id,
+        }).catch(err => err)
 
-        if (this.state.status_payment === 'R') {
-            passquerychangestatuspayment = `
-                update gcm_seller_payment_listing set status='C'
-                where id= ${this.state.id_payment} returning status                
-            `
-        } else {
-
-            passquerychangestatuspayment = `
-                with new_order1 as (
-                update gcm_seller_payment_listing set status='${this.state.status_payment}'
-                where id= ${this.state.id_payment} returning status), 
-                new_order2 as(
-                update gcm_payment_listing set status='${this.state.status_payment}'
-                where payment_id= ${this.state.id_payment} and seller_id= ${this.state.company_id})
-                select status from new_order1
-            `
-        }
-
-        const resupdatestatuspayment = await this.props.updateStatusPayment({ query: encrypt(passquerychangestatuspayment) }).catch(err => err)
-
-        if (resupdatestatuspayment) {
+        if (resupdatestatuspaymentAdmin) {
             if (this.state.status_payment === 'R') {
                 swal({
                     title: "Sukses!",
@@ -414,11 +352,10 @@ class ContentPayment extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                // window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })            
         }
     }
 
@@ -431,8 +368,7 @@ class ContentPayment extends Component {
     }
 
     deactivateRekeningBank = async () => {
-        const query = encrypt(`update gcm_listing_bank set status='I' where id=${this.state.selectedRekening.id} returning *`)
-        const postUpdate = await this.props.postQuery({ query: query }).catch(err => err)
+        const postUpdate = await this.props.deactivateRekeningBank({ rekening_id: this.state.selectedRekening.id }).catch(err => err)
 
         if (postUpdate) {
             swal({
@@ -454,12 +390,10 @@ class ContentPayment extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                // window.location.reload()
-            });
-        }
+                buttons: {
+                    confirm: "Oke"
+                }
+            })       }
     }
 
     handleModalRekeningBank = (method) => {
@@ -556,20 +490,12 @@ class ContentPayment extends Component {
     }
 
     insertRekeningBaru = () => {
-        if (this.state.rekeningData) {
-            let query = `insert into gcm_listing_bank(company_id,id_bank,no_rekening,pemilik_rekening,status,create_by,create_date,update_by,update_date) values `
+        if (this.state.rekeningData) {          
+            const passQuery = this.props.insertRekening({
+                rekening_data: this.state.rekeningData,
+                company_id: this.state.company_id
+            }).catch(err => err)
 
-            this.state.rekeningData.map((data, i) => {
-                if (i < this.state.rekeningData.length - 1) {
-                    query += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.id_pengguna_login},now(),${this.state.id_pengguna_login},now()), `
-
-                    return
-                }
-                query += `(${this.state.company_id},'${data.rekeningBankIdBank}',${data.rekeningBank},'${data.rekeningBankNama}','A',${this.state.id_pengguna_login},now(),${this.state.id_pengguna_login},now()) returning * `
-                return
-            })
-
-            const passQuery = this.props.postQuery({ query: encrypt(query) }).catch(err => err)
             if (passQuery) {
                 swal({
                     title: "Sukses!",
@@ -589,11 +515,10 @@ class ContentPayment extends Component {
                     title: "Gagal!",
                     text: "Tidak ada perubahan disimpan!",
                     icon: "error",
-                    button: false,
-                    timer: "2500"
-                }).then(() => {
-                    // window.location.reload()
-                });
+                    buttons: {
+                        confirm: "Oke"
+                    }
+                })
             }
         }
     }
@@ -986,13 +911,17 @@ const reduxState = (state) => ({
 })
 
 const reduxDispatch = (dispatch) => ({
-    getDataPaymentAPI: (data) => dispatch(getDataPaymentAPI(data)),
+    getDataPaymentAdmin: (data) => dispatch(getDataPaymentAdmin(data)),
     getDataPaymentAdminAPI: (data) => dispatch(getDataPaymentAdminAPI(data)),
     getDataDetailedPaymentAPI: (data) => dispatch(getDataDetailedPaymentAPI(data)),
     insertPaymentListingSeller: (data) => dispatch(insertPaymentListingSeller(data)),
-    updateStatusPayment: (data) => dispatch(updateStatusPayment(data)),
+    updateStatusPaymentAdmin: (data) => dispatch(updateStatusPaymentAdmin(data)),
     getDataCheckedIdPayment: (data) => dispatch(getDataCheckedIdPayment(data)),
     postQuery: (data) => dispatch(postQuery(data)),
+    getPaymentList: (data) => dispatch(getPaymentList(data)),
+    getPaymentListing: (data) => dispatch(getPaymentListing(data)),
+    insertRekening: (data) => dispatch(insertRekening(data)),
+    deactivateRekeningBank: (data) => dispatch(deactivateRekeningBank(data)),
     logoutAPI: () => dispatch(logoutUserAPI())
 })
 

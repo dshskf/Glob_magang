@@ -132,20 +132,13 @@ class Login extends Component {
         if (username !== '' && password !== '') {
             // OK semua
             const passencrypt = encrypt(password);
-            let passquery = encrypt("select gcm_master_user.username, gcm_master_user.role," +
-                "gcm_master_user.id, gcm_master_company.id as company_id, gcm_master_company.kode_seller, " +
-                "gcm_master_company.id as company_id, gcm_master_company.nama_perusahaan, gcm_master_user.kode_sales," +
-                "gcm_master_company.tipe_bisnis, gcm_master_category.nama, gcm_master_user.sa_role, gcm_master_user.sa_divisi " +
-                "from gcm_master_company " +
-                "inner join gcm_master_user on gcm_master_company.id = gcm_master_user.company_id " +
-                "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
-                "where username='" + username + "' and password='" +
-                passencrypt + "' and gcm_master_company.type='S' and gcm_master_user.role='admin' and gcm_master_user.status='A' " +
-                "and gcm_master_company.seller_status='A'");
-            const res = await this.props.loginAPI({ query: passquery }).catch(err => err);
-
+            const res = await this.props.loginAPI({
+                username: username,
+                password: passencrypt,
+                status: 'admin'
+            }).catch(err => err);
+            
             if (res) {
-
                 this.setState({
                     username: '',
                     password: '',
@@ -169,22 +162,16 @@ class Login extends Component {
                             timer: "2500"
                         }).then(() => {
                             this.props.history.push('/admin/beranda')
-                            // window.location.reload()
                         });
                     }
                 } else {
-                    // OTP
-                    let passqueryusernonactive = encrypt("select gcm_master_user.username, gcm_master_user.role," +
-                        "gcm_master_user.id, gcm_master_company.id as company_id, gcm_master_company.kode_seller, " +
-                        "gcm_master_company.id as company_id, gcm_master_company.nama_perusahaan, gcm_master_user.kode_sales, " +
-                        "gcm_master_company.tipe_bisnis, gcm_master_category.nama, gcm_master_user.sa_role, gcm_master_user.sa_divisi " +
-                        "from gcm_master_company " +
-                        "inner join gcm_master_user on gcm_master_company.id = gcm_master_user.company_id " +
-                        "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
-                        "where username='" + username + "' and password='" +
-                        passencrypt + "' and gcm_master_company.type='S' and gcm_master_user.role='admin' and gcm_master_user.status='I' " +
-                        "and gcm_master_company.seller_status='A'");
-                    const resnonactive = await this.props.loginAPI({ query: passqueryusernonactive }).catch(err => err);
+                    // OTP                    
+                    const resnonactive = await this.props.loginAPI({
+                        username: username,
+                        password: passencrypt,
+                        status: 'otp'
+                    }).catch(err => err);
+
                     if (resnonactive) {
                         this.setState({
                             username: '',
@@ -199,16 +186,12 @@ class Login extends Component {
                             })
                         }
                         else {
-                            // superadmin
-                            let passquerysuperadmin = encrypt("select gcm_master_user.username, gcm_master_user.role," +
-                                "gcm_master_user.id, gcm_master_company.id as company_id," +
-                                "gcm_master_company.id as company_id, gcm_master_company.nama_perusahaan," +
-                                "gcm_master_company.tipe_bisnis, gcm_master_user.sa_role from " +
-                                "gcm_master_user " +
-                                "inner join gcm_master_company on gcm_master_user.company_id = gcm_master_company.id " +
-                                "where username='" + username + "' and password='" +
-                                passencrypt + "' and gcm_master_company.type='A' and gcm_master_user.role='superadmin' and gcm_master_user.status='A'");
-                            const res = await this.props.loginAPISuperAdmin({ query: passquerysuperadmin }).catch(err => err);
+                            // superadmin                            
+                            const res = await this.props.loginAPISuperAdmin({
+                                username: username,
+                                password: passencrypt,
+                                status: 'superadmin'
+                            }).catch(err => err);
 
                             if (res) {
                                 this.setState({
@@ -234,17 +217,11 @@ class Login extends Component {
                                 } else {
                                     // status akun = 'R'
                                     const passencrypt = encrypt(password);
-                                    let passquery = encrypt("select gcm_master_user.username, gcm_master_user.role," +
-                                        "gcm_master_user.id, gcm_master_company.id as company_id, gcm_master_company.kode_seller, " +
-                                        "gcm_master_company.id as company_id, gcm_master_company.nama_perusahaan, gcm_master_user.kode_sales, " +
-                                        "gcm_master_company.tipe_bisnis, gcm_master_category.nama, gcm_master_user.sa_role, gcm_master_user.sa_divisi " +
-                                        "from gcm_master_company " +
-                                        "inner join gcm_master_user on gcm_master_company.id = gcm_master_user.company_id " +
-                                        "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
-                                        "where username='" + username + "' and password='" +
-                                        passencrypt + "' and gcm_master_company.type='S' and gcm_master_user.role='admin' and gcm_master_user.status='R' " +
-                                        "and gcm_master_company.seller_status='A'");
-                                    const res = await this.props.loginAPI({ query: passquery }).catch(err => err);
+                                    const res = await this.props.loginAPI({
+                                        username: username,
+                                        password: passencrypt,
+                                        status: 'status-r'
+                                    }).catch(err => err);
                                     if (res) {
                                         this.setState({
                                             username: '',
@@ -266,17 +243,11 @@ class Login extends Component {
                                         } else {
                                             // seller_status = 'I'
                                             const passencrypt = encrypt(password);
-                                            let passquery = encrypt("select gcm_master_user.username, gcm_master_user.role," +
-                                                "gcm_master_user.id, gcm_master_company.id as company_id, gcm_master_company.kode_seller, " +
-                                                "gcm_master_company.id as company_id, gcm_master_company.nama_perusahaan, gcm_master_user.kode_sales, " +
-                                                "gcm_master_company.tipe_bisnis, gcm_master_category.nama, gcm_master_user.sa_role, gcm_master_user.sa_divisi " +
-                                                "from gcm_master_company " +
-                                                "inner join gcm_master_user on gcm_master_company.id = gcm_master_user.company_id " +
-                                                "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
-                                                "where username='" + username + "' and password='" +
-                                                passencrypt + "' and gcm_master_company.type='S' and gcm_master_user.role='admin' " +
-                                                "and (gcm_master_company.seller_status='I' or gcm_master_company.seller_status='R') ");
-                                            const res = await this.props.loginAPI({ query: passquery }).catch(err => err);
+                                            const res = await this.props.loginAPI({
+                                                username: username,
+                                                password: passencrypt,
+                                                status: 'status-i'
+                                            }).catch(err => err);
                                             if (res) {
                                                 this.setState({
                                                     username: '',

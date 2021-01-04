@@ -3,7 +3,7 @@ import { MDBDataTable } from 'mdbreact';
 import { withRouter, Link } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { encrypt } from '../../../config/lib';
-import { queryKalenderData } from '../../../config/redux/action';
+import { queryKalenderData, postKalenderData } from '../../../config/redux/action';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, Input, FormGroup, FormFeedback, Label } from 'reactstrap'
 import swal from 'sweetalert';
 import readXlsxFile from 'read-excel-file'
@@ -26,9 +26,7 @@ class ContentMasterKalenderLibur extends Component {
 
     loadKalenderLibur = async () => {
         let tempData = []
-
-        let passquery = encrypt("select * from gcm_kalender_libur order by tanggal")
-        const getData = await this.props.queryKalender({ query: passquery }).catch(err => err)
+        const getData = await this.props.queryKalender().catch(err => err)
 
         getData.map(data => {
 
@@ -99,16 +97,13 @@ class ContentMasterKalenderLibur extends Component {
 
     updateKalender = async () => {
         Toast.loading('Loading...');
-
         const { id, date, keterangan } = this.state.itemData
-
-        let passquery = encrypt(`
-            update gcm_kalender_libur set 
-            tanggal= '${date}', keterangan= '${keterangan}'
-            where id=${id} returning *;
-        `)
-
-        const getData = await this.props.queryKalender({ query: passquery }).catch(err => err)
+        const getData = await this.props.postKalenderData({
+            id: id,
+            date: date,
+            keterangan: keterangan,
+            action: 'U'
+        }).catch(err => err)
         Toast.hide();
 
         if (getData[0]) {
@@ -127,11 +122,10 @@ class ContentMasterKalenderLibur extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
@@ -139,12 +133,11 @@ class ContentMasterKalenderLibur extends Component {
         Toast.loading('Loading...');
         const { id } = this.state.itemData
 
-        let passquery = encrypt(`
-            delete from gcm_kalender_libur            
-            where id=${id} returning *;
-        `)
+        const getData = await this.props.postKalenderData({
+            id: id,
+            action: 'D'
+        }).catch(err => err)
 
-        const getData = await this.props.queryKalender({ query: passquery }).catch(err => err)
         Toast.hide();
 
         if (getData[0]) {
@@ -163,11 +156,10 @@ class ContentMasterKalenderLibur extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
@@ -190,23 +182,12 @@ class ContentMasterKalenderLibur extends Component {
 
     handleInsertForm = async () => {
         Toast.loading('Loading...');
-        let passquery = `insert into gcm_kalender_libur(tanggal,keterangan) values`
 
-        this.state.fileData.map((data, index) => {
-            if (index > 0) {
-                if (index === this.state.fileData.length - 1) {
-                    passquery += `('${data.date}','${data.keterangan}') returning * ;`
-                }
-                else {
-                    passquery += `('${data.date}','${data.keterangan}'),`
-                }
+        const insertData = await this.props.postKalenderData({
+            formData: this.state.fileData,
+            action: 'C'
+        }).catch(err => err)
 
-            }
-            return data
-
-        })
-
-        const insertData = await this.props.queryKalender({ query: encrypt(passquery) }).catch(err => err)
         Toast.hide();
         if (insertData[0]) {
             swal({
@@ -224,11 +205,10 @@ class ContentMasterKalenderLibur extends Component {
                 title: "Gagal!",
                 text: "Tidak ada perubahan disimpan!",
                 icon: "error",
-                button: false,
-                timer: "2500"
-            }).then(() => {
-                window.location.reload()
-            });
+                buttons: {
+                    confirm: "Oke"
+                }
+            })
         }
     }
 
@@ -431,7 +411,8 @@ const reduxState = (state) => ({
 })
 
 const reduxDispatch = (dispatch) => ({
-    queryKalender: (data) => dispatch(queryKalenderData(data))
+    queryKalender: (data) => dispatch(queryKalenderData(data)),
+    postKalenderData: (data) => dispatch(postKalenderData(data)),
 })
 
 export default withRouter(connect(reduxState, reduxDispatch)(ContentMasterKalenderLibur));

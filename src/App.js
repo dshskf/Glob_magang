@@ -46,16 +46,6 @@ function App() {
 
   useEffect(() => {
     navigator.serviceWorker.addEventListener("message", (message) => {      
-
-      // if(message.data["firebase-messaging-msg-data"]){
-      //   var msg_notif  = JSON.parse(message.data["firebase-messaging-msg-data"].data.notification)
-      // }
-      // else {
-      //   var msg_notif  = JSON.parse(message.data.data.notification)
-      // }
-
-      // NotificationManager.success(msg_notif.body, 'GLOB');
-
       let msg = message.data.firebaseMessaging ?
 
         JSON.parse(message.data.firebaseMessaging.payload.data.notification)

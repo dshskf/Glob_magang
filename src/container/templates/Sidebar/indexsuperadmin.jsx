@@ -51,9 +51,11 @@ class SidebarSuperAdmin extends Component {
 
     async componentDidMount() {
         const userData = JSON.parse(localStorage.getItem('userData'))
-        const query = encrypt(`select count(*) from gcm_notification_nego where seller_id=${decrypt(userData.id)}`)
+        const post = await this.props.getNumber({
+            seller_id: decrypt(userData.id),
+            superadmin: true
+        }).catch(err => err)
 
-        const post = await this.props.getNumber({ query: query }).catch(err => err)
         this.calculateScreenHeight()
         this.setState({
             totalNotification: post[0].count,
@@ -66,7 +68,8 @@ class SidebarSuperAdmin extends Component {
         // menu-height: 60px, sidebar-title: 30px              
         const items_per_page = (window.innerHeight - 90) / 50
         const pageIndex = this.state.pageConfig.filter((page, index) => {
-            if (this.props.page === page.route) {
+            const propsPage = this.props.page === 'profil' ? 'beranda' : this.props.page
+            if (propsPage === page.route) {
                 page.index = index
                 return page
             }
@@ -136,8 +139,8 @@ class SidebarSuperAdmin extends Component {
                                     {
 
                                         this.state.pageConfig.map((pageData, index) => {
-                                            const { route, title, icon } = pageData;
-                                            return (index > (this.state.pageNumber - 1) * this.state.itemPerPage && index < this.state.pageNumber * this.state.itemPerPage) && (
+                                            const { route, title, icon } = pageData;                                            
+                                            return (index >= (this.state.pageNumber - 1) * this.state.itemPerPage && index < this.state.pageNumber * this.state.itemPerPage) && (
                                                 page === route ?
                                                     (
                                                         <li>

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { encrypt, decrypt } from '../../../config/lib';
 import { MDBDataTable } from 'mdbreact';
-import { getDataKursAdminAPI, insertKursSeller, updateKursSeller, getKursActiveAPIManual, getDataCheckedKurs, getDataDetailedKursAPI, logoutUserAPI }
+import { getDataKursAdminAPI, insertKursSeller, updateKursSeller, getKursActiveAdmin, getDataCheckedKurs, getDataDetailedKursAPI, logoutUserAPI }
     from '../../../config/redux/action';
 import swal from 'sweetalert';
 import { Modal, ModalHeader, ModalBody, ModalFooter, Button, FormGroup, FormFeedback } from 'reactstrap'
@@ -94,28 +94,7 @@ class ContentKurs extends Component {
     }
 
     loadDataKurs = async () => {
-        // let passquerydatakurs = encrypt("select gcm_listing_kurs.nominal, "+
-        //     "to_char(gcm_listing_kurs.create_date, 'DD/MM/YYYY HH24:MI:SS') create_date, "+
-        //     "to_char(gcm_listing_kurs.update_date, 'DD/MM/YYYY HH24:MI:SS') update_date, "+
-        //     "to_char(gcm_listing_kurs.tgl_start, 'DD/MM/YYYY HH24:MI:SS') tgl_start, "+
-        //     "to_char(gcm_listing_kurs.tgl_end, 'DD/MM/YYYY HH24:MI:SS') tgl_end "+
-        //         "from gcm_listing_kurs "+
-        //     "where company_id="+this.state.company_id+" and gcm_listing_kurs.tgl_end is not null "+
-        //     "order by gcm_listing_kurs.tgl_start desc")
-        let passquerydatakurs = encrypt("select gcm_listing_kurs.id, gcm_listing_kurs.nominal, " +
-            "to_char(gcm_listing_kurs.create_date, 'DD/MM/YYYY HH24:MI') create_date, " +
-            "to_char(gcm_listing_kurs.update_date, 'DD/MM/YYYY HH24:MI') update_date, " +
-            "to_char(gcm_listing_kurs.tgl_start, 'DD/MM/YYYY HH24:MI') tgl_start, " +
-            "to_char(gcm_listing_kurs.tgl_end, 'DD/MM/YYYY HH24:MI') tgl_end, " +
-            "case " +
-            "when now() >= gcm_listing_kurs.tgl_start and now() <= gcm_listing_kurs.tgl_end then 'true' " +
-            "when now() > gcm_listing_kurs.tgl_start and now() > gcm_listing_kurs.tgl_end then 'false' " +
-            "when now() < gcm_listing_kurs.tgl_start and now() < gcm_listing_kurs.tgl_end then 'notyet' " +
-            "end  as status " +
-            "from gcm_listing_kurs " +
-            "where company_id=" + this.state.company_id +
-            " order by status desc")
-        const reslistingkurs = await this.props.getDataKursAdminAPI({ query: passquerydatakurs }).catch(err => err)
+        const reslistingkurs = await this.props.getDataKursAdminAPI({ company_id: this.state.company_id }).catch(err => err)
         if (reslistingkurs) {
             reslistingkurs.map((user, index) => {
                 return (
@@ -168,32 +147,12 @@ class ContentKurs extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     loadActiveKurs = async () => {
-        // let passquerykursnow = encrypt("select gcm_listing_kurs.nominal, "+
-        //     "to_char(gcm_listing_kurs.create_date, 'DD/MM/YYYY HH24:MI:SS') create_date, "+
-        //     "to_char(gcm_listing_kurs.update_date, 'DD/MM/YYYY HH24:MI:SS') update_date, "+
-        //     "to_char(gcm_listing_kurs.tgl_start, 'DD/MM/YYYY HH24:MI:SS') tgl_start, "+
-        //     "to_char(gcm_listing_kurs.tgl_end, 'DD/MM/YYYY HH24:MI:SS') tgl_end "+
-        //         "from gcm_listing_kurs "+
-        //     "where company_id="+this.state.company_id+" and (now() between gcm_listing_kurs.tgl_start and gcm_listing_kurs.tgl_end);")
-        let passquerykursnow = encrypt("select gcm_listing_kurs.nominal, " +
-            "to_char(gcm_listing_kurs.create_date, 'DD/MM/YYYY HH24:MI:SS') create_date, " +
-            "to_char(gcm_listing_kurs.update_date, 'DD/MM/YYYY HH24:MI:SS') update_date, " +
-            "to_char(gcm_listing_kurs.tgl_start, 'DD/MM/YYYY HH24:MI:SS') tgl_start, " +
-            "to_char(gcm_listing_kurs.tgl_end, 'DD/MM/YYYY HH24:MI:SS') tgl_end " +
-            "from gcm_listing_kurs " +
-            "where company_id=" + this.state.company_id + " and (now() >= gcm_listing_kurs.tgl_start and now() <= gcm_listing_kurs.tgl_end);")
-        const reskursnow = await this.props.getKursActiveAPIManual({ query: passquerykursnow }).catch(err => err)
+        const reskursnow = await this.props.getKursActiveAdmin({ company_id: this.state.company_id }).catch(err => err)
         if (reskursnow) {
             this.setState({
                 kurs_now_manual: reskursnow.nominal,
@@ -210,28 +169,14 @@ class ContentKurs extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     handleDetailKurs = async (e, id) => {
         this.handleModalDetailKurs()
         e.stopPropagation()
-        let passquerydetailkurs = encrypt("select gcm_listing_kurs.id, gcm_listing_kurs.nominal, " +
-            "to_char(gcm_listing_kurs.tgl_start, 'DD/MM/YYYY HH24:MI') tgl_start, " +
-            "to_char(gcm_listing_kurs.tgl_end, 'DD/MM/YYYY HH24:MI') tgl_end, " +
-            "to_char(gcm_listing_kurs.tgl_start, 'YYYY-MM-DD HH24:MI') tgl_start_edited, " +
-            "to_char(gcm_listing_kurs.tgl_end, 'YYYY-MM-DD HH24:MI') tgl_end_edited, " +
-            "gcm_listing_kurs.tgl_start as pure_tgl_start, " +
-            "gcm_listing_kurs.tgl_end as pure_tgl_end " +
-            "from gcm_listing_kurs where gcm_listing_kurs.id=" + id)
-        const resdetailkurs = await this.props.getDataDetailedKursAPI({ query: passquerydetailkurs }).catch(err => err)
+        const resdetailkurs = await this.props.getDataDetailedKursAPI({ id: id }).catch(err => err)
         if (resdetailkurs) {
             await this.setState({
                 id_kurs_selected: resdetailkurs.id,
@@ -260,28 +205,14 @@ class ContentKurs extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     handleDetailKursNotYet = async (e, id) => {
         this.handleModalDetailKursNotYet()
         e.stopPropagation()
-        let passquerydetailkurs = encrypt("select gcm_listing_kurs.id, gcm_listing_kurs.nominal, " +
-            "to_char(gcm_listing_kurs.tgl_start, 'DD/MM/YYYY HH24:MI') tgl_start, " +
-            "to_char(gcm_listing_kurs.tgl_end, 'DD/MM/YYYY HH24:MI') tgl_end, " +
-            "to_char(gcm_listing_kurs.tgl_start, 'YYYY-MM-DD HH24:MI') tgl_start_edited, " +
-            "to_char(gcm_listing_kurs.tgl_end, 'YYYY-MM-DD HH24:MI') tgl_end_edited, " +
-            "gcm_listing_kurs.tgl_start as pure_tgl_start, " +
-            "gcm_listing_kurs.tgl_end as pure_tgl_end " +
-            "from gcm_listing_kurs where gcm_listing_kurs.id=" + id)
-        const resdetailkurs = await this.props.getDataDetailedKursAPI({ query: passquerydetailkurs }).catch(err => err)
+        const resdetailkurs = await this.props.getDataDetailedKursAPI({ id: id }).catch(err => err)
         if (resdetailkurs) {
             await this.setState({
                 id_kurs_selected: resdetailkurs.id,
@@ -310,13 +241,7 @@ class ContentKurs extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -477,10 +402,13 @@ class ContentKurs extends Component {
     }
 
     checkingkursawal = async (passdateawal, passdateberakhir) => {
-        let passquerycheckingkursawal = encrypt("select count(id) as total from gcm_listing_kurs where company_id=" + this.state.company_id +
-            " and (('" + passdateawal + "' >= tgl_start and '" + passdateawal + "' <= tgl_end) " +
-            "and ('" + passdateberakhir + "' >= tgl_start and '" + passdateberakhir + "' <= tgl_end))")
-        const residcheckedawal = await this.props.getDataCheckedKurs({ query: passquerycheckingkursawal }).catch(err => err)
+        const residcheckedawal = await this.props.getDataCheckedKurs({
+            company_id: this.state.company_id,
+            date_awal: passdateawal,
+            date_akhir: passdateberakhir,
+            type: 'checkingkursawal'
+        }).catch(err => err)
+
         if (residcheckedawal) {
             await this.setState({
                 allCheckedKursAwal: Number(residcheckedawal.total)
@@ -493,21 +421,18 @@ class ContentKurs extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
     checkingdatakurs = async (passdateawal, passdateberakhir) => {
-        let passquerycheckingkurspertama = encrypt("select count(id) as total from gcm_listing_kurs where company_id=" + this.state.company_id +
-            " and (('" + passdateberakhir + "' > tgl_start and tgl_start > now() and '" + passdateberakhir + "' < tgl_end) " +
-            "or ('" + passdateawal + "' < tgl_end and tgl_end < now()))")
-        const residcheckedpertama = await this.props.getDataCheckedKurs({ query: passquerycheckingkurspertama }).catch(err => err)
+        const residcheckedpertama = await this.props.getDataCheckedKurs({
+            company_id: this.state.company_id,
+            date_awal: passdateawal,
+            date_akhir: passdateberakhir,
+            type: 'checkingdatakurs'
+        }).catch(err => err)
+
         if (residcheckedpertama) {
             await this.setState({
                 allCheckedKursPertama: Number(residcheckedpertama.total)
@@ -520,20 +445,17 @@ class ContentKurs extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
         if (Number(this.state.allCheckedKursPertama) > 0) {
 
         } else {
-            let passquerycheckingkurskedua = encrypt("select count(id) as total from gcm_listing_kurs where company_id=" + this.state.company_id +
-                " and tgl_end = '" + passdateawal + "' or tgl_start = '" + passdateberakhir + "'")
-            const residcheckedkedua = await this.props.getDataCheckedKurs({ query: passquerycheckingkurskedua }).catch(err => err)
+            const residcheckedkedua = await this.props.getDataCheckedKurs({
+                company_id: this.state.company_id,
+                date_awal: passdateawal,
+                date_akhir: passdateberakhir,
+                type: 'checkingkurskedua'
+            }).catch(err => err)
             if (residcheckedkedua) {
                 await this.setState({
                     allCheckedKursKedua: Number(residcheckedkedua.total)
@@ -546,25 +468,27 @@ class ContentKurs extends Component {
                     buttons: {
                         confirm: "Oke"
                     }
-                }).then(() => {
-                    // const res = this.props.logoutAPI();
-                    // if (res) {
-                    //     this.props.history.push('/admin')
-                    //     window.location.reload()
-                    // }
-                });
+                })
             }
             let passquerycheckingkursketiga = ""
+            let residcheckedketiga
             if (Number(this.state.allCheckedKursKedua) > 0) {
-                passquerycheckingkursketiga = encrypt("select count(id) as total from gcm_listing_kurs where company_id=" + this.state.company_id +
-                    " and ((tgl_start >= '" + passdateawal + "' and tgl_start <= '" + passdateberakhir + "')" +
-                    " and (tgl_end >= '" + passdateawal + "' and tgl_end <= '" + passdateberakhir + "'))")
+                residcheckedketiga = await this.props.getDataCheckedKurs({
+                    company_id: this.state.company_id,
+                    date_awal: passdateawal,
+                    date_akhir: passdateberakhir,
+                    type: 'checkingkursketiga_1'
+                }).catch(err => err)
             } else {
-                passquerycheckingkursketiga = encrypt("select count(id) as total from gcm_listing_kurs where company_id=" + this.state.company_id +
-                    " and ((tgl_start >= '" + passdateawal + "' and tgl_start <= '" + passdateberakhir + "')" +
-                    " or (tgl_end >= '" + passdateawal + "' and tgl_end <= '" + passdateberakhir + "'))")
+                residcheckedketiga = await this.props.getDataCheckedKurs({
+                    company_id: this.state.company_id,
+                    date_awal: passdateawal,
+                    date_akhir: passdateberakhir,
+                    type: 'checkingkursketiga_2'
+                }).catch(err => err)
             }
-            const residcheckedketiga = await this.props.getDataCheckedKurs({ query: passquerycheckingkursketiga }).catch(err => err)
+
+
             if (residcheckedketiga) {
                 await this.setState({
                     allCheckedKursKetiga: Number(residcheckedketiga.total)
@@ -577,22 +501,18 @@ class ContentKurs extends Component {
                     buttons: {
                         confirm: "Oke"
                     }
-                }).then(() => {
-                    // const res = this.props.logoutAPI();
-                    // if (res) {
-                    //     this.props.history.push('/admin')
-                    //     window.location.reload()
-                    // }
-                });
+                })
             }
         }
     }
 
     checkingdatakursupdated = async (passdateawal, passdateberakhir) => {
-        let passquerycheckingkurs = encrypt("select count(id) as total from gcm_listing_kurs where company_id=" + this.state.company_id + " and " +
-            "(('" + passdateawal + "' between gcm_listing_kurs.tgl_start and gcm_listing_kurs.tgl_end) or " +
-            "('" + passdateberakhir + "' between gcm_listing_kurs.tgl_start and gcm_listing_kurs.tgl_end));")
-        const residchecked = await this.props.getDataCheckedKurs({ query: passquerycheckingkurs }).catch(err => err)
+        const residchecked = await this.props.getDataCheckedKurs({
+            company_id: this.state.company_id,
+            date_awal: passdateawal,
+            date_akhir: passdateberakhir,
+            type: 'checkingdatakursupdated'
+        }).catch(err => err)
         if (residchecked) {
             await this.setState({
                 allCheckedKursUpdated: Number(residchecked.total)
@@ -605,13 +525,7 @@ class ContentKurs extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -634,13 +548,13 @@ class ContentKurs extends Component {
         Toast.loading('Loading...');
         let passdateawal = moment(this.state.dateMulaiBerlaku).format("YYYY-MM-DD HH:mm:ss")
         let passdateberakhir = moment(this.state.dateBerakhir).format("YYYY-MM-DD HH:mm:ss")
-        let passqueryinsertkurs = encrypt("insert into gcm_listing_kurs(nominal, company_id, create_date, update_date, create_by, update_by, tgl_start, tgl_end)" +
-            "values ('" + this.state.insert_nilai_kurs.split('.').join('').split(',').join('.') + "', " +
-            "'" + this.state.company_id + "', now(), now(), '" + this.state.id_pengguna_login + "', '" + this.state.id_pengguna_login + "', " +
-            "'" + passdateawal + "', '" + passdateberakhir + "') returning nominal")
 
-
-        const resinsertkurs = await this.props.insertKursSeller({ query: passqueryinsertkurs }).catch(err => err)
+        const resinsertkurs = await this.props.insertKursSeller({
+            nominal: this.state.insert_nilai_kurs.split('.').join('').split(',').join('.'),
+            company_id: this.state.company_id,
+            tgl_start: passdateawal,
+            tgl_end: passdateberakhir
+        }).catch(err => err)
 
         Toast.hide();
         if (resinsertkurs) {
@@ -664,44 +578,52 @@ class ContentKurs extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
 
     confirmActionUpdateKurs = async () => {
-        let passqueryupdatekurs = ""
+        Toast.loading('Loading...');
+        let resupdatekurs
         if (this.state.pembandingDateBerakhirSelected !== this.state.dateBerakhirSelectedOngoing) {
             let passdateberakhir = moment(this.state.dateBerakhirSelectedOngoing).format("YYYY-MM-DD HH:mm:ss")
-            passqueryupdatekurs = encrypt("update gcm_listing_kurs set nominal='" + this.state.nilai_kurs_selected.toString().split('.').join('').split(',').join('.') +
-                "', company_id='" + this.state.company_id + "', update_date=now(), update_by='" + this.state.id_pengguna_login + "', " +
-                "tgl_end='" + passdateberakhir + "' where gcm_listing_kurs.id=" + this.state.id_kurs_selected + " returning nominal;")
+            resupdatekurs = await this.props.updateKursSeller({
+                nominal: this.state.nilai_kurs_selected.toString().split('.').join('').split(',').join('.'),
+                company_id: this.state.company_id,
+                tgl_end: passdateberakhir,
+                kurs_id: this.state.id_kurs_selected
+            }).catch(err => err)           
         } else if (this.state.dateMulaiBerlakuSelectedForFlag === this.state.pembandingDateMulaiBerlakuSelected &&
             this.state.dateBerakhirSelectedForFlag === this.state.pembandingDateBerakhirSelected) {
-            passqueryupdatekurs = encrypt("update gcm_listing_kurs set nominal='" + this.state.nilai_kurs_selected.toString().split('.').join('').split(',').join('.') +
-                "', company_id='" + this.state.company_id + "', update_date=now(), update_by='" + this.state.id_pengguna_login + "', tgl_start='" +
-                this.state.lemparDateMulaiBerlakuSelected + "', tgl_end='" + this.state.lemparDateBerakhirSelected + "' where gcm_listing_kurs.id=" + this.state.id_kurs_selected + " returning nominal;")
+            resupdatekurs = await this.props.updateKursSeller({
+                nominal: this.state.nilai_kurs_selected.toString().split('.').join('').split(',').join('.'),
+                company_id: this.state.company_id,
+                tgl_start: this.state.lemparDateMulaiBerlakuSelected,
+                tgl_end: this.state.lemparDateBerakhirSelected,
+                kurs_id: this.state.id_kurs_selected
+            }).catch(err => err)
         } else if (this.state.dateMulaiBerlakuSelectedForFlag === this.state.pembandingDateMulaiBerlakuSelected) {
             let passdateberakhir = moment(this.state.dateBerakhirSelectedForFlag).format("YYYY-MM-DD HH:mm:ss")
-            passqueryupdatekurs = encrypt("update gcm_listing_kurs set nominal='" + this.state.nilai_kurs_selected.toString().split('.').join('').split(',').join('.') +
-                "', company_id='" + this.state.company_id + "', update_date=now(), update_by='" + this.state.id_pengguna_login + "', tgl_start='" +
-                this.state.lemparDateMulaiBerlakuSelected + "', tgl_end='" + passdateberakhir + "' where gcm_listing_kurs.id=" + this.state.id_kurs_selected + " returning nominal;")
+            resupdatekurs = await this.props.updateKursSeller({
+                nominal: this.state.nilai_kurs_selected.toString().split('.').join('').split(',').join('.'),
+                company_id: this.state.company_id,
+                tgl_start: this.state.lemparDateMulaiBerlakuSelected,
+                tgl_end: passdateberakhir,
+                kurs_id: this.state.id_kurs_selected
+            }).catch(err => err)            
         } else {
             let passdateawal = moment(this.state.dateMulaiBerlakuSelectedForFlag).format("YYYY-MM-DD HH:mm:ss")
             let passdateberakhir = moment(this.state.dateBerakhirSelectedForFlag).format("YYYY-MM-DD HH:mm:ss")
-            passqueryupdatekurs = encrypt("update gcm_listing_kurs set nominal='" + this.state.nilai_kurs_selected.toString().split('.').join('').split(',').join('.') +
-                "', company_id='" + this.state.company_id + "', update_date=now(), update_by='" + this.state.id_pengguna_login + "', tgl_start='" +
-                passdateawal + "', tgl_end='" + passdateberakhir + "' where gcm_listing_kurs.id=" + this.state.id_kurs_selected + " returning nominal;")
-        }
-
-        Toast.loading('Loading...');
-        const resupdatekurs = await this.props.updateKursSeller({ query: passqueryupdatekurs }).catch(err => err)
+            resupdatekurs = await this.props.updateKursSeller({
+                nominal: this.state.nilai_kurs_selected.toString().split('.').join('').split(',').join('.'),
+                company_id: this.state.company_id,
+                tgl_start: passdateawal,
+                tgl_end: passdateberakhir,
+                kurs_id: this.state.id_kurs_selected
+            }).catch(err => err)            
+        }        
+        
         Toast.hide()
 
         if (resupdatekurs) {
@@ -729,13 +651,7 @@ class ContentKurs extends Component {
                 buttons: {
                     confirm: "Oke"
                 }
-            }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
-            });
+            })
         }
     }
 
@@ -1253,7 +1169,7 @@ const reduxState = (state) => ({
 
 const reduxDispatch = (dispatch) => ({
     getDataKursAdminAPI: (data) => dispatch(getDataKursAdminAPI(data)),
-    getKursActiveAPIManual: (data) => dispatch(getKursActiveAPIManual(data)),
+    getKursActiveAdmin: (data) => dispatch(getKursActiveAdmin(data)),
     getDataCheckedKurs: (data) => dispatch(getDataCheckedKurs(data)),
     getDataDetailedKursAPI: (data) => dispatch(getDataDetailedKursAPI(data)),
     insertKursSeller: (data) => dispatch(insertKursSeller(data)),

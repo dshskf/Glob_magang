@@ -23,30 +23,25 @@ class Sidebar extends Component {
     }
     async componentDidMount() {
         const userData = JSON.parse(localStorage.getItem('userData'))
-        let query
+        let user_id = parseInt(decrypt(userData.id))
+        let company_id = parseInt(decrypt(userData.company_id))
+        let dataToSubmit
 
         if (userData.sa_role === 'sales') {
-            query = encrypt("select count(*) " +
-                "from gcm_master_cart " +
-                "inner join gcm_history_nego on gcm_master_cart.history_nego_id = gcm_history_nego.id " +
-                "inner join gcm_master_company on gcm_master_cart.company_id = gcm_master_company.id " +
-                "inner join gcm_company_listing_sales on gcm_master_cart.company_id = gcm_company_listing_sales.buyer_id " +
-                "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
-                "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-                "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id) +
-                " and gcm_company_listing_sales.id_sales=" + decrypt(userData.id))
+            dataToSubmit = {
+                company_id: company_id,
+                id_sales: user_id,
+                isSales: true
+            }
         } else {
-            query = encrypt("select count(*) " +
-                "from gcm_master_cart " +
-                "inner join gcm_history_nego on gcm_master_cart.history_nego_id = gcm_history_nego.id " +
-                "inner join gcm_master_company on gcm_master_cart.company_id = gcm_master_company.id " +
-                "inner join gcm_list_barang on gcm_master_cart.barang_id = gcm_list_barang.id " +
-                "inner join gcm_master_barang on gcm_list_barang.barang_id = gcm_master_barang.id " +
-                "where gcm_master_cart.status='A' and gcm_master_cart.nego_count > 0 and gcm_history_nego.harga_final = 0 and gcm_list_barang.company_id=" + decrypt(userData.company_id))
+            dataToSubmit = {
+                company_id: company_id,
+                isSales: false
+            }
         }
 
         if (!this.props.sidebarStatus) {
-            const post = await this.props.getNumber({ query: query }).catch(err => err)
+            const post = await this.props.getNumber({ ...dataToSubmit }).catch(err => err)
             this.setState({ totalNotification: post[0].count })
             this.props.checkRenderedSidebar(post[0].count)
         }
@@ -58,7 +53,7 @@ class Sidebar extends Component {
             })
             .then(async token => token)
 
-        let user_id = parseInt(decrypt(userData.id))
+        
         firebaseApp.database().ref().orderByChild('user_id_seller').equalTo(user_id).on("value", async snapshot => {
             if (!snapshot.val()) {
                 return
@@ -94,7 +89,7 @@ class Sidebar extends Component {
         }
 
         navigator.serviceWorker.addEventListener("message", async (message) => {
-            const post = await this.props.getNumber({ query: query }).catch(err => err)
+            const post = await this.props.getNumber({ ...dataToSubmit }).catch(err => err)
             this.setState({ totalNotification: post[0].count })
             this.props.checkRenderedSidebar(post[0].count)
         })

@@ -133,9 +133,10 @@ class ContentTransaksi extends Component {
         alltypecancelreason: [],
         isBtnCancelReason: true,
         // startDate: moment().subtract(29, 'days'),       // sebulan lalu
-        startDate: moment().startOf('month'),
+        startDate: moment().subtract(3, 'year'),
         endDate: moment(),                              // now
         ranges: {
+            'All': [moment().subtract(3, 'year'), moment()],
             'Today': [moment(), moment()],
             'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
             'Last 7 Days': [moment().subtract(6, 'days'), moment()],
@@ -187,6 +188,7 @@ class ContentTransaksi extends Component {
             id_sales_registered: decrypt(userData.id_sales_registered),
             id_company_registered: decrypt(userData.id_company_registered)
         })
+
     }
 
     async componentDidMount() {
@@ -2349,7 +2351,7 @@ class ContentTransaksi extends Component {
                                         </div>
                                     </Button>
                                 </DatetimeRangePicker>
-                                <div className="row" style={{ paddingTop: '2%' }}>
+                                <div className="row" style={{ paddingTop: '2%', paddingLeft: '5%'}}>
                                     {
                                         (this.state.sa_role === 'admin') ?
                                             <ButtonDropdown direction="left" isOpen={this.state.isOpenLimitHariTransaksi} toggle={this.handleLimitHariTransaksi}>
