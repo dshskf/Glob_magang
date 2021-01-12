@@ -252,6 +252,46 @@ export const getDataUsersAPI = (data) => (dispatch) => {
     })
 }
 
+export const SA_getDataUsersAPI = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'SA_getDataUsersAPI')
+            .then(res => {
+                let status = res.data.status;
+                let dt = [];
+                if (status === "success") {
+                    dt = res.data.values;
+                    dt.map((user, index) => {
+                        return (
+                            dt[index].create_date = user.create_date,
+                            dt[index].filterby = user.company_status,
+                            dt[index].pure_status = user.company_status,
+                            dt[index].status =
+                            <center>
+                                <div className={getBadge(user.company_status)}>{user.company_status === 'A' ? 'Aktif'
+                                    : user.company_status === 'R' ? 'Nonaktif' : 'Belum Aktif'}</div>
+                            </center>
+                        )
+                    })
+                } else {
+                    console.log("error query")
+                }
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+                resolve(dt)
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
+
 export const getDataDetailedUserAPI = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
@@ -312,13 +352,13 @@ export const getDataDetailedUserAPI = (data) => (dispatch) => {
 export const getDataDetailedUserSuperAdminAPI = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
-        API.postQuery(data)
+        API.postAdmin(data, 'getDataDetailedUserSuperAdminAPI')
             .then(res => {
                 let status = res.data.status;
                 let dt = [];
                 let dataDetailed = Object.create(null);
                 if (status === "success") {
-                    dt = res.data.data;
+                    dt = res.data.values;
                     dt.map((user, index) => {
                         return (
                             dataDetailed = {
@@ -410,13 +450,13 @@ export const getDataDetailedMappingAPI = (data) => (dispatch) => {
 export const getDataDetailedMappingSuperAdminAPI = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
-        API.postQuery(data)
+        API.postAdmin(data, 'getDataDetailedMappingSuperAdminAPI')
             .then(res => {
                 let status = res.data.status;
                 let dt = [];
                 let dataDetailed = Object.create(null);
                 if (status === "success") {
-                    dt = res.data.data;
+                    dt = res.data.values;
                     dt.map((user, index) => {
                         return (
                             dataDetailed = {
@@ -487,7 +527,7 @@ export const getDataDetailedSalesHandlerAPI = (data) => (dispatch) => {
 export const getDataDetailedKodeCustomerAPI = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
-        API.postQuery(data)
+        API.postAdmin(data, 'getDataDetailedKodeCustomerAPI')
             .then(res => {
                 let status = res.data.status;
                 let dt = [];
@@ -522,13 +562,13 @@ export const getDataDetailedKodeCustomerAPI = (data) => (dispatch) => {
 export const getDataDetailedKodeSellerAPI = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
-        API.postQuery(data)
+        API.postAdmin(data, 'getDataDetailedKodeSellerAPI')
             .then(res => {
                 let status = res.data.status;
                 let dt = [];
                 let dataDetailed = Object.create(null);
                 if (status === "success") {
-                    dt = res.data.data;
+                    dt = res.data.values;
                     dt.map((user, index) => {
                         return (
                             dataDetailed = {
@@ -771,6 +811,33 @@ export const getDataPaymentListingAPI = (data) => (dispatch) => {
     })
 }
 
+export const SA_getDataPaymentListingAPI = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'SA_getDataPaymentListingAPI')
+            .then(res => {
+                let status = res.data.status;
+                let dt = [];
+                if (status === "success") {
+                    dt = res.data.values;
+                } else {
+                    // console.log("error query")
+                }
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+                resolve(dt)
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
 export const getDataDetailedPaymentAPI = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
@@ -891,6 +958,29 @@ export const updateStatusPayment = (data) => (dispatch) => {
             })
     })
 }
+
+export const updateStatusPaymentPengguna = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'updateStatusPaymentPengguna')
+            .then(res => {
+                let status = res.data.status;
+                if (status === "success")
+                    resolve(true)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
 
 export const updateStatusPaymentAdmin = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
@@ -1061,14 +1151,102 @@ export const updateOngkir = (data) => (dispatch) => {
     })
 }
 
+export const SA_updateUserStatus = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'SA_updateUserStatus')
+            .then(res => {
+                let status = res.data.status;
+                if (status === "success")
+                    resolve(true)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
+export const SA_updateUserStatusMapping = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'SA_updateUserStatusMapping')
+            .then(res => {
+                let status = res.data.status;
+                if (status === "success")
+                    resolve(true)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
+
 export const updateUserStatus = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
         API.postAdmin(data, 'updateUserStatus')
             .then(res => {
                 let status = res.data.status;
-                // console.log("in here with Status :"+status)
-                // console.log(res.data)
+                if (status === "success")
+                    resolve(true)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
+
+export const updateUserStatusMapping = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'updateUserStatusMapping')
+            .then(res => {
+                let status = res.data.status;
+                if (status === "success")
+                    resolve(true)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
+export const updateStatusPengguna = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'updateStatusPengguna')
+            .then(res => {
+                let status = res.data.status;
                 if (status === "success")
                     resolve(true)
                 dispatch({ type: "CHANGE_LOADING", value: false })
@@ -1964,6 +2142,33 @@ export const getDataPaymentAPI = (data) => (dispatch) => {
     })
 }
 
+export const getDataPaymentPengguna = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'getDataPaymentPengguna')
+            .then(res => {
+                let status = res.data.status;
+                let dt = [];
+                if (status === "success") {
+                    dt = res.data.values;
+                } else {
+                    console.log("error query")
+                }
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+                resolve(dt)
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
 export const getDataPaymentAdmin = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
@@ -2259,13 +2464,13 @@ export const getKursAPIManual = (data) => (dispatch) => {
 export const getstragg = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
-        API.postQuery(data)
+        API.postAdmin(data, 'getstragg')
             .then(res => {
                 let status = res.data.status;
                 let dt = [];
                 let dataDetailed = Object.create(null);
                 if (status === "success") {
-                    dt = res.data.data;
+                    dt = res.data.values;
                     dt.map((user, index) => {
                         return (
                             dataDetailed = {
@@ -3711,6 +3916,33 @@ export const getDataKodeCustAPI = (data) => (dispatch) => {
     })
 }
 
+export const getCheckingKodeSeller = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'getCheckingKodeSeller')
+            .then(res => {
+                let status = res.data.status;
+                let dt = [];
+                if (status === "success") {
+                    dt = res.data.values;
+                } else {
+                    // console.log("error query")
+                }
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+                resolve(dt)
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
 export const getDataCheckedNomorHp = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
@@ -3913,6 +4145,41 @@ export const getDataCheckedKodeCust = (data) => (dispatch) => {
     })
 }
 
+export const getDataCheckedKodeSeller = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'getDataCheckedKodeSeller')
+            .then(res => {
+                let status = res.data.status;
+                let dt = [];
+                let dataReturned = Object.create(null);
+                if (status === "success") {
+                    dt = res.data.values;
+                    dt.map((user, index) => {
+                        return (
+                            dataReturned = {
+                                total: dt[index].total
+                            }
+                        )
+                    })
+                } else {
+                    console.log("error query")
+                }
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+                resolve(dataReturned)
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
 export const getDataCheckedKodeAlamatMapping = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
@@ -4081,6 +4348,30 @@ export const updateMasterUser = (data) => (dispatch) => {
             })
     })
 }
+
+export const updateMasterUserProfile = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'updateMasterUserProfile')
+            .then(res => {
+                let status = res.data.status;
+                if (status === "success")
+                    resolve(true)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
+
 
 export const updateMasterCompany = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
@@ -4603,6 +4894,28 @@ export const insertPaymentListingSeller = (data) => (dispatch) => {
     })
 }
 
+export const insertPaymentListingPengguna = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'insertPaymentListingPengguna')
+            .then(res => {
+                let status = res.data.status;
+                if (status === "success")
+                    resolve(true)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
 export const getDataCheckedIdPayment = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
@@ -4862,13 +5175,13 @@ export const checkFieldInsertAkun = (data) => (dispatch) => {
 export const checkFieldUpdateCompany = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
-        API.postQuery(data)
+        API.postAdmin(data, 'checkFieldUpdateCompany')
             .then(res => {
                 let status = res.data.status;
                 let dt = [];
                 let dataDetailed = Object.create(null);
                 if (status === "success") {
-                    dt = res.data.data;
+                    dt = res.data.values;
                     dt.map((user, index) => {
                         return (
                             dataDetailed = {
@@ -5322,6 +5635,28 @@ export const postHargaBarangExcel = (data) => (dispatch) => {
     return new Promise((resolve, reject) => {
         dispatch({ type: "CHANGE_LOADING", value: true })
         API.postAdmin(data, 'postHargaBarangExcel')
+            .then(res => {
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: true })
+                resolve(res.data.values)
+            })
+            .catch(function (error) {
+                var errorCode = error.code;
+                var errorMessage = error.message;
+                console.log(errorCode, errorMessage)
+                dispatch({ type: "CHANGE_LOADING", value: false })
+                dispatch({ type: "CHANGE_IS_LOGIN", value: false })
+                reject(false)
+            })
+    })
+}
+
+
+
+export const postLogoutAction = (data) => (dispatch) => {
+    return new Promise((resolve, reject) => {
+        dispatch({ type: "CHANGE_LOADING", value: true })
+        API.postAdmin(data, 'postLogoutAction')
             .then(res => {
                 dispatch({ type: "CHANGE_LOADING", value: false })
                 dispatch({ type: "CHANGE_IS_LOGIN", value: true })

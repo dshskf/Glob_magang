@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { Link } from 'react-router-dom';
-import { logoutUserAPI, navigationHandler, postQuery } from '../../../config/redux/action';
+import { logoutUserAPI, navigationHandler, postQuery, postLogoutAction } from '../../../config/redux/action';
 import { encrypt, decrypt } from '../../../config/lib';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom'
@@ -45,12 +45,11 @@ class Header extends Component {
     handleLogout = async () => {
         if (localStorage.getItem('user_token') !== null) {
             var userToken = JSON.parse(localStorage.getItem('user_token'))
-            const passquery = encrypt(`
-                delete from gcm_notification_token
-                where user_id=${this.state.user_id} and company_id=${this.state.company_id} and token='${userToken}'
-                returning *;
-            `)
-            const post = await this.props.postData({ query: passquery }).catch(err => err)
+            const post = await this.props.postLogoutAction({
+                user_id: this.state.user_id,
+                company_id: this.state.company_id,
+                token: userToken
+            }).catch(err => err)
             if (post) {
                 this.Logout()
             }
@@ -174,7 +173,7 @@ const reduxState = (state) => ({
 const reduxDispatch = (dispatch) => ({
     logoutAPI: () => dispatch(logoutUserAPI()),
     clickChanger: (data) => dispatch(navigationHandler(data)),
-    postData: (data) => dispatch(postQuery(data))
+    postLogoutAction: (data) => dispatch(postLogoutAction(data))
 })
 
 

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { encrypt, decrypt } from '../../../config/lib';
 import { MDBDataTable } from 'mdbreact';
 import {
-    getDataDetailedAccountInfoAPI, getDataUsernameAPI, sendOtp, getOtp, updateMasterUser, updateMasterCompany,
+    getDataDetailedAccountInfoAPI, getDataUsernameAPI, sendOtp, getOtp, updateMasterUserProfile, updateMasterCompany,
     getDataAlamatAPI, getDataDetailedAlamatCompanyAPI, getDataProvinsi, getDataKota, getDataKecamatan, getDataKelurahan, getCurrentPassword,
     updateMasterAlamat, getDataDetailedCompanyInfoAPI, getDataCheckedKodeSales, checkFieldInsertAkun, checkFieldUpdateCompany, logoutUserAPI
 } from '../../../config/redux/action';
@@ -1501,34 +1501,58 @@ class ContentProfil extends Component {
                     Number(this.state.check_nohp_update) === 0 &&
                     Number(this.state.check_email_update) === 0 &&
                     Number(this.state.check_nik_update) === 0) {
+                    let dataToSubmit = {
+                        username: this.state.account_info_username_selected,
+                        nama: this.state.account_info_nama_selected,
+                        no_hp: this.state.account_info_telepon_selected,
+                        email: this.state.account_info_email_selected,
+                        sa_role: this.state.sa_role
+                    }
+
                     if (this.state.account_info_password_selected === '') {
                         if (this.state.sa_role === 'sales') {
-                            passqueryupdatemasteruser = encrypt("update gcm_master_user set username='" + this.state.account_info_username_selected + "', " +
-                                "nama='" + this.state.account_info_nama_selected + "', no_hp='" + this.state.account_info_telepon_selected + "', " +
-                                "email='" + this.state.account_info_email_selected + "', update_by='" + this.state.id_pengguna_login + "', update_date=now() " +
-                                "where id=" + this.state.id_pengguna_login + " returning nama;")
+                            // passqueryupdatemasteruser = encrypt("update gcm_master_user set username='" + this.state.account_info_username_selected + "', " +
+                            //     "nama='" + this.state.account_info_nama_selected + "', no_hp='" + this.state.account_info_telepon_selected + "', " +
+                            //     "email='" + this.state.account_info_email_selected + "', update_by='" + this.state.id_pengguna_login + "', update_date=now() " +
+                            //     "where id=" + this.state.id_pengguna_login + " returning nama;")
                         } else {
-                            passqueryupdatemasteruser = encrypt("update gcm_master_user set username='" + this.state.account_info_username_selected + "', " +
-                                "nama='" + this.state.account_info_nama_selected + "', no_hp='" + this.state.account_info_telepon_selected + "', " +
-                                "no_nik='" + this.state.account_info_nik_selected + "', kode_sales='" + this.state.account_info_kode_sales_selected + "', " +
-                                "email='" + this.state.account_info_email_selected + "', update_by='" + this.state.id_pengguna_login + "', update_date=now() " +
-                                "where id=" + this.state.id_pengguna_login + " returning nama;")
+                            dataToSubmit = {
+                                no_nik: this.state.account_info_nik_selected,
+                                kode_sales: this.state.account_info_kode_sales_selected
+                            }
+                            // passqueryupdatemasteruser = encrypt("update gcm_master_user set username='" + this.state.account_info_username_selected + "', " +
+                            //     "nama='" + this.state.account_info_nama_selected + "', no_hp='" + this.state.account_info_telepon_selected + "', " +
+                            //     "no_nik='" + this.state.account_info_nik_selected + "', kode_sales='" + this.state.account_info_kode_sales_selected + "', " +
+                            //     "email='" + this.state.account_info_email_selected + "', update_by='" + this.state.id_pengguna_login + "', update_date=now() " +
+                            //     "where id=" + this.state.id_pengguna_login + " returning nama;")
                         }
                     } else {
                         if (this.state.sa_role === 'sales') {
-                            passqueryupdatemasteruser = encrypt("update gcm_master_user set username='" + this.state.account_info_username_selected + "', " +
-                                "nama='" + this.state.account_info_nama_selected + "', no_hp='" + this.state.account_info_telepon_selected + "', " +
-                                "email='" + this.state.account_info_email_selected + "', password='" + encrypt(this.state.account_info_password_selected) + "', update_by='" + this.state.id_pengguna_login + "', update_date=now() " +
-                                "where id=" + this.state.id_pengguna_login + " returning nama;")
+                            dataToSubmit = {
+                                ...dataToSubmit,
+                                password: encrypt(this.state.account_info_password_selected),
+                                updatePassword: true
+                            }
+                            // passqueryupdatemasteruser = encrypt("update gcm_master_user set username='" + this.state.account_info_username_selected + "', " +
+                            //     "nama='" + this.state.account_info_nama_selected + "', no_hp='" + this.state.account_info_telepon_selected + "', " +
+                            //     "email='" + this.state.account_info_email_selected + "', password='" + encrypt(this.state.account_info_password_selected) + "', update_by='" + this.state.id_pengguna_login + "', update_date=now() " +
+                            //     "where id=" + this.state.id_pengguna_login + " returning nama;")
                         } else {
-                            passqueryupdatemasteruser = encrypt("update gcm_master_user set username='" + this.state.account_info_username_selected + "', " +
-                                "nama='" + this.state.account_info_nama_selected + "', no_hp='" + this.state.account_info_telepon_selected + "', " +
-                                "no_nik='" + this.state.account_info_nik_selected + "', kode_sales='" + this.state.account_info_kode_sales_selected + "', " +
-                                "email='" + this.state.account_info_email_selected + "', password='" + encrypt(this.state.account_info_password_selected) + "', update_by='" + this.state.id_pengguna_login + "', update_date=now() " +
-                                "where id=" + this.state.id_pengguna_login + " returning nama;")
+                            dataToSubmit = {
+                                ...dataToSubmit,
+                                password: encrypt(this.state.account_info_password_selected),
+                                no_nik: this.state.account_info_nik_selected,
+                                kode_sales: this.state.account_info_kode_sales_selected,
+                                updatePassword: true
+                            }
+                            // passqueryupdatemasteruser = encrypt("update gcm_master_user set username='" + this.state.account_info_username_selected + "', " +
+                            //     "nama='" + this.state.account_info_nama_selected + "', no_hp='" + this.state.account_info_telepon_selected + "', " +
+                            //     "no_nik='" + this.state.account_info_nik_selected + "', kode_sales='" + this.state.account_info_kode_sales_selected + "', " +
+                            //     "email='" + this.state.account_info_email_selected + "', password='" + encrypt(this.state.account_info_password_selected) + "', update_by='" + this.state.id_pengguna_login + "', update_date=now() " +
+                            //     "where id=" + this.state.id_pengguna_login + " returning nama;")
                         }
                     }
-                    const resupdateMasterUser = await this.props.updateMasterUser({ query: passqueryupdatemasteruser }).catch(err => err)
+                    const resupdateMasterUser = await this.props.updateMasterUserProfile({ ...dataToSubmit }).catch(err => err)
                     Toast.hide();
                     if (resupdateMasterUser) {
                         swal({
@@ -1652,7 +1676,7 @@ class ContentProfil extends Component {
     }
 
     confirmActionUpdateCompanyInfo = async () => {
-        Toast.loading('Loading...');        
+        Toast.loading('Loading...');
         await this.getCurrentPassword()
         await this.checkFinalFieldUpdateCompany()
         if (this.state.company_info_password_inserted === this.state.pembanding_account_info_password_selected) {
@@ -1838,38 +1862,42 @@ class ContentProfil extends Component {
                     Number(this.state.check_nohp_update) === 0 &&
                     Number(this.state.check_email_update) === 0 &&
                     Number(this.state.check_nik_update) === 0) {
+                    let dataToSubmit = {
+                        username: this.state.account_info_username_selected,
+                        nama: this.state.account_info_nama_selected,
+                        no_hp: this.state.account_info_telepon_selected,
+                        email: this.state.account_info_email_selected,
+                        sa_role: this.state.sa_role,
+                        verif_hp: true
+                    }
+
                     if (this.state.account_info_password_selected === '') {
-                        if (this.state.sa_role === 'sales') {
-                            passqueryupdatemasteruser = encrypt("update gcm_master_user set username='" + this.state.account_info_username_selected + "', " +
-                                "nama='" + this.state.account_info_nama_selected + "', no_hp='" + this.state.account_info_telepon_selected + "', " +
-                                "email='" + this.state.account_info_email_selected + "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), " +
-                                "no_hp_verif=true " +
-                                "where id=" + this.state.id_pengguna_login + " returning update_date;")
-                        } else {
-                            passqueryupdatemasteruser = encrypt("update gcm_master_user set username='" + this.state.account_info_username_selected + "', " +
-                                "nama='" + this.state.account_info_nama_selected + "', no_hp='" + this.state.account_info_telepon_selected + "', " +
-                                "no_nik='" + this.state.account_info_nik_selected + "', kode_sales='" + this.state.account_info_kode_sales_selected + "', " +
-                                "email='" + this.state.account_info_email_selected + "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), " +
-                                "no_hp_verif=true " +
-                                "where id=" + this.state.id_pengguna_login + " returning update_date;")
+                        if (this.state.sa_role === 'sales') { }
+                        else {
+                            dataToSubmit = {
+                                no_nik: this.state.account_info_nik_selected,
+                                kode_sales: this.state.account_info_kode_sales_selected
+                            }
                         }
                     } else {
                         if (this.state.sa_role === 'sales') {
-                            passqueryupdatemasteruser = encrypt("update gcm_master_user set username='" + this.state.account_info_username_selected + "', " +
-                                "nama='" + this.state.account_info_nama_selected + "', no_hp='" + this.state.account_info_telepon_selected + "', " +
-                                "email='" + this.state.account_info_email_selected + "', password='" + encrypt(this.state.account_info_password_selected) + "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), " +
-                                "no_hp_verif=true " +
-                                "where id=" + this.state.id_pengguna_login + " returning update_date;")
+                            dataToSubmit = {
+                                ...dataToSubmit,
+                                password: encrypt(this.state.account_info_password_selected),
+                                updatePassword: true
+                            }
                         } else {
-                            passqueryupdatemasteruser = encrypt("update gcm_master_user set username='" + this.state.account_info_username_selected + "', " +
-                                "nama='" + this.state.account_info_nama_selected + "', no_hp='" + this.state.account_info_telepon_selected + "', " +
-                                "no_nik='" + this.state.account_info_nik_selected + "', kode_sales='" + this.state.account_info_kode_sales_selected + "', " +
-                                "email='" + this.state.account_info_email_selected + "', password='" + encrypt(this.state.account_info_password_selected) + "', update_by='" + this.state.id_pengguna_login + "', update_date=now(), " +
-                                "no_hp_verif=true " +
-                                "where id=" + this.state.id_pengguna_login + " returning update_date;")
+                            dataToSubmit = {
+                                ...dataToSubmit,
+                                password: encrypt(this.state.account_info_password_selected),
+                                no_nik: this.state.account_info_nik_selected,
+                                kode_sales: this.state.account_info_kode_sales_selected,
+                                updatePassword: true
+                            }
                         }
                     }
-                    const resupdateMasterUser = await this.props.updateMasterUser({ query: passqueryupdatemasteruser }).catch(err => err)
+
+                    const resupdateMasterUser = await this.props.updateMasterUserProfile({ ...dataToSubmit }).catch(err => err)
                     Toast.hide();
                     if (resupdateMasterUser) {
                         swal({
@@ -1964,10 +1992,11 @@ class ContentProfil extends Component {
     }
 
     checkFinalFieldUpdateCompany = async () => {
-        let passquerycheckfieldupdatecompany = encrypt("select * from " +
-            "(select count (no_telp) check_nohp from gcm_master_company where no_telp like '" + this.state.company_info_telepon_selected + "' and id !=" + this.state.company_id + ") a, " +
-            "(select count (email) check_email from gcm_master_company where email like '" + this.state.company_info_email_selected + "' and id !=" + this.state.company_id + ") b")
-        const rescheckfieldupdatecompany = await this.props.checkFieldUpdateCompany({ query: passquerycheckfieldupdatecompany }).catch(err => err)
+        const rescheckfieldupdatecompany = await this.props.checkFieldUpdateCompany({
+            no_telp: this.state.company_info_telepon_selected,
+            id: this.state.company_id,
+            email: this.state.company_info_email_selected
+        }).catch(err => err)
         if (rescheckfieldupdatecompany) {
             await this.setState({
                 check_telepon_company_update: rescheckfieldupdatecompany.check_nohp,
@@ -2645,7 +2674,7 @@ const reduxDispatch = (dispatch) => ({
     getDataCheckedKodeSales: (data) => dispatch(getDataCheckedKodeSales(data)),
     sendOtp: (data) => dispatch(sendOtp(data)),
     getOtp: (data) => dispatch(getOtp(data)),
-    updateMasterUser: (data) => dispatch(updateMasterUser(data)),
+    updateMasterUserProfile: (data) => dispatch(updateMasterUserProfile(data)),
     updateMasterAlamat: (data) => dispatch(updateMasterAlamat(data)),
     checkFieldInsertAkun: (data) => dispatch(checkFieldInsertAkun(data)),
     checkFieldUpdateCompany: (data) => dispatch(checkFieldUpdateCompany(data)),

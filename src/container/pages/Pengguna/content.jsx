@@ -5,11 +5,11 @@ import { encrypt, decrypt } from '../../../config/lib';
 import swal from 'sweetalert';
 import {
     getDataUsersAPI, getDataDetailedUserAPI, getDataRegisteredAPI, getDataAlamatAPI, getDataTypeBlackList, showBlacklistBy, showJenisBlacklist,
-    getDataPaymentListingAPI, getDataPaymentAPI, getDataCheckedIdPayment, getDataDetailedPaymentAPI, updateStatusPayment, insertPaymentListingSeller,
+    getDataPaymentListingAPI, getDataPaymentPengguna, getDataCheckedIdPayment, getDataDetailedPaymentAPI, updateStatusPaymentPengguna, insertPaymentListingPengguna,
     getDataDetailedUserRegisteredAPI, updateUserStatus, getstragg, getDataCategoryAPI, getDataCheckedKodeCust, getDataKodeCustAPI, getDataDetailedSalesHandlerAPI,
     getDataDetailedKodeCustomerAPI, getDataDetailedMappingAPI, getDataDetailedAlamatMappingAPI, getDataKodeMappingAlamatAPI, updateKodeMappingAlamat,
     getDataCheckedKodeAlamatMapping, totalBeranda, logoutUserAPI, sendEmailAktivasi, postQuery, getDataCategoryAdminPengguna, getDokumenPengguna,
-    getTotalCountPengguna, getDataAlamatPengguna
+    getTotalCountPengguna, getDataAlamatPengguna, updateStatusPengguna, updateUserStatusMapping
 } from '../../../config/redux/action';
 import { MDBDataTable } from 'mdbreact';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
@@ -304,13 +304,13 @@ class ContentPengguna extends Component {
         }
     }
 
-    handleDetailUser = async (e, id) => {
+    handleDetailUser = async (e, id) => {        
         this.handleModalDetail()
         e.stopPropagation();
         const resdetail = await this.props.getDataDetailedUserAPI({
             id: id,
             seller_id: this.state.company_id
-        }).catch(err => err)
+        }).catch(err => err)        
 
         if (resdetail) {
             let dokumen = decrypt(resdetail.dokumen)
@@ -805,6 +805,7 @@ class ContentPengguna extends Component {
         await this.loadCategory(this.state.company_register_id_tipe_bisnis)
         await this.loadCheckingKodeCustomer()
         await this.loadKodeCustomer()
+
         // sini call lagi kode customer
         if (stat === 'Blacklist' && this.state.id_blacklist_company === '0' && this.state.notes_blacklist_company === '') {
             this.setState({
@@ -844,7 +845,7 @@ class ContentPengguna extends Component {
             buyer_id: decrypt(this.state.company_register_id),
             seller_id: this.state.company_id
         }).catch(err => err)
-
+        
         if (reskodecust) {
             await this.setState({
                 kode_customer_selected: reskodecust.buyer_number_mapping
@@ -919,17 +920,6 @@ class ContentPengguna extends Component {
             await this.loadCheckingMappingSales(company_reg_id)
             let check_kode_cust = this.state.allCheckedKodeCust.filter(input_kode_cust => { return input_kode_cust.buyer_number_mapping === this.state.kode_customer_selected });
             if (check_kode_cust !== '' && check_kode_cust.length <= 1) {
-                // if (Number(this.state.allCheckedMapSales) === 1) {
-                //     passqueryupdatestatus = encrypt(
-                //         "with new_order as (" +
-                //         "update gcm_company_listing set status='" + activate + "', update_date=now(), is_blacklist=false, id_blacklist=" + this.state.id_blacklist_company +
-                //         ", notes_blacklist='" + this.state.notes_blacklist_company + "', blacklist_by=null, buyer_number_mapping='" + this.state.kode_customer_selected + "', " +
-                //         "seller_number_mapping='" + this.state.id_company_registered + "' " +
-                //         "where buyer_id=" + company_reg_id + " and seller_id=" + this.state.company_id + " returning status) " +
-                //         "update gcm_company_listing_sales set id_sales='" + this.state.kode_sales_selected + "', status='A' " +
-                //         "where buyer_id='" + company_reg_id + "' and seller_id='" + this.state.company_id + "' returning status;"
-                //     )
-                // }
                 const resupdatestatus = await this.props.updateUserStatus({
                     status: activate,
                     id_blacklist: this.state.id_blacklist_company,
@@ -1673,17 +1663,26 @@ class ContentPengguna extends Component {
 
     confirmActionForUser = async () => {
         Toast.loading('Loading...');
-        let passqueryupdateuserstatusblacklist = ""
-        if (this.state.is_blacklist) {
-            passqueryupdateuserstatusblacklist = encrypt("update gcm_master_user set is_blacklist='" + this.state.is_blacklist +
-                "', id_blacklist='" + this.state.id_blacklist + "', notes_blacklist='" + this.state.notes_blacklist + "', blacklist_by=" + this.state.company_id +
-                ", update_by=" + this.state.id_pengguna_login + ", update_date=now() where id=" + this.state.id_user + " returning update_date;")
-        } else {
-            passqueryupdateuserstatusblacklist = encrypt("update gcm_master_user set is_blacklist='" + this.state.is_blacklist +
-                "', id_blacklist='" + this.state.id_blacklist + "', notes_blacklist='', blacklist_by=null" +
-                ", update_by=" + this.state.id_pengguna_login + ", update_date=now() where id=" + this.state.id_user + " returning update_date;")
+        let dataToSubmit = {
+            is_blacklist: this.state.is_blacklist,
+            id_blacklist: this.state.id_blacklist,
+            id: this.state.id_user
         }
-        const resupdatestatususerblacklist = await this.props.updateUserStatus({ query: passqueryupdateuserstatusblacklist }).catch(err => err)
+        if (this.state.is_blacklist) {
+            dataToSubmit = {
+                ...dataToSubmit,
+                notes_blacklist: this.state.notes_blacklist,
+                blacklist_by: this.state.company_id,
+            }
+        } else {
+            dataToSubmit = {
+                ...dataToSubmit,
+                notes_blacklist: '',
+                blacklist_by: null
+            }
+        }
+
+        const resupdatestatususerblacklist = await this.props.updateStatusPengguna({ ...dataToSubmit }).catch(err => err)
         Toast.hide();
         if (resupdatestatususerblacklist) {
             this.handleModalConfirmBlackList()
@@ -1758,11 +1757,13 @@ class ContentPengguna extends Component {
 
     confirmActionChangeStatusPayment = async () => {
         Toast.loading('Loading...');
-        let passquerychangestatuspayment = encrypt("update gcm_payment_listing set status='" + this.state.status_payment + "' " +
-            "where id=" + this.state.id_payment + " returning status")
-        const resupdatestatuspayment = await this.props.updateStatusPayment({ query: passquerychangestatuspayment }).catch(err => err)
+        const resupdateStatusPaymentPengguna = await this.props.updateStatusPaymentPengguna({
+            status: this.state.status_payment,
+            id: this.state.id_payment
+        }).catch(err => err)
+
         Toast.hide();
-        if (resupdatestatuspayment) {
+        if (resupdateStatusPaymentPengguna) {
             swal({
                 title: "Sukses!",
                 text: "Metode payment berhasil ditambahkan!",
@@ -1793,29 +1794,26 @@ class ContentPengguna extends Component {
 
     loadPaymentNotListed = async (id) => {
         let passquerypaymentnotlisted = ""
-        let str_agg = encrypt("select string_agg(cast(payment_id as varchar), ',') " +
-            "from gcm_payment_listing where gcm_payment_listing.buyer_id =" + id + " and gcm_payment_listing.seller_id =" + this.state.company_id)
-        const res = await this.props.getstragg({ query: str_agg }).catch(err => err)
+
+        const res = await this.props.getstragg({
+            buyer_id: id,
+            seller_id: this.state.company_id
+        }).catch(err => err)
+
+        let dataToSubmit = {
+            seller_id: this.state.company_id,
+        }
+
         if (res) {
             await this.setState({ getstragg: res.str_agg })
             if (this.state.getstragg !== null) {
-                passquerypaymentnotlisted = encrypt("select DISTINCT gcm_master_payment.payment_name, gcm_master_payment.deskripsi, " +
-                    "gcm_seller_payment_listing.status, gcm_seller_payment_listing.id from gcm_seller_payment_listing " +
-                    "left join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id " +
-                    "left join gcm_payment_listing on gcm_payment_listing.payment_id = gcm_seller_payment_listing.id " +
-                    "where gcm_seller_payment_listing.status = 'A' and gcm_seller_payment_listing.seller_id = " + this.state.company_id +
-                    " and gcm_seller_payment_listing.id not in (" + res.str_agg + ") ")
-            } else {
-                passquerypaymentnotlisted = encrypt("select DISTINCT gcm_master_payment.payment_name, gcm_master_payment.deskripsi, " +
-                    "gcm_seller_payment_listing.status, gcm_seller_payment_listing.id " +
-                    "from gcm_seller_payment_listing " +
-                    "inner join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id " +
-                    "where gcm_seller_payment_listing.status = 'A' and gcm_seller_payment_listing.seller_id = " + this.state.company_id)
+                dataToSubmit = {
+                    ...dataToSubmit,
+                    str_agg: res.str_agg
+                }
             }
 
-            console.log(decrypt(passquerypaymentnotlisted))
-
-            const respaymentnotlisted = await this.props.getDataPaymentAPI({ query: passquerypaymentnotlisted }).catch(err => err)
+            const respaymentnotlisted = await this.props.getDataPaymentPengguna({ ...dataToSubmit }).catch(err => err)
             if (respaymentnotlisted) {
                 this.setState({
                     allPaymentNotListed: respaymentnotlisted
@@ -1862,9 +1860,10 @@ class ContentPengguna extends Component {
     }
 
     loadCheckingPayment = async () => {
-        let passqueryidpayment = encrypt("select gcm_payment_listing.payment_id from gcm_payment_listing where seller_id=" +
-            this.state.company_id + " and buyer_id=" + this.state.id_buyer)
-        const residpaymentchecked = await this.props.getDataCheckedIdPayment({ query: passqueryidpayment }).catch(err => err)
+        const residpaymentchecked = await this.props.getDataCheckedIdPayment({
+            seller_id: this.state.company_id,
+            buyer_id: this.state.id_buyer
+        }).catch(err => err)
         if (residpaymentchecked) {
             this.setState({
                 allPaymentChecked: residpaymentchecked
@@ -1883,9 +1882,12 @@ class ContentPengguna extends Component {
 
     confirmActionInsertPayment = async () => {
         Toast.loading('Loading...');
-        let passqueryinsertpayment = encrypt("insert into gcm_payment_listing (seller_id, buyer_id, payment_id, status) " +
-            "values ('" + this.state.company_id + "', '" + this.state.id_buyer + "', '" + this.state.id_payment_inserted + "', 'A') returning status;")
-        const resinsertpayment = await this.props.insertPaymentListingSeller({ query: passqueryinsertpayment }).catch(err => err)
+        const resinsertpayment = await this.props.insertPaymentListingPengguna({
+            seller_id: this.state.company_id,
+            buyer_id: this.state.id_buyer,
+            payment_id: this.state.id_payment_inserted,
+            status: 'A'
+        }).catch(err => err)
         Toast.hide();
         if (resinsertpayment) {
             swal({
@@ -1921,25 +1923,41 @@ class ContentPengguna extends Component {
     confirmActionMapping = async () => {
         Toast.loading('Loading...');
         let company_reg_id = decrypt(this.state.company_mapping_register_id)
-        let passqueryupdatestatus = ""
-        if (this.state.company_mapping_register_status === 'A') {
-            passqueryupdatestatus = encrypt(
-                "with new_order as (" +
-                "update gcm_company_listing set update_date=now(), buyer_number_mapping='" + this.state.company_mapping_kode_customer +
-                "', seller_number_mapping='" + this.state.id_company_registered + "' where buyer_id=" + company_reg_id +
-                " and seller_id=" + this.state.company_id + " returning status) " +
-                "update gcm_company_listing_sales set id_sales='" + this.state.company_mapping_kode_sales_selected + "' " +
-                "where buyer_id='" + company_reg_id + "' and seller_id='" + this.state.company_id + "' returning status;")
-        } else {
-            passqueryupdatestatus = encrypt(
-                "with new_order as (" +
-                "update gcm_company_listing set update_date=now(), buyer_number_mapping='" + this.state.company_mapping_kode_customer_inserted +
-                "', seller_number_mapping='" + this.state.id_company_registered + "' where buyer_id=" + company_reg_id +
-                " and seller_id=" + this.state.company_id + " returning status) " +
-                "insert into gcm_company_listing_sales (buyer_id, seller_id, id_sales, status) values ('" +
-                company_reg_id + "', '" + this.state.company_id + "', '" + this.state.company_mapping_kode_sales_inserted + "', 'A') returning status;")
+        let dataToSubmit = {
+            seller_number_mapping: this.state.id_company_registered,
+            buyer_id: company_reg_id,
+            seller_id: this.state.company_id,
+            status: this.state.company_mapping_register_status
         }
-        const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+
+        if (this.state.company_mapping_register_status === 'A') {
+            dataToSubmit = {
+                ...dataToSubmit,
+                buyer_number_mapping: this.state.company_mapping_kode_customer,
+                id_sales: this.state.company_mapping_kode_sales_selected
+            }
+            // passqueryupdatestatus = encrypt(
+            //     "with new_order as (" +
+            //     "update gcm_company_listing set update_date=now(), buyer_number_mapping='" + this.state.company_mapping_kode_customer +
+            //     "', seller_number_mapping='" + this.state.id_company_registered + "' where buyer_id=" + company_reg_id +
+            //     " and seller_id=" + this.state.company_id + " returning status) " +
+            //     "update gcm_company_listing_sales set id_sales='" + this.state.company_mapping_kode_sales_selected + "' " +
+            //     "where buyer_id='" + company_reg_id + "' and seller_id='" + this.state.company_id + "' returning status;")
+        } else {
+            dataToSubmit = {
+                ...dataToSubmit,
+                buyer_number_mapping: this.state.company_mapping_kode_customer_inserted,
+                id_sales: this.state.company_mapping_kode_sales_inserted
+            }
+            // passqueryupdatestatus = encrypt(
+            //     "with new_order as (" +
+            //     "update gcm_company_listing set update_date=now(), buyer_number_mapping='" + this.state.company_mapping_kode_customer_inserted +
+            //     "', seller_number_mapping='" + this.state.id_company_registered + "' where buyer_id=" + company_reg_id +
+            //     " and seller_id=" + this.state.company_id + " returning status) " +
+            //     "insert into gcm_company_listing_sales (buyer_id, seller_id, id_sales, status) values ('" +
+            //     company_reg_id + "', '" + this.state.company_id + "', '" + this.state.company_mapping_kode_sales_inserted + "', 'A') returning status;")
+        }
+        const resupdatestatus = await this.props.updateUserStatusMapping({ ...dataToSubmit }).catch(err => err)
         Toast.hide();
         if (resupdatestatus) {
             swal({
@@ -2334,7 +2352,7 @@ class ContentPengguna extends Component {
                                                     : false
 
                                             }
-                                        </div>
+                                        </div>                                        
                                         <MDBDataTable
                                             // scrollY
                                             // maxHeight="5vh"
@@ -2934,11 +2952,11 @@ const reduxDispatch = (dispatch) => ({
     getDataPaymentListingAPI: (data) => dispatch(getDataPaymentListingAPI(data)),
     getDataCheckedIdPayment: (data) => dispatch(getDataCheckedIdPayment(data)),
     getDataAlamatAPI: (data) => dispatch(getDataAlamatAPI(data)),
-    getDataPaymentAPI: (data) => dispatch(getDataPaymentAPI(data)),
-    insertPaymentListingSeller: (data) => dispatch(insertPaymentListingSeller(data)),
+    getDataPaymentPengguna: (data) => dispatch(getDataPaymentPengguna(data)),
+    insertPaymentListingPengguna: (data) => dispatch(insertPaymentListingPengguna(data)),
     showBlacklistBy: (data) => dispatch(showBlacklistBy(data)),
     showJenisBlacklist: (data) => dispatch(showJenisBlacklist(data)),
-    updateStatusPayment: (data) => dispatch(updateStatusPayment(data)),
+    updateStatusPaymentPengguna: (data) => dispatch(updateStatusPaymentPengguna(data)),
     updateUserStatus: (data) => dispatch(updateUserStatus(data)),
     getstragg: (data) => dispatch(getstragg(data)),
     getDataCheckedKodeCust: (data) => dispatch(getDataCheckedKodeCust(data)),
@@ -2956,6 +2974,8 @@ const reduxDispatch = (dispatch) => ({
     getDokumenPengguna: (data) => dispatch(getDokumenPengguna(data)),
     getTotalCountPengguna: (data) => dispatch(getTotalCountPengguna(data)),
     getDataAlamatPengguna: (data) => dispatch(getDataAlamatPengguna(data)),
+    updateStatusPengguna: (data) => dispatch(updateStatusPengguna(data)),
+    updateUserStatusMapping: (data) => dispatch(updateUserStatusMapping(data)),
     postQuery: (data) => dispatch(postQuery(data))
 })
 

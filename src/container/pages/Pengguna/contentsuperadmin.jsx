@@ -3,9 +3,10 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { encrypt, decrypt } from '../../../config/lib';
 import {
-    getDataUsersAPI, getDataDetailedUserSuperAdminAPI, getDataRegisteredAPI, getDataAlamatAPI, getDataTypeBlackList, getDataPaymentListingAPI,
-    getDataDetailedPaymentAPI, showBlacklistBy, showJenisBlacklist, updateUserStatus, getDataKodeCustAPI, getDataDetailedKodeSellerAPI,
-    getDataDetailedMappingSuperAdminAPI, getDataCheckedKodeCust, logoutUserAPI, sendEmailAktivasi
+    getDataUsersAPI, getDataDetailedUserSuperAdminAPI, getDataRegisteredAPI, getDataAlamatAPI, getDataTypeBlackList, SA_getDataPaymentListingAPI,
+    getDataDetailedPaymentAPI, showBlacklistBy, showJenisBlacklist, updateUserStatus, getCheckingKodeSeller, getDataDetailedKodeSellerAPI,
+    getDataDetailedMappingSuperAdminAPI, getDataCheckedKodeSeller, logoutUserAPI, sendEmailAktivasi, SA_updateUserStatus,
+    SA_getDataUsersAPI, SA_updateUserStatusMapping
 }
     from '../../../config/redux/action';
 import { MDBDataTable } from 'mdbreact';
@@ -89,7 +90,8 @@ class ContentPenggunaSuperAdmin extends Component {
         countKodeSeller: 0,
         isBtnUpdateMapping: true,
         feedback_mapping_kode_seller: '',
-        isOpenConfirmMapping: false
+        isOpenConfirmMapping: false,
+        allDataPayment: null
     }
 
     componentWillMount() {
@@ -106,13 +108,7 @@ class ContentPenggunaSuperAdmin extends Component {
     }
 
     loadDataUsers = async () => {
-        let passquery = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan, " +
-            "gcm_master_category.nama as tipe_bisnis, gcm_master_company.seller_status as company_status, to_char(gcm_master_company.create_date, 'DD/MM/YYYY') create_date " +
-            "from gcm_master_company " +
-            "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
-            "where gcm_master_company.type='S'" +
-            " order by gcm_master_company.nama_perusahaan asc;")
-        const res = await this.props.getDataUsersAPI({ query: passquery }).catch(err => err)
+        const res = await this.props.SA_getDataUsersAPI().catch(err => err)
         if (res) {
             res.map((user, index) => {
                 return (
@@ -143,11 +139,7 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+
             });
         }
     }
@@ -156,12 +148,7 @@ class ContentPenggunaSuperAdmin extends Component {
         if (stat !== 'I') {
             this.handleModalDetailMapping()
             e.stopPropagation();
-            let passquerydetailmapping = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan, " +
-                "gcm_master_company.seller_status, gcm_master_category.nama as tipe_bisnis_nama, " +
-                "to_char(gcm_master_company.create_date, 'DD/MM/YYYY') create_date, gcm_master_company.kode_seller " +
-                "from gcm_master_company inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
-                "where gcm_master_company.id=" + id)
-            const resdetailmapping = await this.props.getDataDetailedMappingSuperAdminAPI({ query: passquerydetailmapping }).catch(err => err)
+            const resdetailmapping = await this.props.getDataDetailedMappingSuperAdminAPI({ id: id }).catch(err => err)
             if (resdetailmapping) {
                 await this.setState({
                     company_mapping_register_id: resdetailmapping.id,
@@ -211,28 +198,25 @@ class ContentPenggunaSuperAdmin extends Component {
 
     loadPayment = async (id) => {
         await this.setState({ id_buyer: id })
-        let passquerypayment = await encrypt("select gcm_master_payment.payment_name, gcm_master_payment.deskripsi, gcm_seller_payment_listing.status, gcm_seller_payment_listing.id " +
-            "from gcm_seller_payment_listing " +
-            "inner join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id " +
-            "where gcm_seller_payment_listing.seller_id =" + id)
-        const respayment = await this.props.getDataPaymentListingAPI({ query: passquerypayment }).catch(err => err)
+        const respayment = await this.props.SA_getDataPaymentListingAPI({ id: id }).catch(err => err)
         if (respayment) {
-            respayment.map((user, index) => {
-                return (
-                    respayment[index].status =
+            const paymentList = respayment.map((user, index) => {
+                user.tempStatus = user.status
+                user.tempKeterangan = user.keterangan
+                user.status =
                     <center>
                         <div className={user.status === 'A' ? 'mb-2 mr-2 badge badge-success' : user.status === 'I' ? 'mb-2 mr-2 badge badge-danger' : user.status === 'C' ? 'mb-2 mr-2 badge badge-primary' : 'mb-2 mr-2 badge badge-warning'}>
                             {user.status === 'A' ? 'Aktif' : user.status === 'I' ? 'Nonaktif' : user.status === 'C' ? 'Proses Konfirmasi' : 'Ditolak'}</div>
-                    </center>,
-                    respayment[index].keterangan =
+                    </center>
+                user.keterangan =
                     <center>
                         <button className="mb-2 mr-2 btn-transition btn btn-outline-primary"
                             onClick={(e) => this.handleDetailPaymentListing(e, respayment[index].id)}>Lihat Detail</button>
                     </center>
-                )
+                return user
             })
-            this.setState({
-                allPaymentListing: respayment
+            await this.setState({
+                allPaymentListing: paymentList
             })
         } else {
             swal({
@@ -243,11 +227,7 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+
             });
         }
     }
@@ -255,17 +235,15 @@ class ContentPenggunaSuperAdmin extends Component {
     handleDetailPaymentListing = async (e, id) => {
         this.handleModalDetailPayment()
         e.stopPropagation()
-        let passquerydetailpayment = encrypt("select gcm_master_payment.payment_name, gcm_master_payment.deskripsi, gcm_seller_payment_listing.status, gcm_seller_payment_listing.id " +
-            "from gcm_seller_payment_listing " +
-            "inner join gcm_master_payment on gcm_master_payment.id = gcm_seller_payment_listing.payment_id " +
-            "where gcm_seller_payment_listing.id=" + id)
-        const resdetailpayment = await this.props.getDataDetailedPaymentAPI({ query: passquerydetailpayment }).catch(err => err)
-        if (resdetailpayment) {
+
+        const filterPayment = this.state.allPaymentListing.filter(d => d.id === id)[0]
+
+        if (filterPayment) {
             await this.setState({
-                id_payment: resdetailpayment.id,
-                nama_payment: resdetailpayment.nama,
-                deskripsi_payment: resdetailpayment.deskripsi,
-                status_payment: resdetailpayment.status
+                id_payment: filterPayment.id,
+                nama_payment: filterPayment.payment_name,
+                deskripsi_payment: filterPayment.deskripsi,
+                status_payment: filterPayment.tempStatus
             })
         } else {
             swal({
@@ -276,11 +254,7 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+
             });
         }
     }
@@ -298,22 +272,7 @@ class ContentPenggunaSuperAdmin extends Component {
     handleDetailUser = async (e, id) => {
         this.handleModalDetail()
         e.stopPropagation();
-        let passquerydetail = encrypt("select gcm_master_company.id, gcm_master_company.nama_perusahaan, " +
-            "gcm_master_company.seller_status as status, gcm_master_company.no_npwp, gcm_master_company.kode_seller, " +
-            "gcm_master_company.no_siup, gcm_master_company.email, gcm_master_company.no_telp, " +
-            "gcm_master_category.nama as tipe_bisnis_nama, gcm_master_company.dokumen_pendukung, " +
-            "to_char(gcm_master_company.create_date, 'DD/MM/YYYY') create_date, to_char(gcm_master_company.update_date, 'DD/MM/YYYY') update_date, count(gcm_master_user.id) as jumlah_akun, " +
-            "gcm_master_company.is_blacklist, gcm_master_company.id_blacklist, gcm_master_company.blacklist_by, gcm_master_company.notes_blacklist " +
-            "from gcm_master_company left join gcm_master_user on gcm_master_company.id = gcm_master_user.company_id " +
-            "inner join gcm_master_category on gcm_master_company.tipe_bisnis = gcm_master_category.id " +
-            "where gcm_master_company.type='S' and gcm_master_company.id=" + id +
-            " group by gcm_master_company.id, gcm_master_company.nama_perusahaan, gcm_master_company.seller_status, " +
-            "gcm_master_company.no_npwp, gcm_master_company.no_siup, " +
-            "gcm_master_company.email, gcm_master_company.kode_seller, " +
-            "gcm_master_company.no_telp, gcm_master_category.nama, gcm_master_company.dokumen_pendukung, " +
-            "gcm_master_company.create_date, gcm_master_company.update_date, gcm_master_company.is_blacklist, " +
-            "gcm_master_company.id_blacklist, gcm_master_company.blacklist_by, gcm_master_company.notes_blacklist, gcm_master_company.tipe_bisnis;")
-        const resdetail = await this.props.getDataDetailedUserSuperAdminAPI({ query: passquerydetail }).catch(err => err)
+        const resdetail = await this.props.getDataDetailedUserSuperAdminAPI({ id: id }).catch(err => err)
         if (resdetail) {
             this.setState({
                 company_register_id: resdetail.id,
@@ -347,11 +306,7 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+
             });
         }
         this.loadRegisteredAccount(id)
@@ -360,16 +315,7 @@ class ContentPenggunaSuperAdmin extends Component {
     }
 
     loadAlamatAccount = async (id) => {
-        let passqueryalamataccount = encrypt("select gcm_master_alamat.alamat, gcm_master_kelurahan.nama as kelurahan, " +
-            "gcm_master_kecamatan.nama as kecamatan, gcm_master_city.nama as kota, gcm_master_provinsi.nama as provinsi, " +
-            "gcm_master_alamat.kodepos, gcm_master_alamat.no_telp, gcm_master_alamat.shipto_active, gcm_master_alamat.billto_active " +
-            "from gcm_master_alamat " +
-            "inner join gcm_master_kelurahan on gcm_master_alamat.kelurahan = gcm_master_kelurahan.id " +
-            "inner join gcm_master_kecamatan on gcm_master_alamat.kecamatan = gcm_master_kecamatan.id " +
-            "inner join gcm_master_city on gcm_master_alamat.kota = gcm_master_city.id " +
-            "inner join gcm_master_provinsi on gcm_master_alamat.provinsi = gcm_master_provinsi.id " +
-            "where gcm_master_alamat.company_id=" + id)
-        const resalamataccount = await this.props.getDataAlamatAPI({ query: passqueryalamataccount }).catch(err => err)
+        const resalamataccount = await this.props.getDataAlamatAPI({ id: id }).catch(err => err)
         if (resalamataccount) {
             this.setState({
                 allAlamat: resalamataccount
@@ -383,11 +329,7 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+
             });
         }
     }
@@ -423,12 +365,7 @@ class ContentPenggunaSuperAdmin extends Component {
     }
 
     loadRegisteredAccount = async (id) => {
-        let passqueryregisteredaccount = encrypt("select gcm_master_user.username, gcm_master_user.nama, " +
-            "gcm_master_user.role, gcm_master_user.status, gcm_master_user.sa_role from gcm_master_user " +
-            "inner join gcm_master_company on gcm_master_company.id = gcm_master_user.company_id " +
-            "where gcm_master_user.company_id=" + id + " group by gcm_master_user.username, gcm_master_user.nama, " +
-            "gcm_master_user.status, gcm_master_user.role, gcm_master_user.sa_role;")
-        const resregisteredaccount = await this.props.getDataRegisteredAPI({ query: passqueryregisteredaccount }).catch(err => err)
+        const resregisteredaccount = await this.props.getDataRegisteredAPI({ id: id }).catch(err => err)
         if (resregisteredaccount) {
             resregisteredaccount.map((user, index) => {
                 return (
@@ -458,11 +395,7 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+
             });
         }
     }
@@ -514,8 +447,7 @@ class ContentPenggunaSuperAdmin extends Component {
     }
 
     loadCheckingKodeSeller = async () => {
-        let passquerycheckingkodeseller = encrypt("select gcm_master_company.kode_seller from gcm_master_company where gcm_master_company.type='S';")
-        const reskodeseller = await this.props.getDataKodeCustAPI({ query: passquerycheckingkodeseller }).catch(err => err)
+        const reskodeseller = await this.props.getCheckingKodeSeller().catch(err => err)
         if (reskodeseller) {
             await this.setState({
                 allCheckedKodeSeller: reskodeseller
@@ -529,19 +461,13 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+
             });
         }
     }
 
     loadKodeSeller = async () => {
-        let passquerykodeseller = encrypt("select gcm_master_company.kode_seller from gcm_master_company " +
-            "where gcm_master_company.id=" + this.state.company_id)
-        const reskodeseller = await this.props.getDataDetailedKodeSellerAPI({ query: passquerykodeseller }).catch(err => err)
+        const reskodeseller = await this.props.getDataDetailedKodeSellerAPI({ id: this.state.company_id }).catch(err => err)
         if (reskodeseller) {
             await this.setState({
                 kode_customer_selected: reskodeseller.kode_seller
@@ -555,11 +481,7 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+
             });
         }
     }
@@ -577,11 +499,14 @@ class ContentPenggunaSuperAdmin extends Component {
 
         let company_reg_id = decrypt(this.state.company_register_id)
         if (this.state.company_register_status === activate) {
-            let passqueryupdatestatus = encrypt("update gcm_master_company set seller_status='" + reject +
-                "', is_blacklist=true, id_blacklist=" + this.state.id_blacklist_company +
-                ", notes_blacklist='" + this.state.notes_blacklist_company + "', blacklist_by=" + this.state.company_id +
-                " where gcm_master_company.id=" + company_reg_id + " returning seller_status;")
-            const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+            const resupdatestatus = await this.props.SA_updateUserStatus({
+                seller_status: reject,
+                id_blacklist: this.state.id_blacklist_company,
+                notes_blacklist: this.state.notes_blacklist_company,
+                blacklist_by: this.state.company_id,
+                id: company_reg_id,
+                status: this.state.company_register_status
+            }).catch(err => err)
             Toast.hide()
             if (resupdatestatus) {
                 swal({
@@ -610,18 +535,15 @@ class ContentPenggunaSuperAdmin extends Component {
             await this.loadCheckingKodeSeller()
             let check_kode_seller = this.state.allCheckedKodeSeller.filter(input_kode_seller => { return input_kode_seller.kode_seller === this.state.kode_seller_selected });
             if (check_kode_seller !== '' && check_kode_seller.length <= 1) {
-                let passqueryupdatestatus = encrypt(
-                    "with new_order as (" +
-                    "update gcm_master_company set seller_status='" + activate +
-                    "', is_blacklist=false, id_blacklist=" + this.state.id_blacklist_company +
-                    ", notes_blacklist='" + this.state.notes_blacklist_company + "', blacklist_by=null, kode_seller='" + this.state.kode_seller_selected +
-                    "'  where gcm_master_company.id=" + company_reg_id + " returning seller_status) " +
-                    ",update_data as(update gcm_company_listing set seller_number_mapping='" + this.state.kode_seller_selected +
-                    "' where seller_id=" + company_reg_id + " returning status)"
-                    + `insert into gcm_seller_key (company_id, kode_seller, kode_seller_encrypt) 
-                    values (${this.state.company_id},'${this.state.kode_seller_selected}','${this.state.kode_seller_selected}') returning *`
-                )
-                const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+                const resupdatestatus = await this.props.SA_updateUserStatus({
+                    seller_status: activate,
+                    id_blacklist: this.state.id_blacklist_company,
+                    notes_blacklist: this.state.notes_blacklist_company,
+                    kode_seller: this.state.kode_seller_selected,
+                    id: company_reg_id,
+                    company_id: this.state.company_id,
+                    status: this.state.company_register_status
+                }).catch(err => err)
                 Toast.hide();
                 if (resupdatestatus) {
                     await this.props.sendEmailToUser(emailData)
@@ -655,20 +577,16 @@ class ContentPenggunaSuperAdmin extends Component {
             await this.loadCheckingKodeSeller()
             let check_kode_seller = this.state.allCheckedKodeSeller.filter(input_kode_seller => { return input_kode_seller.kode_seller === this.state.kode_seller });
             if (check_kode_seller !== '' && check_kode_seller.length === 0) {
-                let passqueryupdatestatus = encrypt(
-                    "with new_order as (" +
-                    "update gcm_master_company set seller_status='" + activate +
-                    "', is_blacklist=false, id_blacklist=" + this.state.id_blacklist_company +
-                    ", notes_blacklist='" + this.state.notes_blacklist_company + "', blacklist_by=null, kode_seller='" + this.state.kode_seller +
-                    "'  where gcm_master_company.id=" + company_reg_id + " returning seller_status) " +
-                    ", update_data as(update gcm_company_listing set seller_number_mapping='" + this.state.kode_seller +
-                    "' where seller_id=" + company_reg_id + " returning status)"
-                    + `insert into gcm_seller_key (company_id, kode_seller, kode_seller_encrypt) 
-                    values (${this.state.company_id},'${this.state.kode_seller_selected}','${this.state.kode_seller_selected}') returning *`
-
-                )
-
-                const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+                const resupdatestatus = await this.props.SA_updateUserStatus({
+                    seller_status: activate,
+                    id_blacklist: this.state.id_blacklist_company,
+                    notes_blacklist: this.state.notes_blacklist_company,
+                    kode_seller: this.state.kode_seller_selected,
+                    kode_seller_selected: this.state.kode_seller_selected,
+                    id: company_reg_id,
+                    company_id: this.state.company_id,
+                    status: this.state.company_register_status
+                }).catch(err => err)
                 Toast.hide();
                 if (resupdatestatus) {
                     await this.props.sendEmailToUser(emailData)
@@ -764,9 +682,7 @@ class ContentPenggunaSuperAdmin extends Component {
     }
 
     checkCountKodeSeller = async (kode_seller) => {
-        let passquerycheckingkodeseller = encrypt("select count(gcm_master_company.id) as total from gcm_master_company " +
-            "where gcm_master_company.kode_seller='" + kode_seller + "'")
-        const resmapkodeseller = await this.props.getDataCheckedKodeCust({ query: passquerycheckingkodeseller }).catch(err => err)
+        const resmapkodeseller = await this.props.getDataCheckedKodeSeller({ kode_seller: kode_seller }).catch(err => err)
         if (resmapkodeseller) {
             await this.setState({
                 countKodeSeller: Number(resmapkodeseller.total)
@@ -780,11 +696,7 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+
             });
         }
     }
@@ -797,8 +709,7 @@ class ContentPenggunaSuperAdmin extends Component {
     }
 
     loadTypeBlackList = async () => {
-        let passquerytypeblacklist = encrypt("select * from gcm_master_type_blacklist;")
-        const restypeblacklist = await this.props.getDataTypeBlackList({ query: passquerytypeblacklist }).catch(err => err)
+        const restypeblacklist = await this.props.getDataTypeBlackList().catch(err => err)
         if (restypeblacklist) {
             this.setState({
                 alltypeBlackList: restypeblacklist
@@ -812,11 +723,7 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+
             });
         }
     }
@@ -944,8 +851,7 @@ class ContentPenggunaSuperAdmin extends Component {
     }
 
     showBlacklistBy = async (id) => {
-        let passqueryblacklistcompanybywho = encrypt("select nama_perusahaan from gcm_master_company where id=" + id)
-        const showblacklistcompanybywho = await this.props.showBlacklistBy({ query: passqueryblacklistcompanybywho }).catch(err => err)
+        const showblacklistcompanybywho = await this.props.showBlacklistBy({ id: id }).catch(err => err)
         if (showblacklistcompanybywho) {
             this.setState({ company_register_blacklist_by: showblacklistcompanybywho.nama_perusahaan })
         } else {
@@ -957,18 +863,13 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+
             });
         }
     }
 
     showBlacklistType = async (id) => {
-        let passqueryshowblacklisttye = encrypt("select nama from gcm_master_type_blacklist where id=" + id)
-        const showblacklisttype = await this.props.showJenisBlacklist({ query: passqueryshowblacklisttye }).catch(err => err)
+        const showblacklisttype = await this.props.showJenisBlacklist({ id: id }).catch(err => err)
         if (showblacklisttype) {
             this.setState({ company_register_jenis_blacklist: showblacklisttype.nama })
         } else {
@@ -980,11 +881,7 @@ class ContentPenggunaSuperAdmin extends Component {
                     confirm: "Oke"
                 }
             }).then(() => {
-                // const res = this.props.logoutAPI();
-                // if (res) {
-                //     this.props.history.push('/admin')
-                //     window.location.reload()
-                // }
+
             });
         }
     }
@@ -1005,22 +902,19 @@ class ContentPenggunaSuperAdmin extends Component {
         Toast.loading('Loading...');
         let company_reg_id = decrypt(this.state.company_mapping_register_id)
         let passqueryupdatestatus = ""
+        let dataToSubmit
         if (this.state.company_mapping_register_status === 'A') {
-            passqueryupdatestatus = encrypt(
-                "with new_order as (" +
-                "update gcm_master_company set update_date=now(), kode_seller='" + this.state.company_mapping_kode_seller +
-                "' where gcm_master_company.id=" + company_reg_id + " returning seller_status) " +
-                "update gcm_company_listing set seller_number_mapping='" + this.state.company_mapping_kode_seller +
-                "' where seller_id=" + company_reg_id + " returning status;")
+            dataToSubmit = {
+                kode_seller: this.state.company_mapping_kode_seller,
+                id: company_reg_id
+            }
         } else {
-            passqueryupdatestatus = encrypt(
-                "with new_order as (" +
-                "update gcm_master_company set update_date=now(), kode_seller='" + this.state.company_mapping_kode_seller_inserted +
-                "' where gcm_master_company.id=" + company_reg_id + " returning seller_status) " +
-                "update gcm_company_listing set seller_number_mapping='" + this.state.company_mapping_kode_seller_inserted +
-                "' where seller_id=" + company_reg_id + " returning status;")
+            dataToSubmit = {
+                kode_seller: this.state.company_mapping_kode_seller_inserted,
+                id: company_reg_id
+            }
         }
-        const resupdatestatus = await this.props.updateUserStatus({ query: passqueryupdatestatus }).catch(err => err)
+        const resupdatestatus = await this.props.SA_updateUserStatusMapping({ ...dataToSubmit }).catch(err => err)
         Toast.hide();
         if (resupdatestatus) {
             swal({
@@ -1542,19 +1436,22 @@ const reduxDispatch = (dispatch) => ({
     getDataUsersAPI: (data) => dispatch(getDataUsersAPI(data)),
     getDataDetailedUserSuperAdminAPI: (data) => dispatch(getDataDetailedUserSuperAdminAPI(data)),
     getDataAlamatAPI: (data) => dispatch(getDataAlamatAPI(data)),
-    getDataPaymentListingAPI: (data) => dispatch(getDataPaymentListingAPI(data)),
+    SA_getDataPaymentListingAPI: (data) => dispatch(SA_getDataPaymentListingAPI(data)),
     getDataDetailedPaymentAPI: (data) => dispatch(getDataDetailedPaymentAPI(data)),
     getDataRegisteredAPI: (data) => dispatch(getDataRegisteredAPI(data)),
     getDataTypeBlackList: (data) => dispatch(getDataTypeBlackList(data)),
     showBlacklistBy: (data) => dispatch(showBlacklistBy(data)),
     showJenisBlacklist: (data) => dispatch(showJenisBlacklist(data)),
     updateUserStatus: (data) => dispatch(updateUserStatus(data)),
-    getDataKodeCustAPI: (data) => dispatch(getDataKodeCustAPI(data)),
-    getDataCheckedKodeCust: (data) => dispatch(getDataCheckedKodeCust(data)),
+    getCheckingKodeSeller: (data) => dispatch(getCheckingKodeSeller(data)),
+    getDataCheckedKodeSeller: (data) => dispatch(getDataCheckedKodeSeller(data)),
     getDataDetailedKodeSellerAPI: (data) => dispatch(getDataDetailedKodeSellerAPI(data)),
     getDataDetailedMappingSuperAdminAPI: (data) => dispatch(getDataDetailedMappingSuperAdminAPI(data)),
     logoutAPI: () => dispatch(logoutUserAPI()),
-    sendEmailToUser: (data) => dispatch(sendEmailAktivasi(data))
+    sendEmailToUser: (data) => dispatch(sendEmailAktivasi(data)),
+    SA_getDataUsersAPI: (data) => dispatch(SA_getDataUsersAPI(data)),
+    SA_updateUserStatus: (data) => dispatch(SA_updateUserStatus(data)),
+    SA_updateUserStatusMapping: (data) => dispatch(SA_updateUserStatusMapping(data))
 })
 
 export default withRouter(connect(reduxState, reduxDispatch)(ContentPenggunaSuperAdmin));

@@ -24,16 +24,16 @@ class HeaderSuperAdmin extends Component {
                 return messaging.getToken()
             })
             .then(async token => {
-                const passquery = encrypt(`
-                    INSERT INTO gcm_notification_token
-                        (user_id, company_id,token)
-                    SELECT ${decrypt(userData.id)}, ${decrypt(userData.company_id)},'${token}'
-                    WHERE
-                        NOT EXISTS (
-                            SELECT id FROM gcm_notification_token WHERE user_id = ${decrypt(userData.id)}
-                        );
-                `)
-                const post = await this.props.postData({ query: passquery }).catch(err => err)
+                // const passquery = encrypt(`
+                //     INSERT INTO gcm_notification_token
+                //         (user_id, company_id,token)
+                //     SELECT ${decrypt(userData.id)}, ${decrypt(userData.company_id)},'${token}'
+                //     WHERE
+                //         NOT EXISTS (
+                //             SELECT id FROM gcm_notification_token WHERE user_id = ${decrypt(userData.id)}
+                //         );
+                // `)
+                // const post = await this.props.postData({ query: passquery }).catch(err => err)
             })
             .catch(err => err)
         navigator.serviceWorker.addEventListener("message", (message) => message);

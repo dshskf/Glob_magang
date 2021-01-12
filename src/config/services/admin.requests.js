@@ -22,23 +22,27 @@ const postServices = (data, uri) => {
             }
         );
         axios.interceptors.response.use(
-            async (response) => {                
+            async (response) => {
                 if (response.data.newToken) {
                     localStorage.setItem('access_token', response.data.access_token)
                     localStorage.setItem('refresh_token', response.data.refresh_token)
 
+                    window.stop()
                     window.location.reload()
+                    resolve(response)
                 } else {
                     if (response.data.status === 'success') {
-                        console.log("Success on :" + response.config.url)
+                        // console.log("Success on :" + response.config.url)
                         return response
-                    } else {
+                    }
+                    else {
                         console.log("Error on :" + response.config.url)
                         return response
                     }
                 }
             },
             (error) => {
+                console.log("Error on :" + error)
                 return reject(error);
             }
         );
@@ -46,9 +50,16 @@ const postServices = (data, uri) => {
 
         axios.post(RootAdmin + uri, data, options)
             .then((res) => {
-                // console.log(res)               
+                // if (res.data) {
+                //     if (res.data.logoutAction) {
+                //         localStorage.clear()
+                //         window.stop()
+                //         window.location.reload()
+                //     }
+                // }
                 resolve(res);
             }, (error) => {
+                console.log("Error on :" + RootAdmin + uri)
                 reject(error);
             })
     })
